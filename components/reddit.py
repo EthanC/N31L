@@ -53,7 +53,9 @@ async def CommandRedditQueue(
 
         return
 
-    client: Optional[Reddit] = Reddit.CreateClient(config["credentials"]["reddit"])
+    client: Optional[Reddit] = await Reddit.CreateClient(
+        config["credentials"]["reddit"]
+    )
 
     if client is None:
         await ctx.respond(

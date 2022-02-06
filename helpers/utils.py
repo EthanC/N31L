@@ -67,3 +67,22 @@ class Utility:
             b = b.timestamp()
 
         return int(a - b)
+
+    def Trim(input: str, length: int, end: Optional[str] = "...") -> str:
+        """Trim a string using the provided parameters."""
+
+        if len(input) <= length:
+            return input
+
+        result: str = input[:length]
+
+        try:
+            result = result.rsplit(" ", 1)[0]
+        except Exception as e:
+            logger.debug(f"Failed to cleanly trim string, {e}")
+            logger.trace(result)
+
+        if end is not None:
+            result += end
+
+        return result

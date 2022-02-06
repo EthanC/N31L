@@ -150,6 +150,8 @@ async def CommandAnimal(
                 result = await Dog.RedditDogPictures(config["credentials"]["reddit"])
             elif source == 8:
                 result = await Dog.RedditLookMyDog(config["credentials"]["reddit"])
+            elif source == 9:
+                result = await Dog.RedditPuppies(config["credentials"]["reddit"])
         elif type == "Duck":
             if source == 1:
                 result = await Bird.RandomDuk()
@@ -223,6 +225,6 @@ async def CommandAnimal(
                 result = await Whale.RedditWhales(config["credentials"]["reddit"])
 
         # Sleep to prevent rate-limiting
-        asyncio.sleep(float(3))
+        await asyncio.sleep(float(3))
 
     await ctx.respond(embed=result)

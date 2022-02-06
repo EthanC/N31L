@@ -13,6 +13,7 @@ Notice: N31L is purpose-built, this means that its functionality is intended onl
 -   Modern, interaction-based Discord bot utilizing the application commands API
 -   Designed to expand and enhance the Discord Moderator toolset
 -   Granular protection against automated raids
+-   LOTS of animal commands
 
 ## Installation
 

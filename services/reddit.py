@@ -5,7 +5,7 @@ import asyncpraw
 from asyncpraw.models.reddit.submission import Submission
 from asyncpraw.models.reddit.subreddit import Subreddit
 from asyncpraw.reddit import Reddit
-from helpers import Responses
+from helpers import Responses, Utility
 from hikari.embeds import Embed
 from loguru import logger
 
@@ -64,7 +64,7 @@ class Reddit:
                     valid = True
 
             # Sleep to prevent rate-limiting
-            asyncio.sleep(float(3))
+            await asyncio.sleep(float(3))
         except Exception as e:
             logger.error(
                 f"Failed to fetch random image post from Reddit community r/{community}, {e}"
@@ -78,11 +78,8 @@ class Reddit:
         if post is None:
             return
 
-        title: str = post.title
-
-        if len(title) > 20:
-            title = title[:20] + "..."
-
         return Responses.Success(
-            title=title, url=f"https://reddit.com{post.permalink}", image=post.url
+            title=Utility.Trim(post.title, 25),
+            url=f"https://reddit.com{post.permalink}",
+            image=post.url,
         )

@@ -28,7 +28,7 @@ async def EventDirectMessage(
         "embeds": [
             {
                 "title": "Direct Message",
-                "description": f">>> {ctx.message.content}",
+                "description": f">>> {Utility.Trim(ctx.message.content, 4000)}",
                 "timestamp": ctx.message.timestamp.isoformat(),
                 "color": int("00FF00", base=16),
                 "footer": {"text": f"{ctx.author.id}"},
@@ -100,7 +100,7 @@ async def EventKeyword(
         "embeds": [
             {
                 "title": ("Keyword" if len(found) == 1 else "Keywords") + " Mention",
-                "description": f">>> {ctx.message.content}",
+                "description": f">>> {Utility.Trim(ctx.message.content, 4000)}",
                 "timestamp": ctx.message.timestamp.isoformat(),
                 "color": int("00FF00", base=16),
                 "footer": {"text": f"{ctx.author.id}"},
