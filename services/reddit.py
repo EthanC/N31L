@@ -78,6 +78,11 @@ class Reddit:
         if post is None:
             return
 
+        title: str = post.title
+
+        if len(title) > 20:
+            title = title[:20] + "..."
+
         return Responses.Success(
-            title=post.title, url=f"https://reddit.com{post.permalink}", image=post.url
+            title=title, url=f"https://reddit.com{post.permalink}", image=post.url
         )
