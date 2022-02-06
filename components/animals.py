@@ -1,3 +1,4 @@
+import asyncio
 import random
 from typing import Any, Dict, List, Optional
 
@@ -33,6 +34,7 @@ animalTypes: List[str] = [
     "Cat",
     "Capybara",
     "Dog",
+    "Duck",
     "Fox",
     "Kangaroo",
     "Koala",
@@ -150,6 +152,9 @@ async def CommandAnimal(
                 result = await Dog.RedditLookMyDog(config["credentials"]["reddit"])
             elif source == 9:
                 result = await Dog.RedditPuppies(config["credentials"]["reddit"])
+        elif type == "Duck":
+            if source == 1:
+                result = await Bird.RandomDuk()
         elif type == "Fox":
             source = random.randint(1, 3)
 
@@ -218,5 +223,8 @@ async def CommandAnimal(
         elif type == "Whale":
             if source == 1:
                 result = await Whale.RedditWhales(config["credentials"]["reddit"])
+
+        # Sleep to prevent rate-limiting
+        asyncio.sleep(float(3))
 
     await ctx.respond(embed=result)
