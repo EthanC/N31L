@@ -12,6 +12,7 @@ from .animals import (
     Otter,
     Panda,
     Raccoon,
+    Rat,
     RedPanda,
     Whale,
 )

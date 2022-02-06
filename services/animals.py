@@ -580,6 +580,15 @@ class Raccoon:
         return await Reddit.GetRandomImage("trashpandas", credentials)
 
 
+class Rat:
+    """Class containing rat image sources."""
+
+    async def RedditRats(credentials: Dict[str, Any]) -> Optional[Embed]:
+        """Fetch a random rat image from r/RATS."""
+
+        return await Reddit.GetRandomImage("RATS", credentials)
+
+
 class RedPanda:
     """Class containing red panda image sources."""
 

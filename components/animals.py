@@ -19,6 +19,7 @@ from services import (
     Otter,
     Panda,
     Raccoon,
+    Rat,
     RedPanda,
     Whale,
 )
@@ -42,6 +43,7 @@ animalTypes: List[str] = [
     "Otter",
     "Panda",
     "Raccoon",
+    "Rat",
     "Red Panda",
     "Shibe",
     "Whale",
@@ -62,6 +64,8 @@ async def CommandAnimal(
     while type == "Random":
         type = random.choice(animalTypes)
 
+    redditLogin: Dict[str, str] = config["credentials"]["reddit"]
+
     result: Optional[Embed] = None
     source: int = 1
 
@@ -72,7 +76,7 @@ async def CommandAnimal(
             if source == 1:
                 result = await Axolotl.AxoltlAPI()
             elif source == 2:
-                result = await Axolotl.RedditAxolotls(config["credentials"]["reddit"])
+                result = await Axolotl.RedditAxolotls(redditLogin)
         elif type == "Bird":
             source = random.randint(1, 3)
 
@@ -81,18 +85,18 @@ async def CommandAnimal(
             elif source == 2:
                 result = await Bird.SomeRandomAPI()
             elif source == 3:
-                result = await Bird.RedditBirbs(config["credentials"]["reddit"])
+                result = await Bird.RedditBirbs(redditLogin)
             elif source == 4:
-                result = await Bird.RedditBirdPics(config["credentials"]["reddit"])
+                result = await Bird.RedditBirdPics(redditLogin)
         elif type == "Bunny":
             source = random.randint(1, 3)
 
             if source == 1:
                 result = await Bunny.BunniesIO()
             elif source == 2:
-                result = await Bunny.RedditBunnies(config["credentials"]["reddit"])
+                result = await Bunny.RedditBunnies(redditLogin)
             elif source == 3:
-                result = await Bunny.RedditRabbits(config["credentials"]["reddit"])
+                result = await Bunny.RedditRabbits(redditLogin)
         elif type == "Cat":
             source = random.randint(1, 11)
 
@@ -107,28 +111,24 @@ async def CommandAnimal(
             elif source == 5:
                 result = await Cat.ThatCopyCat()
             elif source == 6:
-                result = await Cat.RedditBlurryPicturesCats(
-                    config["credentials"]["reddit"]
-                )
+                result = await Cat.RedditBlurryPicturesCats(redditLogin)
             elif source == 7:
-                result = await Cat.RedditCatPics(config["credentials"]["reddit"])
+                result = await Cat.RedditCatPics(redditLogin)
             elif source == 8:
-                result = await Cat.RedditCatPictures(config["credentials"]["reddit"])
+                result = await Cat.RedditCatPictures(redditLogin)
             elif source == 9:
-                result = await Cat.RedditCats(config["credentials"]["reddit"])
+                result = await Cat.RedditCats(redditLogin)
             elif source == 10:
-                result = await Cat.RedditCatsStandingUp(config["credentials"]["reddit"])
+                result = await Cat.RedditCatsStandingUp(redditLogin)
             elif source == 11:
-                result = await Cat.RedditCursedCats(config["credentials"]["reddit"])
+                result = await Cat.RedditCursedCats(redditLogin)
         elif type == "Capybara":
             source = random.randint(1, 2)
 
             if source == 1:
-                result = await Capybara.RedditCapybara(config["credentials"]["reddit"])
+                result = await Capybara.RedditCapybara(redditLogin)
             elif source == 2:
-                result = await Capybara.RedditCrittersoncapybaras(
-                    config["credentials"]["reddit"]
-                )
+                result = await Capybara.RedditCrittersoncapybaras(redditLogin)
         elif type == "Dog":
             source = random.randint(1, 9)
 
@@ -143,15 +143,13 @@ async def CommandAnimal(
             elif source == 5:
                 result = await Dog.SomeRandomAPI()
             elif source == 6:
-                result = await Dog.RedditBlurryPicturesDogs(
-                    config["credentials"]["reddit"]
-                )
+                result = await Dog.RedditBlurryPicturesDogs(redditLogin)
             elif source == 7:
-                result = await Dog.RedditDogPictures(config["credentials"]["reddit"])
+                result = await Dog.RedditDogPictures(redditLogin)
             elif source == 8:
-                result = await Dog.RedditLookMyDog(config["credentials"]["reddit"])
+                result = await Dog.RedditLookMyDog(redditLogin)
             elif source == 9:
-                result = await Dog.RedditPuppies(config["credentials"]["reddit"])
+                result = await Dog.RedditPuppies(redditLogin)
         elif type == "Duck":
             if source == 1:
                 result = await Bird.RandomDuk()
@@ -163,7 +161,7 @@ async def CommandAnimal(
             elif source == 2:
                 result = await Fox.SomeRandomAPI()
             elif source == 3:
-                result = await Fox.RedditFoxes(config["credentials"]["reddit"])
+                result = await Fox.RedditFoxes(redditLogin)
         elif type == "Kangaroo":
             if source == 1:
                 result = await Kangaroo.SomeRandomAPI()
@@ -173,56 +171,57 @@ async def CommandAnimal(
             if source == 1:
                 result = await Koala.SomeRandomAPI()
             elif source == 2:
-                result = await Koala.RedditKoalas(config["credentials"]["reddit"])
+                result = await Koala.RedditKoalas(redditLogin)
         elif type == "Lizard":
             source = random.randint(1, 2)
 
             if source == 1:
                 result = await Lizard.NekosLife()
             elif source == 2:
-                result = await Lizard.RedditLizards(config["credentials"]["reddit"])
+                result = await Lizard.RedditLizards(redditLogin)
         elif type == "Otter":
             source = random.randint(1, 2)
 
             if source == 1:
-                result = await Otter.RedditOtterable(config["credentials"]["reddit"])
+                result = await Otter.RedditOtterable(redditLogin)
             elif source == 2:
-                result = await Otter.RedditOtters(config["credentials"]["reddit"])
+                result = await Otter.RedditOtters(redditLogin)
         elif type == "Panda":
             source = random.randint(1, 2)
 
             if source == 1:
                 result = await Panda.SomeRandomAPI()
             elif source == 2:
-                result = await Panda.RedditPanda(config["credentials"]["reddit"])
+                result = await Panda.RedditPanda(redditLogin)
         elif type == "Raccoon":
             source = random.randint(1, 3)
 
             if source == 1:
                 result = await Raccoon.SomeRandomAPI()
             elif source == 2:
-                result = await Raccoon.RedditRaccoons(config["credentials"]["reddit"])
+                result = await Raccoon.RedditRaccoons(redditLogin)
             elif source == 3:
-                result = await Raccoon.RedditTrashPandas(
-                    config["credentials"]["reddit"]
-                )
+                result = await Raccoon.RedditTrashPandas(redditLogin)
+        elif type == "Rat":
+            if source == 1:
+                result = await Rat.RedditRats(redditLogin)
         elif type == "Red Panda":
             source = random.randint(1, 2)
 
             if source == 1:
                 result = await RedPanda.SomeRandomAPI()
             elif source == 2:
-                result = await RedPanda.RedditRedPandas(config["credentials"]["reddit"])
+                result = await RedPanda.RedditRedPandas(redditLogin)
         elif type == "Shibe":
             source = random.randint(1, 2)
 
             if source == 1:
                 result = await Dog.ShibeOnline()
             elif source == 2:
-                result = await Dog.RedditShiba(config["credentials"]["reddit"])
+                result = await Dog.RedditShiba(redditLogin)
         elif type == "Whale":
             if source == 1:
-                result = await Whale.RedditWhales(config["credentials"]["reddit"])
+                result = await Whale.RedditWhales(redditLogin)
 
         # Sleep to prevent rate-limiting
         await asyncio.sleep(float(3))
