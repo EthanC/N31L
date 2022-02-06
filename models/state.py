@@ -4,7 +4,7 @@ from typing import Optional
 from hikari import User
 
 
-@dataclass(kw_only=True)
+@dataclass()
 class State:
     """Dataclass object containing a temporary bot state."""
 
