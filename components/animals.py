@@ -30,6 +30,7 @@ component: Component = Component(name="Animals")
 animalTypes: List[str] = [
     "Random",
     "Axolotl",
+    "Bingus",
     "Bird",
     "Bunny",
     "Cat",
@@ -77,6 +78,9 @@ async def CommandAnimal(
                 result = await Axolotl.AxoltlAPI()
             elif source == 2:
                 result = await Axolotl.RedditAxolotls(redditLogin)
+        elif type == "Bingus":
+            if source == 1:
+                result = await Cat.RedditSphynx(redditLogin)
         elif type == "Bird":
             source = random.randint(1, 3)
 
@@ -98,7 +102,7 @@ async def CommandAnimal(
             elif source == 3:
                 result = await Bunny.RedditRabbits(redditLogin)
         elif type == "Cat":
-            source = random.randint(1, 11)
+            source = random.randint(1, 12)
 
             if source == 1:
                 result = await Cat.TheCatAPI(config["credentials"]["catAPI"]["apiKey"])
@@ -122,6 +126,8 @@ async def CommandAnimal(
                 result = await Cat.RedditCatsStandingUp(redditLogin)
             elif source == 11:
                 result = await Cat.RedditCursedCats(redditLogin)
+            elif source == 12:
+                result = await Cat.RedditSphynx(redditLogin)
         elif type == "Capybara":
             source = random.randint(1, 2)
 

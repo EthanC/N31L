@@ -265,6 +265,11 @@ class Cat:
 
         return await Reddit.GetRandomImage("cursedcats", credentials)
 
+    async def RedditSphynx(credentials: Dict[str, Any]) -> Optional[Embed]:
+        """Fetch a random cat image from r/sphynx."""
+
+        return await Reddit.GetRandomImage("sphynx", credentials)
+
 
 class Capybara:
     """Class containing capybara image sources."""
