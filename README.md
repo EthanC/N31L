@@ -8,7 +8,7 @@ N31L is a utilitarian Discord bot for the [Call of Duty server](https://discord.
 
 ## Features
 
-Notice: N31L is purpose-built, this means that its commands and functionality are intended only for the Moderators of the [Call of Duty server](https://discord.gg/CallofDuty). This repository has been made open source for educational purposes, N31L will likely not fit your moderation needs.
+Notice: N31L is purpose-built, this means that its functionality is intended only for the Moderators of the [Call of Duty server](https://discord.gg/CallofDuty). This repository has been made open source for educational purposes, N31L will likely not fit your needs.
 
 -   Modern, interaction-based Discord bot utilizing the application commands API
 -   Designed to expand and enhance the Discord Moderator toolset
