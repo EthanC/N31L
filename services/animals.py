@@ -396,11 +396,6 @@ class Dog:
 
         return await Reddit.GetRandomImage("lookatmydog", credentials)
 
-    async def RedditPuppies(credentials: Dict[str, Any]) -> Optional[Embed]:
-        """Fetch a random dog image from r/puppies."""
-
-        return await Reddit.GetRandomImage("puppies", credentials)
-
     async def RedditShiba(credentials: Dict[str, Any]) -> Optional[Embed]:
         """Fetch a random dog image from r/shiba."""
 

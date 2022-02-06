@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, Dict, Optional
 
 import asyncpraw
@@ -47,12 +48,23 @@ class Reddit:
 
             while valid is False:
                 post = await subreddit.random()
+
+                if post is None:
+                    logger.warning(
+                        f"Reddit community r/{community} does not support submission randomization"
+                    )
+
+                    return
+
                 await post.load()
 
                 if post.is_reddit_media_domain is False:
                     valid = False
                 elif (hasattr(post, "post_hint")) and (post.post_hint == "image"):
                     valid = True
+
+            # Sleep to prevent rate-limiting
+            asyncio.sleep(float(3))
         except Exception as e:
             logger.error(
                 f"Failed to fetch random image post from Reddit community r/{community}, {e}"
