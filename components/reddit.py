@@ -78,6 +78,8 @@ async def CommandRedditQueue(
             )
         )
 
+        await Reddit.DestroyClient(client)
+
         return
 
     mod: int = 0
@@ -99,10 +101,7 @@ async def CommandRedditQueue(
             f"Failed to count unmoderated queue in Reddit community r/{community}, {e}"
         )
 
-    try:
-        await client.close()
-    except Exception as e:
-        logger.warning(f"Failed to close Reddit session, {e}")
+    await Reddit.DestroyClient(client)
 
     await ctx.respond(
         embed=Responses.Success(

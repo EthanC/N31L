@@ -29,6 +29,14 @@ class Reddit:
 
         return client
 
+    async def DestroyClient(client: Reddit) -> None:
+        """Close the provided Reddit requestor."""
+
+        try:
+            await client.close()
+        except Exception as e:
+            logger.warning(f"Failed to close Reddit session, {e}")
+
     async def GetRandomImage(
         community: str, credentials: Dict[str, Any]
     ) -> Optional[Embed]:
@@ -54,6 +62,8 @@ class Reddit:
                         f"Reddit community r/{community} does not support submission randomization"
                     )
 
+                    await Reddit.DestroyClient(client)
+
                     return
 
                 await post.load()
@@ -70,10 +80,7 @@ class Reddit:
                 f"Failed to fetch random image post from Reddit community r/{community}, {e}"
             )
 
-        try:
-            await client.close()
-        except Exception as e:
-            logger.warning(f"Failed to close Reddit session, {e}")
+        await Reddit.DestroyClient(client)
 
         if post is None:
             return
