@@ -162,6 +162,20 @@ async def CommandParseUsers(
 
                     results.append(find)
 
+            if (fields := embed.fields) is not None:
+                for field in fields:
+                    for find in Utility.FindNumbers(field.name, 17, 18):
+                        if find in results:
+                            continue
+
+                        results.append(find)
+
+                    for find in Utility.FindNumbers(field.value, 17, 18):
+                        if find in results:
+                            continue
+
+                        results.append(find)
+
             if embed.footer is not None:
                 if (footer := embed.footer.text) is not None:
                     for find in Utility.FindNumbers(footer, 17, 18):
