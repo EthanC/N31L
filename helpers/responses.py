@@ -111,6 +111,50 @@ class Responses:
 
         return result
 
+    def Warning(
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        color: str = "FAA81A",
+        description: Optional[str] = None,
+        fields: List[Dict[str, Union[str, bool]]] = [],
+        author: Optional[str] = None,
+        authorUrl: Optional[str] = None,
+        authorIcon: Optional[str] = None,
+        thumbnail: Optional[str] = None,
+        image: Optional[str] = None,
+        footer: Optional[str] = None,
+        footerIcon: Optional[str] = None,
+        timestamp: Optional[datetime] = None,
+    ) -> Embed:
+        """Build a generic warning response Embed object."""
+
+        result: Embed = Embed(
+            title=title,
+            description=description,
+            url=url,
+            color=color,
+            timestamp=timestamp,
+        )
+
+        if author is not None:
+            result.set_author(name=author, url=authorUrl, icon=authorIcon)
+
+        if thumbnail is not None:
+            result.set_thumbnail(thumbnail)
+
+        if image is not None:
+            result.set_image(image)
+
+        if footer is not None:
+            result.set_footer(footer, icon=footerIcon)
+
+        for field in fields:
+            result.add_field(
+                field["name"], field["value"], inline=field.get("inline", False)
+            )
+
+        return result
+
     def Fail(
         title: Optional[str] = None,
         url: Optional[str] = None,

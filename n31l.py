@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from datetime import datetime
 from sys import exit, stderr
 from typing import Any, Dict
 
@@ -25,7 +26,9 @@ def Initialize() -> None:
     logger.info("https://github.com/EthanC/N31L")
 
     config: Dict[str, Any] = LoadConfig()
+    debug: bool = config.get("debug", False)
     state: State = State(
+        botStart=datetime.now(),
         raidOffense=False,
         raidOffAge=None,
         raidOffReason=None,
@@ -68,6 +71,7 @@ def Initialize() -> None:
     client.add_component(Roles)
 
     bot.run(
+        asyncio_debug=debug,
         activity=Activity(name="Call of Duty server", type=ActivityType.WATCHING),
         status=Status.DO_NOT_DISTURB,
     )
@@ -153,8 +157,8 @@ if __name__ == "__main__":
                 import uvloop  # type: ignore
 
                 uvloop.install()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Defaulting to asyncio event loop, {e}")
 
         Initialize()
     except KeyboardInterrupt:

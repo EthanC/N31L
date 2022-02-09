@@ -21,7 +21,7 @@ class Axolotl:
             return
 
         try:
-            return Responses.Success(image=data["url"])
+            return Responses.Success(color=None, image=data["url"])
         except Exception as e:
             logger.error(f"Failed to fetch from AxolotlAPI, {e}")
 
@@ -45,7 +45,7 @@ class Bird:
             return
 
         try:
-            return Responses.Success(image=data["url"])
+            return Responses.Success(color=None, image=data["url"])
         except Exception as e:
             logger.error(f"Failed to fetch from RandomDuk, {e}")
 
@@ -60,7 +60,7 @@ class Bird:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from SomeRandomAPI, {e}")
 
@@ -89,7 +89,7 @@ class Bunny:
             return
 
         try:
-            return Responses.Success(image=data["media"]["gif"])
+            return Responses.Success(color=None, image=data["media"]["gif"])
         except Exception as e:
             logger.error(f"Failed to fetch from BunniesIO, {e}")
 
@@ -164,6 +164,7 @@ class Cat:
             return Responses.Success(
                 title=name,
                 url=wiki,
+                color=None,
                 description=info,
                 fields=facts,
                 image=cat["url"],
@@ -184,6 +185,7 @@ class Cat:
 
         try:
             return Responses.Success(
+                color=None,
                 image="https://cataas.com" + data["url"],
                 footer=None if (tags := data["tags"]) is None else ", ".join(tags),
             )
@@ -201,7 +203,7 @@ class Cat:
             return
 
         try:
-            return Responses.Success(image=data["file"])
+            return Responses.Success(color=None, image=data["file"])
         except Exception as e:
             logger.error(f"Failed to fetch from RandomCat, {e}")
 
@@ -216,24 +218,9 @@ class Cat:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from SomeRandomAPI, {e}")
-
-    async def ThatCopyCat() -> Optional[Embed]:
-        """Fetch a random cat image from ThatCopyCat."""
-
-        data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://thatcopy.pw/catapi/rest/"
-        )
-
-        if data is None:
-            return
-
-        try:
-            return Responses.Success(image=data["url"])
-        except Exception as e:
-            logger.error(f"Failed to fetch from ThatCopyCat, {e}")
 
     async def RedditBlurryPicturesCats(credentials: Dict[str, Any]) -> Optional[Embed]:
         """Fetch a random cat image from r/blurrypicturesofcats."""
@@ -314,7 +301,9 @@ class Dog:
                         {"name": "Temperaments", "value": temperament, "inline": True}
                     )
 
-            return Responses.Success(title=name, fields=facts, image=dog["url"])
+            return Responses.Success(
+                title=name, color=None, fields=facts, image=dog["url"]
+            )
         except Exception as e:
             logger.error(f"Failed to fetch from TheDogAPI, {e}")
 
@@ -337,7 +326,7 @@ class Dog:
             breed = breed.split("/")[0]
             breed = breed.replace("-", " ")
             breed = breed.title()
-            return Responses.Success(title=breed, image=imageUrl)
+            return Responses.Success(title=breed, color=None, image=imageUrl)
         except Exception as e:
             logger.error(f"Failed to fetch from DogCEO, {e}")
 
@@ -352,7 +341,7 @@ class Dog:
             return
 
         try:
-            return Responses.Success(image=data["url"])
+            return Responses.Success(color=None, image=data["url"])
         except Exception as e:
             logger.error(f"Failed to fetch from RandomDog, {e}")
 
@@ -367,7 +356,7 @@ class Dog:
             return
 
         try:
-            return Responses.Success(image=data[0])
+            return Responses.Success(color=None, image=data[0])
         except Exception as e:
             logger.error(f"Failed to fetch from ShibeOnline, {e}")
 
@@ -382,7 +371,7 @@ class Dog:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from SomeRandomAPI, {e}")
 
@@ -426,7 +415,7 @@ class Fox:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from RandomFox, {e}")
 
@@ -441,7 +430,7 @@ class Fox:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from SomeRandomAPI, {e}")
 
@@ -465,7 +454,7 @@ class Kangaroo:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from SomeRandomAPI, {e}")
 
@@ -484,7 +473,7 @@ class Koala:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from SomeRandomAPI, {e}")
 
@@ -508,7 +497,7 @@ class Lizard:
             return
 
         try:
-            return Responses.Success(image=data["url"])
+            return Responses.Success(color=None, image=data["url"])
         except Exception as e:
             logger.error(f"Failed to fetch from NekosLife, {e}")
 
@@ -546,7 +535,7 @@ class Panda:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from SomeRandomAPI, {e}")
 
@@ -570,7 +559,7 @@ class Raccoon:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from SomeRandomAPI, {e}")
 
@@ -608,7 +597,7 @@ class RedPanda:
             return
 
         try:
-            return Responses.Success(image=data["image"])
+            return Responses.Success(color=None, image=data["image"])
         except Exception as e:
             logger.error(f"Failed to fetch from SomeRandomAPI, {e}")
 
@@ -616,12 +605,3 @@ class RedPanda:
         """Fetch a random red panda image from r/redpandas."""
 
         return await Reddit.GetRandomImage("redpandas", credentials)
-
-
-class Whale:
-    """Class containing whale image sources."""
-
-    async def RedditWhales(credentials: Dict[str, Any]) -> Optional[Embed]:
-        """Fetch a random otter image from r/whales."""
-
-        return await Reddit.GetRandomImage("whales", credentials)

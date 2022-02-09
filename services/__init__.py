@@ -14,6 +14,5 @@ from .animals import (
     Raccoon,
     Rat,
     RedPanda,
-    Whale,
 )
 from .reddit import Reddit

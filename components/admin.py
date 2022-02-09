@@ -1,5 +1,7 @@
+import asyncio
 import sys
 from datetime import datetime
+from sys import exit
 from typing import Any, Dict, List, Optional, Union
 
 import hikari
@@ -14,6 +16,7 @@ from hikari.interactions.base_interactions import InteractionMember
 from hikari.presences import Activity, ActivityType, Status
 from hikari.users import UserImpl
 from loguru import logger
+from models import State
 from tanjun import Component
 from tanjun.abc import SlashContext
 from tanjun.commands import SlashCommandGroup
@@ -126,6 +129,53 @@ async def CommandProfile(
 
 
 @component.with_slash_command()
+@tanjun.with_owner_check()
+@tanjun.with_int_slash_option(
+    "delay", "Amount of time (in seconds) to wait before rebooting.", default=None
+)
+@tanjun.as_slash_command("reboot", "Restart the current N31L instance.")
+async def CommandRestart(
+    ctx: SlashContext, delay: Optional[int], state: State = tanjun.inject(type=State)
+) -> None:
+    """Handler for the /reboot command."""
+
+    started: Dict[str, Any] = {
+        "name": "Instance Started",
+        "value": Timestamps.Relative(state.botStart),
+        "inline": True,
+    }
+
+    if delay is not None:
+        await ctx.respond(
+            embed=Responses.Success(
+                description=f"N31L will reboot {Timestamps.Relative((datetime.now().timestamp() + delay))}...",
+                fields=[started],
+            )
+        )
+
+        await asyncio.sleep(float(delay))
+    else:
+        await ctx.respond(
+            embed=Responses.Success(
+                description="N31L is rebooting...", fields=[started]
+            )
+        )
+
+    try:
+        # Assume that N31L is run via a process manager, such as PM2, that
+        # will automatically restart the process
+        exit(0)
+    except Exception as e:
+        logger.critical(f"Failed to restart, {e}")
+
+        await ctx.create_followup(
+            embed=Responses.Fail(
+                description="Failed to reboot, an unknown error occurred."
+            )
+        )
+
+
+@component.with_slash_command()
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
 @tanjun.as_slash_command("server", "Fetch detailed information for the current server.")
 async def CommandServer(ctx: SlashContext) -> None:
@@ -173,7 +223,9 @@ async def CommandServer(ctx: SlashContext) -> None:
 @tanjun.as_slash_command(
     "status", "Get the status of N31L, a utilitarian bot for the Call of Duty server."
 )
-async def CommandStatus(ctx: SlashContext) -> None:
+async def CommandStatus(
+    ctx: SlashContext, state: State = tanjun.inject(type=State)
+) -> None:
     """Handler for the /status command."""
 
     stats: List[Dict[str, Any]] = []
@@ -219,6 +271,13 @@ async def CommandStatus(ctx: SlashContext) -> None:
         {
             "name": "Memory Usage",
             "value": f"{psutil.virtual_memory().percent:,}%",
+            "inline": True,
+        }
+    )
+    stats.append(
+        {
+            "name": "Instance Started",
+            "value": Timestamps.Relative(state.botStart),
             "inline": True,
         }
     )

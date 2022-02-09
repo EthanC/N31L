@@ -1,6 +1,7 @@
 import json
+import re
 from datetime import datetime
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 from httpx import Response
@@ -86,3 +87,27 @@ class Utility:
             result += end
 
         return result
+
+    def FindNumbers(
+        input: str, minLen: Optional[int] = None, maxLen: Optional[int] = None
+    ) -> List[int]:
+        """Return all number sequences found in the given string."""
+
+        results: List[int] = []
+
+        try:
+            for entry in re.findall("\d+", input):
+                if minLen is not None:
+                    if len(entry) < minLen:
+                        continue
+
+                if maxLen is not None:
+                    if len(entry) > maxLen:
+                        continue
+
+                results.append(int(entry))
+        except Exception as e:
+            logger.debug(f"Failed to find numbers in string, {e}")
+            logger.trace(input)
+
+        return results

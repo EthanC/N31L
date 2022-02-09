@@ -25,6 +25,8 @@ class Reddit:
         )
 
         if client.read_only is True:
+            logger.error("Failed to authenticate with Reddit, client is read-only")
+
             return
 
         return client
@@ -36,6 +38,58 @@ class Reddit:
             await client.close()
         except Exception as e:
             logger.warning(f"Failed to close Reddit session, {e}")
+
+    async def GetSubreddit(client: Reddit, community: str) -> Optional[Subreddit]:
+        """Fetch the subreddit object for the specified Reddit community."""
+
+        try:
+            return await client.subreddit(community, fetch=True)
+        except Exception as e:
+            logger.error(f"Failed to fetch Reddit community r/{community}, {e}")
+
+    async def CountModqueue(client: Reddit, community: Subreddit) -> int:
+        """
+        Return the number of items in the moderation queue for the
+        specified Reddit community.
+        """
+
+        total: int = 0
+
+        try:
+            async for _ in community.mod.modqueue(limit=None):
+                total += 1
+        except Exception as e:
+            logger.error(
+                f"Failed to count moderation queue in Reddit community r/{community.display_name}, {e}"
+            )
+
+        logger.success(
+            f"Fetched moderation queue count ({total:,}) for Reddit community r/{community.display_name}"
+        )
+
+        return total
+
+    async def CountUnmoderated(client: Reddit, community: Subreddit) -> int:
+        """
+        Return the number of items in the unmoderated queue for the
+        specified Reddit community.
+        """
+
+        total: int = 0
+
+        try:
+            async for _ in community.mod.unmoderated(limit=None):
+                total += 1
+        except Exception as e:
+            logger.error(
+                f"Failed to count unmoderated queue in Reddit community r/{community.display_name}, {e}"
+            )
+
+        logger.success(
+            f"Fetched unmoderated queue count ({total:,}) for Reddit community r/{community.display_name}"
+        )
+
+        return total
 
     async def GetRandomImage(
         community: str, credentials: Dict[str, Any]
@@ -69,12 +123,20 @@ class Reddit:
                 await post.load()
 
                 if post.is_reddit_media_domain is False:
-                    valid = False
-                elif (hasattr(post, "post_hint")) and (post.post_hint == "image"):
-                    valid = True
+                    continue
+                elif hasattr(post, "post_hint") is False:
+                    continue
+                elif post.post_hint == "image" is False:
+                    continue
+                elif hasattr(post, "over_18") is False:
+                    continue
+                elif post.over_18 is True:
+                    continue
+
+                valid = True
 
             # Sleep to prevent rate-limiting
-            await asyncio.sleep(float(3))
+            await asyncio.sleep(float(1))
         except Exception as e:
             logger.error(
                 f"Failed to fetch random image post from Reddit community r/{community}, {e}"
@@ -88,5 +150,6 @@ class Reddit:
         return Responses.Success(
             title=Utility.Trim(post.title, 25),
             url=f"https://reddit.com{post.permalink}",
+            color=None,
             image=post.url,
         )

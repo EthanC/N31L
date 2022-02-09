@@ -3,6 +3,7 @@ import random
 from typing import Any, Dict, List, Optional
 
 import tanjun
+from helpers import Responses
 from hikari import Permissions
 from hikari.embeds import Embed
 from services import (
@@ -21,14 +22,12 @@ from services import (
     Raccoon,
     Rat,
     RedPanda,
-    Whale,
 )
 from tanjun import Component
 from tanjun.abc import SlashContext
 
 component: Component = Component(name="Animals")
 animalTypes: List[str] = [
-    "Random",
     "Axolotl",
     "Bingus",
     "Bird",
@@ -47,28 +46,33 @@ animalTypes: List[str] = [
     "Rat",
     "Red Panda",
     "Shibe",
-    "Whale",
 ]
 
 
 @component.with_slash_command()
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
-@tanjun.with_str_slash_option("type", "Choose an animal type.", choices=animalTypes)
+@tanjun.with_str_slash_option(
+    "type",
+    "Choose an animal type or leave empty for random.",
+    choices=animalTypes,
+    default=None,
+)
 @tanjun.as_slash_command("animal", "Fetch a random picture of the chosen animal type.")
 async def CommandAnimal(
     ctx: SlashContext,
-    type: str,
+    type: Optional[str],
     config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
 ) -> None:
     """Handler for the /animal command."""
 
-    while type == "Random":
+    if type is None:
         type = random.choice(animalTypes)
 
     redditLogin: Dict[str, str] = config["credentials"]["reddit"]
 
     result: Optional[Embed] = None
     source: int = 1
+    retries: int = 0
 
     while result is None:
         if type == "Axolotl":
@@ -102,7 +106,7 @@ async def CommandAnimal(
             elif source == 3:
                 result = await Bunny.RedditRabbits(redditLogin)
         elif type == "Cat":
-            source = random.randint(1, 12)
+            source = random.randint(1, 11)
 
             if source == 1:
                 result = await Cat.TheCatAPI(config["credentials"]["catAPI"]["apiKey"])
@@ -113,20 +117,18 @@ async def CommandAnimal(
             elif source == 4:
                 result = await Cat.SomeRandomAPI()
             elif source == 5:
-                result = await Cat.ThatCopyCat()
-            elif source == 6:
                 result = await Cat.RedditBlurryPicturesCats(redditLogin)
-            elif source == 7:
+            elif source == 6:
                 result = await Cat.RedditCatPics(redditLogin)
-            elif source == 8:
+            elif source == 7:
                 result = await Cat.RedditCatPictures(redditLogin)
-            elif source == 9:
+            elif source == 8:
                 result = await Cat.RedditCats(redditLogin)
-            elif source == 10:
+            elif source == 9:
                 result = await Cat.RedditCatsStandingUp(redditLogin)
-            elif source == 11:
+            elif source == 10:
                 result = await Cat.RedditCursedCats(redditLogin)
-            elif source == 12:
+            elif source == 11:
                 result = await Cat.RedditSphynx(redditLogin)
         elif type == "Capybara":
             source = random.randint(1, 2)
@@ -225,11 +227,19 @@ async def CommandAnimal(
                 result = await Dog.ShibeOnline()
             elif source == 2:
                 result = await Dog.RedditShiba(redditLogin)
-        elif type == "Whale":
-            if source == 1:
-                result = await Whale.RedditWhales(redditLogin)
+
+        retries += 1
+
+        if retries >= 3:
+            await ctx.respond(
+                embed=Responses.Fail(
+                    description=f"Failed to fetch {type}, an unknown error occurred."
+                )
+            )
+
+            return
 
         # Sleep to prevent rate-limiting
-        await asyncio.sleep(float(3))
+        await asyncio.sleep(float(1))
 
     await ctx.respond(embed=result)

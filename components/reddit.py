@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import tanjun
 from asyncpraw.models.reddit.subreddit import Subreddit
@@ -14,23 +14,25 @@ component: Component = Component(name="Reddit")
 reddit: SlashCommandGroup = component.with_slash_command(
     tanjun.slash_command_group("reddit", "Slash Commands to manage Reddit communities.")
 )
+communities: Dict[str, str] = {
+    "r/CODVanguard": "CODVanguard",
+    "r/BlackOpsColdWar": "BlackOpsColdWar",
+    "r/CODWarzone": "CODWarzone",
+    "r/ModernWarfare": "ModernWarfare",
+    "r/BlackOps4": "BlackOps4",
+    "r/WWII": "WWII",
+    "r/InfiniteWarfare": "InfiniteWarfare",
+    "r/CODZombies": "CODZombies",
+    "r/CallofDuty": "CallofDuty",
+}
 
 
 @reddit.with_command
 @tanjun.with_str_slash_option(
     "community",
-    "Choose a Reddit community to fetch queue counts for.",
-    choices={
-        "r/CODVanguard": "CODVanguard",
-        "r/BlackOpsColdWar": "BlackOpsColdWar",
-        "r/CODWarzone": "CODWarzone",
-        "r/ModernWarfare": "ModernWarfare",
-        "r/BlackOps4": "BlackOps4",
-        "r/WWII": "WWII",
-        "r/InfiniteWarfare": "InfiniteWarfare",
-        "r/CODZombies": "CODZombies",
-        "r/CallofDuty": "CallofDuty",
-    },
+    "Choose a Reddit community to fetch queue counts for or leave empty for all.",
+    choices=communities,
+    default=None,
 )
 @tanjun.as_slash_command(
     "queue",
@@ -39,19 +41,20 @@ reddit: SlashCommandGroup = component.with_slash_command(
 )
 async def CommandRedditQueue(
     ctx: SlashContext,
-    community: str,
+    community: Optional[str],
     config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
 ) -> None:
     """Handler for the /reddit queue command."""
 
-    if int(ctx.channel_id) != (req := config["channels"]["redditModerators"]):
-        await ctx.respond(
-            embed=Responses.Fail(
-                description=f"This command can only be used in <#{req}>."
+    if config.get("debug") is not True:
+        if int(ctx.channel_id) != (req := config["channels"]["redditModerators"]):
+            await ctx.respond(
+                embed=Responses.Fail(
+                    description=f"This command can only be used in <#{req}>."
+                )
             )
-        )
 
-        return
+            return
 
     client: Optional[Reddit] = await Reddit.CreateClient(
         config["credentials"]["reddit"]
@@ -59,47 +62,75 @@ async def CommandRedditQueue(
 
     if client is None:
         await ctx.respond(
-            embed=Responses.Fail(description="Failed to authenticate with Reddit.")
-        )
-
-        return
-
-    subreddit: Optional[Subreddit] = None
-
-    try:
-        subreddit = await client.subreddit(community, fetch=True)
-    except Exception as e:
-        logger.error(f"Failed to fetch Reddit community r/{community}, {e}")
-
-    if subreddit is None:
-        await ctx.respond(
             embed=Responses.Fail(
-                description=f"Failed to fetch Reddit community r/{community}."
+                description="Failed to authenticate with Reddit, an unknown error occurred."
             )
         )
 
+        return
+
+    if community is None:
+        results: List[Dict[str, Any]] = []
+
+        for entry in communities:
+            subreddit: Optional[Subreddit] = await Reddit.GetSubreddit(
+                client, communities[entry]
+            )
+
+            if subreddit is None:
+                continue
+
+            mod: int = await Reddit.CountModqueue(client, subreddit)
+            unmod: int = await Reddit.CountUnmoderated(client, subreddit)
+
+            results.append(
+                {
+                    "name": entry,
+                    "value": f"Moderation: [{mod:,}](https://reddit.com/{entry}/about/modqueue)\nUnmoderated: [{unmod:,}](https://reddit.com/{entry}/about/unmoderated)",
+                    "inline": True,
+                }
+            )
+
         await Reddit.DestroyClient(client)
+
+        if len(results) == 0:
+            await ctx.respond(
+                embed=Responses.Fail(
+                    description="Failed to fetch queue counts for all Reddit communities, an unknown error occurred."
+                )
+            )
+
+            return
+
+        await ctx.respond(
+            embed=Responses.Success(
+                color="FF4500",
+                fields=results,
+                author="Reddit",
+                authorUrl="https://www.reddit.com/r/Mod/",
+                authorIcon=None,  # TODO
+            )
+        )
+
+        logger.success("Fetched queue counts for all Reddit communities")
 
         return
 
-    mod: int = 0
-    unmod: int = 0
+    subreddit: Subreddit = await Reddit.GetSubreddit(client, community)
 
-    try:
-        async for _ in subreddit.mod.modqueue(limit=None):
-            mod += 1
-    except Exception as e:
-        logger.error(
-            f"Failed to count moderation queue in Reddit community r/{community}, {e}"
+    if subreddit is None:
+        await Reddit.DestroyClient(client)
+
+        await ctx.respond(
+            embed=Responses.Fail(
+                description=f"Failed to fetch Reddit community r/{community}, an unknown error occurred."
+            )
         )
 
-    try:
-        async for _ in subreddit.mod.unmoderated(limit=None):
-            unmod += 1
-    except Exception as e:
-        logger.error(
-            f"Failed to count unmoderated queue in Reddit community r/{community}, {e}"
-        )
+        return
+
+    mod: int = await Reddit.CountModqueue(client, subreddit)
+    unmod: int = await Reddit.CountUnmoderated(client, subreddit)
 
     await Reddit.DestroyClient(client)
 
@@ -109,12 +140,12 @@ async def CommandRedditQueue(
             fields=[
                 {
                     "name": "Moderation",
-                    "value": f"[{mod:,}](https://www.reddit.com/r/{community}/about/modqueue)",
+                    "value": f"[{mod:,}](https://reddit.com/r/{community}/about/modqueue)",
                     "inline": True,
                 },
                 {
                     "name": "Unmoderated",
-                    "value": f"[{unmod:,}](https://www.reddit.com/r/{community}/about/unmoderated)",
+                    "value": f"[{unmod:,}](https://reddit.com/r/{community}/about/unmoderatted)",
                     "inline": True,
                 },
             ],
@@ -123,3 +154,5 @@ async def CommandRedditQueue(
             authorIcon=subreddit.community_icon,
         )
     )
+
+    logger.success(f"Fetched queue counts for Reddit community r/{community}")
