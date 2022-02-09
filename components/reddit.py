@@ -108,7 +108,7 @@ async def CommandRedditQueue(
                 fields=results,
                 author="Reddit",
                 authorUrl="https://www.reddit.com/r/Mod/",
-                authorIcon=None,  # TODO
+                authorIcon="https://i.imgur.com/yZujOa5.png",
             )
         )
 
