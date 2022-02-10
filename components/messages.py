@@ -139,6 +139,9 @@ async def CommandParseUsers(
         if target is None:
             raise ValueError("message is null")
 
+        if target.author.is_system is True:
+            results.append(target.author.id)
+
         if (content := target.content) is not None:
             for find in Utility.FindNumbers(content, 17, 18):
                 if find in results:

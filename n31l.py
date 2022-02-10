@@ -157,8 +157,10 @@ if __name__ == "__main__":
                 import uvloop  # type: ignore
 
                 uvloop.install()
+
+                logger.success("Installed libuv event loop")
             except Exception as e:
-                print(f"Defaulting to asyncio event loop, {e}")
+                logger.error(f"Defaulted to asyncio event loop, {e}")
 
         Initialize()
     except KeyboardInterrupt:

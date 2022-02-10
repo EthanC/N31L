@@ -57,7 +57,7 @@ animalTypes: List[str] = [
     choices=animalTypes,
     default=None,
 )
-@tanjun.as_slash_command("animal", "Fetch a random picture of the chosen animal type.")
+@tanjun.as_slash_command("animal", "Fetch a random picture of an animal.")
 async def CommandAnimal(
     ctx: SlashContext,
     type: Optional[str],
