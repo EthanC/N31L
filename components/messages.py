@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import tanjun
 from helpers import Responses, Utility
-from hikari import InteractionChannel, Member, Permissions
+from hikari import InteractionChannel, Member, MessageType, Permissions
 from hikari.messages import Message
 from loguru import logger
 from tanjun import Component
@@ -139,7 +139,7 @@ async def CommandParseUsers(
         if target is None:
             raise ValueError("message is null")
 
-        if target.author.is_system is True:
+        if target.type == MessageType.GUILD_MEMBER_JOIN:
             results.append(target.author.id)
 
         if (content := target.content) is not None:
