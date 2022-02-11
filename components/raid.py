@@ -14,7 +14,6 @@ from hikari import (
 from hikari.channels import GuildChannel
 from hikari.errors import ForbiddenError
 from hikari.events.member_events import MemberCreateEvent
-from hikari.files import Bytes
 from loguru import logger
 from models import State
 from tanjun import Client, Component
@@ -68,7 +67,7 @@ async def CommandRaidCollect(
         )
 
         await ctx.respond(
-            embed=Responses.Fail(description=f"Failed to collect user IDs, {e}")
+            embed=Responses.Fail(description=f"Failed to collect user IDs, {e}.")
         )
 
         return
@@ -105,29 +104,33 @@ async def CommandRaidCollect(
 
         if len(users) == 0:
             await ctx.respond(
-                embed=Responses.Fail(description=f"Failed to collect user IDs, {e}")
+                embed=Responses.Fail(description=f"Failed to collect user IDs, {e}.")
             )
 
             return
 
-    result: str = ""
-    currLength: int = 0
-
-    for user in users:
-        # Split users output into 1,500 character chunks due to
-        # message command length limits.
-        if (currLength + len(str(user))) >= 1500:
-            result += "\n\n"
-            currLength = 0
-
-        result += f"{user} "
-        currLength += len(str(user))
-
     await ctx.respond(
-        embed=Responses.Success(description=f"Collected {len(users):,} user IDs.")
+        embed=Responses.Success(description=f"Collected {len(users):,} users.")
     )
 
-    await ctx.create_followup(attachment=Bytes(result, f"raid_collect_{amount}.txt"))
+    logger.success(
+        f"Collected {len(users):,} users in {Responses.ExpandGuild(ctx.get_guild(), False)}"
+    )
+
+    chunk: str = ""
+
+    for user in users:
+        # Reply in chunks of less than 1,750 characters in order to
+        # avoid message length limits.
+        if (len(str(user)) + len(chunk)) >= 1750:
+            await ctx.create_followup(chunk)
+
+            chunk = ""
+
+        chunk += f"{user} "
+
+    if chunk != "":
+        await ctx.create_followup(chunk)
 
 
 @offense.with_command

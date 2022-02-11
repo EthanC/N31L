@@ -24,21 +24,21 @@ from tanjun.commands import SlashCommandGroup
 component: Component = Component(name="Admin")
 
 send: SlashCommandGroup = component.with_slash_command(
-    tanjun.slash_command_group("send", "Slash Commands to send messages from N31L.")
+    tanjun.slash_command_group("send", "Send messages from N31L.")
 )
 set: SlashCommandGroup = component.with_slash_command(
-    tanjun.slash_command_group("set", "Slash Commands to manage N31L.")
+    tanjun.slash_command_group("set", "Manage the state of N31L.")
 )
 
 
 @component.with_slash_command()
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
-@tanjun.with_user_slash_option("user", "Desired user to fetch the profile of.")
-@tanjun.as_slash_command("profile", "Fetch detailed information for the provided user.")
+@tanjun.with_user_slash_option("user", "Enter a user to fetch the profile of.")
+@tanjun.as_slash_command("profile", "Fetch detailed information about a Discord user.")
 async def CommandProfile(
     ctx: SlashContext, user: Union[InteractionMember, UserImpl]
 ) -> None:
-    """Handler for the /profile command."""
+    """Handler for the /profile slash command."""
 
     if hasattr(user, "user") is True:
         try:
@@ -130,14 +130,15 @@ async def CommandProfile(
 
 @component.with_slash_command()
 @tanjun.with_owner_check()
+@tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
 @tanjun.with_int_slash_option(
-    "delay", "Amount of time (in seconds) to wait before rebooting.", default=None
+    "delay", "Time (in seconds) to wait before initiating reboot.", default=None
 )
-@tanjun.as_slash_command("reboot", "Restart the current N31L instance.")
+@tanjun.as_slash_command("reboot", "Restart the active N31L instance.")
 async def CommandRestart(
     ctx: SlashContext, delay: Optional[int], state: State = tanjun.inject(type=State)
 ) -> None:
-    """Handler for the /reboot command."""
+    """Handler for the /reboot slash command."""
 
     started: Dict[str, Any] = {
         "name": "Instance Started",
@@ -163,10 +164,10 @@ async def CommandRestart(
 
     try:
         # Assume that N31L is run via a process manager, such as PM2, that
-        # will automatically restart the process
+        # will automatically restart the process.
         exit(0)
     except Exception as e:
-        logger.critical(f"Failed to restart, {e}")
+        logger.critical(f"Failed to restart bot instance, {e}")
 
         await ctx.create_followup(
             embed=Responses.Fail(
@@ -177,9 +178,11 @@ async def CommandRestart(
 
 @component.with_slash_command()
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
-@tanjun.as_slash_command("server", "Fetch detailed information for the current server.")
+@tanjun.as_slash_command(
+    "server", "Fetch detailed information about the current server."
+)
 async def CommandServer(ctx: SlashContext) -> None:
-    """Handler for the /server command."""
+    """Handler for the /server slash command."""
 
     server: Guild = await ctx.fetch_guild()
     fields: List[Dict[str, Any]] = []
@@ -221,12 +224,12 @@ async def CommandServer(ctx: SlashContext) -> None:
 @component.with_slash_command()
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
 @tanjun.as_slash_command(
-    "status", "Get the status of N31L, a utilitarian bot for the Call of Duty server."
+    "status", "Get the status of and information about N31L.", default_to_ephemeral=True
 )
 async def CommandStatus(
     ctx: SlashContext, state: State = tanjun.inject(type=State)
 ) -> None:
-    """Handler for the /status command."""
+    """Handler for the /status slash command."""
 
     stats: List[Dict[str, Any]] = []
     external: ActionRowBuilder = ActionRowBuilder()
@@ -302,7 +305,7 @@ async def CommandStatus(
 
 @send.with_command
 @tanjun.with_owner_check()
-@tanjun.with_str_slash_option("content", "Enter the message content.")
+@tanjun.with_str_slash_option("content", "Enter the content of the message to send.")
 @tanjun.with_user_slash_option("user", "Choose a user to send a message to.")
 @tanjun.as_slash_command(
     "direct_message",
@@ -311,7 +314,7 @@ async def CommandStatus(
     default_to_ephemeral=True,
 )
 async def CommandSendDirectMessage(ctx: SlashContext, user: User, content: str) -> None:
-    """Handler for the /send direct_message command."""
+    """Handler for the /send direct_message slash command."""
 
     try:
         dm: DMChannel = await ctx.rest.create_dm_channel(user.id)
@@ -344,7 +347,7 @@ async def CommandSendDirectMessage(ctx: SlashContext, user: User, content: str) 
 
 @send.with_command
 @tanjun.with_owner_check()
-@tanjun.with_str_slash_option("content", "Enter the message content.")
+@tanjun.with_str_slash_option("content", "Enter the content of the message to send.")
 @tanjun.with_channel_slash_option("channel", "Choose a channel to send a message to.")
 @tanjun.as_slash_command(
     "message",
@@ -355,13 +358,13 @@ async def CommandSendDirectMessage(ctx: SlashContext, user: User, content: str) 
 async def CommandSendMessage(
     ctx: SlashContext, channel: InteractionChannel, content: str
 ) -> None:
-    """Handler for the /send message command."""
+    """Handler for the /send message slash command."""
 
     try:
         await ctx.rest.create_message(channel.id, content)
     except Exception as e:
         logger.error(
-            f"Failed to send message to {Responses.ExpandChannel(channel, False)}, {e}"
+            f"Failed to send message to {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}, {e}"
         )
         logger.trace(content)
 
@@ -388,7 +391,7 @@ async def CommandSendMessage(
 @tanjun.with_owner_check()
 @tanjun.with_str_slash_option(
     "url",
-    "Twitch stream URL to be used for the Streaming activity type.",
+    "Enter a Twitch stream URL (used only for Streaming activity type.)",
     default=None,
 )
 @tanjun.with_str_slash_option("name", "Enter an activity name.")
@@ -413,7 +416,7 @@ async def CommandSetActivity(
     url: Optional[str] = None,
     bot: GatewayBot = tanjun.inject(type=GatewayBot),
 ) -> None:
-    """Handler for the /set activity command."""
+    """Handler for the /set activity slash command."""
 
     try:
         await bot.update_presence(activity=Activity(name=name, url=url, type=type))
@@ -438,11 +441,11 @@ async def CommandSetActivity(
 @set.with_command
 @tanjun.with_owner_check()
 @tanjun.with_str_slash_option(
-    "url", "Direct URL to an image. Leave empty to use a default avatar.", default=None
+    "url", "Enter an image URL or leave empty to use default avatar.", default=None
 )
 @tanjun.as_slash_command("avatar", "Set the avatar for N31L.", default_permission=False)
 async def CommandSetAvatar(ctx: SlashContext, url: Optional[str]) -> None:
-    """Handler for the /set avatar command."""
+    """Handler for the /set avatar slash command."""
 
     try:
         if url is not None:
@@ -465,6 +468,7 @@ async def CommandSetAvatar(ctx: SlashContext, url: Optional[str]) -> None:
 
 @set.with_command
 @tanjun.with_owner_check()
+@tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
 @tanjun.with_str_slash_option(
     "type",
     "Choose a status type.",
@@ -480,7 +484,7 @@ async def CommandSetAvatar(ctx: SlashContext, url: Optional[str]) -> None:
 async def CommandSetStatus(
     ctx: SlashContext, type: str, bot: GatewayBot = tanjun.inject(type=GatewayBot)
 ) -> None:
-    """Handler for the /set status command."""
+    """Handler for the /set status slash command."""
 
     color: Optional[str] = None
 
@@ -511,12 +515,12 @@ async def CommandSetStatus(
 
 @set.with_command
 @tanjun.with_owner_check()
-@tanjun.with_str_slash_option("input", "Enter a username.")
+@tanjun.with_str_slash_option("username", "Enter a username.")
 @tanjun.as_slash_command(
     "username", "Set the username for N31L.", default_permission=False
 )
 async def CommandSetUsername(ctx: SlashContext, input: str) -> None:
-    """Handler for the /set username command."""
+    """Handler for the /set username slash command."""
 
     try:
         await ctx.rest.edit_my_user(username=input)
