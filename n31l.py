@@ -15,7 +15,7 @@ from notifiers.logging import NotificationHandler
 from tanjun import Client
 
 from components import Admin, Animals, Logs, Messages, Raid, Reddit, Roles
-from helpers import Hooks, LogIntercept
+from helpers import LogIntercept, MenuHooks, SlashHooks
 from models import State
 
 
@@ -57,9 +57,14 @@ def Initialize() -> None:
     client.set_slash_hooks(
         (
             tanjun.SlashHooks()
-            .add_pre_execution(Hooks.PreExecution)
-            .add_post_execution(Hooks.PostExecution)
+            .add_pre_execution(SlashHooks.PreExecution)
+            .add_post_execution(SlashHooks.PostExecution)
         )
+    )
+    client.set_menu_hooks(
+        tanjun.AnyHooks()
+        .add_pre_execution(MenuHooks.PreExecution)
+        .add_post_execution(MenuHooks.PostExecution)
     )
 
     client.add_component(Admin)

@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Union
 
 from hikari import Guild, GuildChannel, Role, User
-from hikari.api.special_endpoints import LinkButtonBuilder
+from hikari.api.special_endpoints import ButtonBuilder, LinkButtonBuilder
 from hikari.embeds import Embed
 from hikari.impl.special_endpoints import ActionRowBuilder
 from hikari.messages import ButtonStyle
@@ -16,8 +16,34 @@ class Buttons:
     def Link(container: ActionRowBuilder, label: str, url: str) -> ActionRowBuilder:
         """Build a generic link button."""
 
-        button: LinkButtonBuilder = container.add_button(ButtonStyle.LINK, url)
+        button: LinkButtonBuilder = container.add_button(ButtonStyle, url)
+
         button.set_label(label)
+
+        button.add_to_container()
+
+        return container
+
+    def Button(
+        container: ActionRowBuilder,
+        style: ButtonStyle,
+        id: str,
+        label: Optional[str] = None,
+        emoji: Optional[str] = None,
+        disabled: bool = False,
+    ) -> ActionRowBuilder:
+        """Build a generic button."""
+
+        button: ButtonBuilder = container.add_button(style, id)
+
+        if label is not None:
+            button.set_label(label)
+
+        if emoji is not None:
+            button.set_emoji(emoji)
+
+        if disabled is True:
+            button.set_is_disabled(disabled)
 
         button.add_to_container()
 
@@ -106,7 +132,7 @@ class Responses:
 
         for field in fields:
             result.add_field(
-                field["name"], field["value"], inline=field.get("inline", False)
+                field["name"], field["value"], inline=field.get("inline", True)
             )
 
         return result
@@ -150,7 +176,7 @@ class Responses:
 
         for field in fields:
             result.add_field(
-                field["name"], field["value"], inline=field.get("inline", False)
+                field["name"], field["value"], inline=field.get("inline", True)
             )
 
         return result
@@ -202,7 +228,7 @@ class Responses:
 
         for field in fields:
             result.add_field(
-                field["name"], field["value"], inline=field.get("inline", False)
+                field["name"], field["value"], inline=field.get("inline", True)
             )
 
         return result

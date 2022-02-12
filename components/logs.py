@@ -48,7 +48,6 @@ async def EventDirectMessage(
             {
                 "name": "Attachment",
                 "value": f"[`{attachment.filename}` (`{attachment.media_type}`)]({attachment.url})",
-                "inline": True,
             }
         )
 
@@ -130,8 +129,7 @@ async def EventKeyword(
         payload["embeds"][0]["fields"].append(
             {
                 "name": "Attachment",
-                "value": f"[`{attachment.filename}` (`{attachment.media_type}`)]({attachment.url})",
-                "inline": True,
+                "value": f"[`{attachment.filename}`]({attachment.url})",
             }
         )
 

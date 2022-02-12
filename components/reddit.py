@@ -87,7 +87,6 @@ async def CommandRedditQueue(
                 {
                     "name": entry,
                     "value": f"Moderation: [{mod:,}](https://reddit.com/{entry}/about/modqueue)\nUnmoderated: [{unmod:,}](https://reddit.com/{entry}/about/unmoderated)",
-                    "inline": True,
                 }
             )
 
@@ -141,12 +140,10 @@ async def CommandRedditQueue(
                 {
                     "name": "Moderation",
                     "value": f"[{mod:,}](https://reddit.com/r/{community}/about/modqueue)",
-                    "inline": True,
                 },
                 {
                     "name": "Unmoderated",
-                    "value": f"[{unmod:,}](https://reddit.com/r/{community}/about/unmoderatted)",
-                    "inline": True,
+                    "value": f"[{unmod:,}](https://reddit.com/r/{community}/about/unmoderated)",
                 },
             ],
             author=f"r/{community}",

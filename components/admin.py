@@ -54,23 +54,15 @@ async def CommandProfile(
 
     if hasattr(user, "nickname") is True:
         if (nickname := user.nickname) is not None:
-            fields.append({"name": "Nickname", "value": nickname, "inline": True})
+            fields.append({"name": "Nickname", "value": nickname})
 
     if hasattr(user, "created_at") is True:
         if (created := user.created_at) is not None:
-            fields.append(
-                {
-                    "name": "Created",
-                    "value": Timestamps.Relative(created),
-                    "inline": True,
-                }
-            )
+            fields.append({"name": "Created", "value": Timestamps.Relative(created)})
 
     if hasattr(user, "joined_at") is True:
         if (joined := user.joined_at) is not None:
-            fields.append(
-                {"name": "Joined", "value": Timestamps.Relative(joined), "inline": True}
-            )
+            fields.append({"name": "Joined", "value": Timestamps.Relative(joined)})
 
     if hasattr(user, "premium_since") is True:
         if (booster := user.premium_since) is not None:
@@ -78,31 +70,26 @@ async def CommandProfile(
                 {
                     "name": "Nitro Booster",
                     "value": f"Since {Timestamps.Relative(booster)}",
-                    "inline": True,
                 }
             )
 
     if hasattr(user, "communication_disabled_until") is True:
         if (timeout := user.communication_disabled_until()) is not None:
             fields.append(
-                {
-                    "name": "Timed Out",
-                    "value": f"Until {Timestamps.Relative(timeout)}",
-                    "inline": True,
-                }
+                {"name": "Timed Out", "value": f"Until {Timestamps.Relative(timeout)}"}
             )
 
     if hasattr(user, "is_pending") is True:
         if user.is_pending is True:
-            fields.append({"name": "Passed Screening", "value": "No", "inline": True})
+            fields.append({"name": "Passed Screening", "value": "No"})
 
     if hasattr(user, "is_mute") is True:
         if user.is_mute is True:
-            fields.append({"name": "Muted", "value": "Yes", "inline": True})
+            fields.append({"name": "Muted", "value": "Yes"})
 
     if hasattr(user, "is_deaf") is True:
         if user.is_deaf is True:
-            fields.append({"name": "Deafened", "value": "Yes", "inline": True})
+            fields.append({"name": "Deafened", "value": "Yes"})
 
     if hasattr(user, "guild_avatar_url") is True:
         if (url := user.guild_avatar_url) is not None:
@@ -143,7 +130,6 @@ async def CommandRestart(
     started: Dict[str, Any] = {
         "name": "Instance Started",
         "value": Timestamps.Relative(state.botStart),
-        "inline": True,
     }
 
     if delay is not None:
@@ -189,21 +175,15 @@ async def CommandServer(ctx: SlashContext) -> None:
 
     if hasattr(server, "owner_id") is True:
         if (owner := server.owner_id) is not None:
-            fields.append({"name": "Owner", "value": f"<@{owner}>", "inline": True})
+            fields.append({"name": "Owner", "value": f"<@{owner}>"})
 
     if hasattr(server, "created_at") is True:
         if (created := server.created_at) is not None:
-            fields.append(
-                {
-                    "name": "Created",
-                    "value": Timestamps.Relative(created),
-                    "inline": True,
-                }
-            )
+            fields.append({"name": "Created", "value": Timestamps.Relative(created)})
 
     if hasattr(server, "shard_id") is True:
         if (shard := server.shard_id) is not None:
-            fields.append({"name": "Shard", "value": f"{shard:,}", "inline": True})
+            fields.append({"name": "Shard", "value": f"{shard:,}"})
 
     await ctx.respond(
         embed=Responses.Success(
@@ -243,46 +223,23 @@ async def CommandStatus(
         {
             "name": "Python",
             "value": f"[`{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}`](https://www.python.org/)",
-            "inline": True,
         }
     )
     stats.append(
-        {
-            "name": "Hikari",
-            "value": f"[`{hikari.__version__}`]({hikari.__url__})",
-            "inline": True,
-        }
+        {"name": "Hikari", "value": f"[`{hikari.__version__}`]({hikari.__url__})"}
     )
     stats.append(
-        {
-            "name": "Tanjun",
-            "value": f"[`{tanjun.__version__}`]({tanjun.__url__})",
-            "inline": True,
-        }
+        {"name": "Tanjun", "value": f"[`{tanjun.__version__}`]({tanjun.__url__})"}
     )
     stats.append(
-        {
-            "name": "REST Latency",
-            "value": f"{round((timeEnd - timeStart) * 1000):,}ms",
-            "inline": True,
-        }
+        {"name": "REST Latency", "value": f"{round((timeEnd - timeStart) * 1000):,}ms"}
+    )
+    stats.append({"name": "CPU Usage", "value": f"{psutil.cpu_percent():,}%"})
+    stats.append(
+        {"name": "Memory Usage", "value": f"{psutil.virtual_memory().percent:,}%"}
     )
     stats.append(
-        {"name": "CPU Usage", "value": f"{psutil.cpu_percent():,}%", "inline": True}
-    )
-    stats.append(
-        {
-            "name": "Memory Usage",
-            "value": f"{psutil.virtual_memory().percent:,}%",
-            "inline": True,
-        }
-    )
-    stats.append(
-        {
-            "name": "Instance Started",
-            "value": Timestamps.Relative(state.botStart),
-            "inline": True,
-        }
+        {"name": "Instance Started", "value": Timestamps.Relative(state.botStart)}
     )
 
     external = Buttons.Link(external, "GitHub", "https://github.com/EthanC/N31L")

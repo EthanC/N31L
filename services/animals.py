@@ -148,12 +148,10 @@ class Cat:
                     if (country := breed["country_code"]) is not None:
                         origin = f":flag_{country.lower()}: {origin}"
 
-                    facts.append({"name": "Origin", "value": origin, "inline": True})
+                    facts.append({"name": "Origin", "value": origin})
 
                 if (temperament := breed["temperament"]) is not None:
-                    facts.append(
-                        {"name": "Temperaments", "value": temperament, "inline": True}
-                    )
+                    facts.append({"name": "Temperaments", "value": temperament})
 
             if len((categories := cat.get("categories", []))) > 0:
                 tags = []
@@ -297,9 +295,7 @@ class Dog:
                 name = breed["name"]
 
                 if (temperament := breed["temperament"]) is not None:
-                    facts.append(
-                        {"name": "Temperaments", "value": temperament, "inline": True}
-                    )
+                    facts.append({"name": "Temperaments", "value": temperament})
 
             return Responses.Success(
                 title=name, color=None, fields=facts, image=dog["url"]
@@ -514,11 +510,6 @@ class Otter:
         """Fetch a random otter image from r/Otterable."""
 
         return await Reddit.GetRandomImage("Otterable", credentials)
-
-    async def RedditOtters(credentials: Dict[str, Any]) -> Optional[Embed]:
-        """Fetch a random otter image from r/Otters."""
-
-        return await Reddit.GetRandomImage("Otters", credentials)
 
 
 class Panda:

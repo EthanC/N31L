@@ -1,13 +1,19 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import tanjun
-from helpers import Responses, Utility
-from hikari import InteractionChannel, Member, MessageType, Permissions
+from helpers import Responses, Timestamps, Utility
+from hikari import (
+    InteractionChannel,
+    Member,
+    MessageType,
+    Permissions,
+    StickerFormatType,
+)
 from hikari.messages import Message
 from loguru import logger
 from tanjun import Component
-from tanjun.abc import SlashContext
+from tanjun.abc import MenuContext, SlashContext
 from tanjun.commands import SlashCommandGroup
 
 component: Component = Component(name="Messages")
@@ -15,6 +21,96 @@ component: Component = Component(name="Messages")
 parse: SlashCommandGroup = component.with_slash_command(
     tanjun.slash_command_group("parse", "Slash Commands to parse messages.")
 )
+
+
+@component.with_menu_command()
+@tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
+@tanjun.as_message_menu("report", default_to_ephemeral=True)
+async def CommandReport(
+    ctx: MenuContext,
+    message: Message,
+    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+) -> None:
+    """Handler for the Report to Moderators message command."""
+
+    if message.author.is_system is True:
+        await ctx.respond(
+            embed=Responses.Fail(description="You cannot report system messages.")
+        )
+
+        return
+    elif message.type == MessageType.GUILD_MEMBER_JOIN:
+        await ctx.respond(
+            embed=Responses.Fail(description="You cannot report welcome messages.")
+        )
+
+        return
+
+    imageUrl: Optional[str] = None
+    fields: List[Dict[str, Any]] = [
+        {"name": "Channel", "value": f"<#{message.channel_id}>"},
+        {"name": "Sent", "value": Timestamps.Relative(message.created_at)},
+        {"name": "Reported", "value": Timestamps.Relative(ctx.created_at)},
+    ]
+
+    if (attachments := message.attachments) is not None:
+        for attachment in attachments:
+            if imageUrl is None:
+                if attachment.media_type.startswith("image/") is True:
+                    imageUrl = attachment.url
+
+                    continue
+
+            fields.append(
+                {
+                    "name": "Attachment",
+                    "value": f"[`{attachment.filename}`]({attachment.url})",
+                }
+            )
+
+    if (stickers := message.stickers) is not None:
+        for sticker in stickers:
+            if imageUrl is None:
+                if sticker.format_type != StickerFormatType.LOTTIE:
+                    imageUrl = sticker.image_url
+
+                    continue
+
+            fields.append(
+                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+            )
+
+    await ctx.rest.create_message(
+        config["channels"]["moderators"],
+        embed=Responses.Warning(
+            title="Message Reported",
+            url=f"https://discord.com/channels/{ctx.guild_id}/{message.channel_id}/{message.id}",
+            description=None
+            if (content := message.content) is None
+            else f">>> {content}",
+            fields=fields,
+            author=Responses.ExpandUser(message.author, False),
+            authorIcon=message.author.default_avatar_url
+            if (avatar := message.author.avatar_url) is None
+            else avatar,
+            image=imageUrl,
+            footer=f"Reported by {Responses.ExpandUser(ctx.author, False)}",
+            footerIcon=ctx.author.default_avatar_url
+            if (avatar := ctx.author.avatar_url) is None
+            else avatar,
+        ),
+    )
+
+    await ctx.respond(
+        embed=Responses.Success(
+            description="Your report to the Moderators has been submitted.",
+            footer="Abuse of this feature will result in your removal from the server.",
+        )
+    )
+
+    logger.success(
+        f"{Responses.ExpandUser(ctx.author, False)} reported message ({message.id}) by {Responses.ExpandUser(message.author, False)} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(ctx.get_channel(), False)}"
+    )
 
 
 @component.with_slash_command()

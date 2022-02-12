@@ -2,13 +2,37 @@ from typing import Any, Dict
 
 import tanjun
 from loguru import logger
-from tanjun.abc import SlashContext
+from tanjun.abc import MenuContext, SlashContext
 
 from .responses import Responses
 
 
-class Hooks:
-    """Logging and error handling hooks."""
+class MenuHooks:
+    """Logging and error handling hooks for menu commands."""
+
+    async def PreExecution(ctx: MenuContext) -> None:
+        """Menu command pre-execution hook."""
+
+        logger.info(
+            f"{Responses.ExpandUser(ctx.author, False)} used {ctx.command.name} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(ctx.get_channel(), False)}"
+        )
+
+    async def PostExecution(
+        ctx: MenuContext, config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any])
+    ) -> None:
+        """Menu command pre-execution hook."""
+
+        await ctx.rest.create_message(
+            config["channels"]["user"],
+            Responses.Log(
+                "robot",
+                f"{Responses.ExpandUser(ctx.author)} used `{ctx.command.name}` in {Responses.ExpandChannel(ctx.get_channel())}",
+            ),
+        )
+
+
+class SlashHooks:
+    """Logging and error handling hooks for slash commands."""
 
     async def PreExecution(ctx: SlashContext) -> None:
         """Slash command pre-execution hook."""
