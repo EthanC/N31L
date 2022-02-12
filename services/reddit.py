@@ -126,7 +126,7 @@ class Reddit:
                     continue
                 elif hasattr(post, "post_hint") is False:
                     continue
-                elif post.post_hint == "image" is False:
+                elif post.post_hint != "image":
                     continue
                 elif hasattr(post, "over_18") is False:
                     continue
