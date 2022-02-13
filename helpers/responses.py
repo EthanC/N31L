@@ -16,7 +16,7 @@ class Buttons:
     def Link(container: ActionRowBuilder, label: str, url: str) -> ActionRowBuilder:
         """Build a generic link button."""
 
-        button: LinkButtonBuilder = container.add_button(ButtonStyle, url)
+        button: LinkButtonBuilder = container.add_button(ButtonStyle.LINK, url)
 
         button.set_label(label)
 
