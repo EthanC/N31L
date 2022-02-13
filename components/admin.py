@@ -8,7 +8,15 @@ import hikari
 import psutil
 import tanjun
 from helpers import Buttons, Responses, Timestamps
-from hikari import DMChannel, Guild, InteractionChannel, Permissions, User
+from hikari import (
+    Application,
+    DMChannel,
+    Guild,
+    InteractionChannel,
+    OwnUser,
+    Permissions,
+    User,
+)
 from hikari.embeds import Embed
 from hikari.impl.bot import GatewayBot
 from hikari.impl.special_endpoints import ActionRowBuilder
@@ -207,7 +215,9 @@ async def CommandServer(ctx: SlashContext) -> None:
     "status", "Get the status of and information about N31L.", default_to_ephemeral=True
 )
 async def CommandStatus(
-    ctx: SlashContext, state: State = tanjun.inject(type=State)
+    ctx: SlashContext,
+    state: State = tanjun.inject(type=State),
+    bot: GatewayBot = tanjun.inject(type=GatewayBot),
 ) -> None:
     """Handler for the /status slash command."""
 
@@ -215,9 +225,26 @@ async def CommandStatus(
     external: ActionRowBuilder = ActionRowBuilder()
 
     # Make a request to Discord to determine the REST latency
-    timeStart: float = datetime.now().timestamp()
-    await ctx.rest.fetch_my_user()
-    timeEnd: float = datetime.now().timestamp()
+    latStart: float = datetime.now().timestamp()
+    own: OwnUser = await ctx.rest.fetch_my_user()
+    latEnd: float = datetime.now().timestamp()
+
+    app: Application = await ctx.rest.fetch_application()
+
+    stats.append({"name": "Owner", "value": f"<@{app.owner.id}>"})
+    stats.append({"name": "Created", "value": Timestamps.Relative(own.created_at)})
+    stats.append({"name": "Started", "value": Timestamps.Relative(state.botStart)})
+
+    stats.append(
+        {"name": "REST Latency", "value": f"{round((latEnd - latStart) * 1000):,}ms"}
+    )
+    stats.append(
+        {
+            "name": "Heartbeat Latency",
+            "value": f"{round(bot.heartbeat_latency * 1000):,}ms",
+        }
+    )
+    stats.append({"name": "CPU Usage", "value": f"{psutil.cpu_percent():,}%"})
 
     stats.append(
         {
@@ -231,16 +258,6 @@ async def CommandStatus(
     stats.append(
         {"name": "Tanjun", "value": f"[`{tanjun.__version__}`]({tanjun.__url__})"}
     )
-    stats.append(
-        {"name": "REST Latency", "value": f"{round((timeEnd - timeStart) * 1000):,}ms"}
-    )
-    stats.append({"name": "CPU Usage", "value": f"{psutil.cpu_percent():,}%"})
-    stats.append(
-        {"name": "Memory Usage", "value": f"{psutil.virtual_memory().percent:,}%"}
-    )
-    stats.append(
-        {"name": "Instance Started", "value": Timestamps.Relative(state.botStart)}
-    )
 
     external = Buttons.Link(external, "GitHub", "https://github.com/EthanC/N31L")
     external = Buttons.Link(external, "Discord", "https://discord.gg/CallofDuty")
@@ -248,7 +265,7 @@ async def CommandStatus(
     await ctx.respond(
         embed=Responses.Success(
             color="00FF00",
-            description="N31L is a utilitarian bot for the [Call of Duty server](https://discord.gg/CallofDuty).\n\nThe commands and functionality of this bot are purpose-built and primarily intended for the Moderators of the server. Because of this, the current bot instance is not available to be invited to other servers.",
+            description="N31L is a utilitarian bot for the Call of Duty server.\n\nThe commands and functionality of this bot are purpose-built and primarily intended for the Moderators of the server. Because of this, the current bot instance is not available to be invited to other servers.",
             fields=stats,
             author="N31L",
             authorUrl="https://github.com/EthanC/N31L",
