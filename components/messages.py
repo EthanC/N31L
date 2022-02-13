@@ -145,6 +145,8 @@ async def CommandPurge(
     try:
         while len(messages) < amount:
             for m in await ctx.rest.fetch_messages(channel.id, before=last).limit(100):
+                last = m.timestamp
+                
                 if m.author.is_system is True:
                     continue
                 elif (messageId := m.id) in messages:
