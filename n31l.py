@@ -43,7 +43,12 @@ def Initialize() -> None:
         config["credentials"]["discord"]["token"],
         allow_color=False,
         banner=None,
-        intents=Intents.ALL,
+        intents=(
+            Intents.GUILDS
+            | Intents.GUILD_MESSAGES
+            | Intents.GUILD_MEMBERS
+            | Intents.DM_MESSAGES
+        ),
     )
     client: Client = tanjun.Client.from_gateway_bot(
         bot, declare_global_commands=config["channels"]["guild"]
