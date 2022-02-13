@@ -5,7 +5,6 @@ from sys import exit
 from typing import Any, Dict, List, Optional, Union
 
 import hikari
-import psutil
 import tanjun
 from helpers import Buttons, Responses, Timestamps
 from hikari import (
@@ -230,6 +229,7 @@ async def CommandStatus(
     latEnd: float = datetime.now().timestamp()
 
     app: Application = await ctx.rest.fetch_application()
+    guild: Guild = await ctx.fetch_guild()
 
     stats.append({"name": "Owner", "value": f"<@{app.owner.id}>"})
     stats.append({"name": "Created", "value": Timestamps.Relative(own.created_at)})
@@ -244,7 +244,7 @@ async def CommandStatus(
             "value": f"{round(bot.heartbeat_latency * 1000):,}ms",
         }
     )
-    stats.append({"name": "CPU Usage", "value": f"{psutil.cpu_percent():,}%"})
+    stats.append({"name": "Guild Shard", "value": f"{guild.shard_id:,}"})
 
     stats.append(
         {
