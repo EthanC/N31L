@@ -1,11 +1,12 @@
 import asyncio
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import tanjun
 from helpers import Responses, Timestamps, Utility
 from hikari import (
     DMChannel,
+    InteractionMember,
     MessageType,
     PermissionOverwrite,
     PermissionOverwriteType,
@@ -14,6 +15,7 @@ from hikari import (
 from hikari.channels import GuildChannel
 from hikari.errors import ForbiddenError
 from hikari.events.member_events import MemberCreateEvent
+from hikari.users import UserImpl
 from loguru import logger
 from models import State
 from tanjun import Client, Component
@@ -38,11 +40,30 @@ defense: SlashCommandGroup = raid.with_command(
 @raid.with_command
 @tanjun.with_author_permission_check(Permissions.BAN_MEMBERS)
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
-@tanjun.with_int_slash_option(
-    "max_age", "Maximum account age (in seconds) to collect.", default=None, min_value=1
+@tanjun.with_user_slash_option(
+    "oldest_join", "Least recently-joined user to stop collecting IDs at.", default=None
+)
+@tanjun.with_user_slash_option(
+    "newest_join", "Most recently-joined user to start collecting IDs at.", default=None
 )
 @tanjun.with_int_slash_option(
-    "amount", "Number of user IDs to collect.", min_value=2, max_value=1000
+    "max_joined",
+    "Maximum join age (in seconds) to collect (ignored if both newest_join and oldest_join are set).",
+    default=None,
+    min_value=1,
+    max_value=86400,
+)
+@tanjun.with_int_slash_option(
+    "max_created",
+    "Maximum account age (in seconds) to collect.",
+    default=None,
+    min_value=1,
+)
+@tanjun.with_int_slash_option(
+    "amount",
+    "Number of user IDs to collect (ignored if both newest_join and oldest_join are set).",
+    min_value=2,
+    max_value=1000,
 )
 @tanjun.as_slash_command(
     "collect",
@@ -50,7 +71,12 @@ defense: SlashCommandGroup = raid.with_command(
     default_permission=False,
 )
 async def CommandRaidCollect(
-    ctx: SlashContext, amount: int, max_age: Optional[int]
+    ctx: SlashContext,
+    amount: Optional[int],
+    max_created: Optional[int],
+    max_joined: Optional[int],
+    newest_join: Optional[Union[InteractionMember, UserImpl]],
+    oldest_join: Optional[Union[InteractionMember, UserImpl]],
 ) -> None:
     """Handler for the /raid collect command."""
 
@@ -73,30 +99,63 @@ async def CommandRaidCollect(
         return
 
     users: List[int] = []
-    last: datetime = datetime.now()
+    start: datetime = datetime.now()
+    last: datetime = start
+    collect: bool = True
+    active: bool = True
+
+    # If both newest_join and oldest_user are set, we can disregard
+    # multiple other arguments.
+    if (newest_join is not None) and (oldest_join is not None):
+        amount = None
+        max_joined = None
+
+    # If newest_join is set, we do not begin collecting immediately.
+    if newest_join is not None:
+        collect = False
 
     try:
-        while len(users) < amount:
+        while active is True:
             for m in await ctx.rest.fetch_messages(welcomes, before=last).limit(100):
                 last = m.created_at
 
                 if m.type != MessageType.GUILD_MEMBER_JOIN:
                     continue
-                elif (userId := m.author.id) in users:
-                    continue
 
-                if max_age is not None:
-                    accountAge: int = Utility.Elapsed(
-                        datetime.utcnow(), m.author.created_at
-                    )
+                userId: int = int(m.author.id)
 
-                    if accountAge > max_age:
+                if max_created is not None:
+                    accountAge: int = Utility.Elapsed(start, m.author.created_at)
+
+                    if accountAge > max_created:
                         continue
 
-                users.append(userId)
+                if max_joined is not None:
+                    joinAge: int = Utility.Elapsed(start, m.created_at)
 
-                if len(users) == amount:
-                    break
+                    if joinAge > max_joined:
+                        active = False
+
+                        break
+
+                if newest_join is not None:
+                    if userId == int(newest_join.id):
+                        collect = True
+
+                if (userId not in users) and (collect is True):
+                    users.append(userId)
+
+                if oldest_join is not None:
+                    if userId == int(oldest_join.id):
+                        active = False
+
+                        break
+
+                if amount is not None:
+                    if len(users) >= amount:
+                        active = False
+
+                        break
     except Exception as e:
         logger.error(
             f"Failed to collect {amount:,} recently-joined users in {Responses.ExpandGuild(ctx.get_guild(), False)}, {e}"
