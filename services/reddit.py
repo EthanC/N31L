@@ -104,12 +104,22 @@ class Reddit:
         subreddit: Optional[Subreddit] = None
         post: Optional[Submission] = None
         valid: bool = False
+        attempts: int = 0
 
         try:
             subreddit = await client.subreddit(community, fetch=True)
 
             while valid is False:
+                if attempts >= 5:
+                    logger.debug(
+                        f"Abandonning search for random image in Reddit community r/{community}, too many attempts"
+                    )
+
+                    return
+
                 post = await subreddit.random()
+
+                attempts += 1
 
                 if post is None:
                     logger.warning(
