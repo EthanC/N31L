@@ -23,6 +23,8 @@ async def EventValidateRoles(
 
     if not ctx.is_human:
         return
+    elif ctx.message.member is None:
+        return
 
     invalidated: List[int] = []
     equipped: Sequence[Snowflake] = ctx.message.member.role_ids
