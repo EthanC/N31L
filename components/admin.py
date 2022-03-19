@@ -455,15 +455,30 @@ async def CommandSetActivity(
 
 @set.with_command
 @tanjun.with_owner_check()
-@tanjun.with_str_slash_option(
-    "url", "Enter an image URL or leave empty to use default avatar.", default=None
+@tanjun.with_attachment_slash_option(
+    "image", "Upload an image file or leave empty to use default avatar.", default=None
 )
 @tanjun.as_slash_command("avatar", "Set the avatar for N31L.", default_permission=False)
-async def CommandSetAvatar(ctx: SlashContext, url: Optional[str]) -> None:
+async def CommandSetAvatar(ctx: SlashContext, image: Optional[Attachment]) -> None:
     """Handler for the /set avatar slash command."""
 
+    url: Optional[str] = None if image is None else image.url
+
     try:
-        if url is not None:
+        if image is not None:
+            if (image.width is None) or (image.height is None):
+                logger.error(
+                    f"Failed to set avatar to {url}, provided attachment is not a valid image ({image.width}x{image.height})"
+                )
+
+                await ctx.respond(
+                    embed=Responses.Fail(
+                        description=f"Failed to set avatar, provided attachment is not a valid image"
+                    )
+                )
+
+                return
+
             await ctx.rest.edit_my_user(avatar=url)
         else:
             await ctx.rest.edit_my_user(avatar=None)
