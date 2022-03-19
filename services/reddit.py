@@ -115,6 +115,8 @@ class Reddit:
                         f"Abandonning search for random image in Reddit community r/{community}, too many attempts"
                     )
 
+                    await Reddit.DestroyClient(client)
+
                     return
 
                 post = await subreddit.random()
