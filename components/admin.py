@@ -9,6 +9,7 @@ import tanjun
 from helpers import Buttons, Responses, Timestamps
 from hikari import (
     Application,
+    Attachment,
     DMChannel,
     Guild,
     InteractionChannel,
@@ -279,7 +280,12 @@ async def CommandStatus(
 
 @send.with_command
 @tanjun.with_owner_check()
-@tanjun.with_str_slash_option("content", "Enter the content of the message to send.")
+@tanjun.with_attachment_slash_option(
+    "attachment", "Upload a file to attach to the message.", default=None
+)
+@tanjun.with_str_slash_option(
+    "content", "Enter the content of the message to send.", default=None
+)
 @tanjun.with_user_slash_option("user", "Choose a user to send a message to.")
 @tanjun.as_slash_command(
     "direct_message",
@@ -287,13 +293,29 @@ async def CommandStatus(
     default_permission=False,
     default_to_ephemeral=True,
 )
-async def CommandSendDirectMessage(ctx: SlashContext, user: User, content: str) -> None:
+async def CommandSendDirectMessage(
+    ctx: SlashContext,
+    user: User,
+    content: Optional[str],
+    attachment: Optional[Attachment],
+) -> None:
     """Handler for the /send direct_message slash command."""
+
+    if (content is None) and (attachment is None):
+        await ctx.respond(
+            embed=Responses.Fail(
+                description=f"Failed to send direct message to {Responses.ExpandUser(user, False)}, you must supply message content or an attachment."
+            )
+        )
+
+        return
 
     try:
         dm: DMChannel = await ctx.rest.create_dm_channel(user.id)
 
-        await ctx.rest.create_message(dm.id, content)
+        await ctx.rest.create_message(
+            dm.id, content, attachments=[] if attachment is None else [attachment]
+        )
     except Exception as e:
         logger.error(
             f"Failed to send direct message to {Responses.ExpandUser(user, False)}, {e}"
@@ -321,7 +343,12 @@ async def CommandSendDirectMessage(ctx: SlashContext, user: User, content: str) 
 
 @send.with_command
 @tanjun.with_owner_check()
-@tanjun.with_str_slash_option("content", "Enter the content of the message to send.")
+@tanjun.with_attachment_slash_option(
+    "attachment", "Upload a file to attach to the message.", default=None
+)
+@tanjun.with_str_slash_option(
+    "content", "Enter the content of the message to send.", default=None
+)
 @tanjun.with_channel_slash_option("channel", "Choose a channel to send a message to.")
 @tanjun.as_slash_command(
     "message",
@@ -330,12 +357,26 @@ async def CommandSendDirectMessage(ctx: SlashContext, user: User, content: str) 
     default_to_ephemeral=True,
 )
 async def CommandSendMessage(
-    ctx: SlashContext, channel: InteractionChannel, content: str
+    ctx: SlashContext,
+    channel: InteractionChannel,
+    content: Optional[str],
+    attachment: Optional[Attachment],
 ) -> None:
     """Handler for the /send message slash command."""
 
+    if (content is None) and (attachment is None):
+        await ctx.respond(
+            embed=Responses.Fail(
+                description=f"Failed to send message to {Responses.ExpandChannel(channel)}, you must supply message content or an attachment."
+            )
+        )
+
+        return
+
     try:
-        await ctx.rest.create_message(channel.id, content)
+        await ctx.rest.create_message(
+            channel.id, content, attachments=[] if attachment is None else [attachment]
+        )
     except Exception as e:
         logger.error(
             f"Failed to send message to {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}, {e}"
