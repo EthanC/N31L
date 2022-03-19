@@ -25,7 +25,7 @@ parse: SlashCommandGroup = component.with_slash_command(
 
 @component.with_menu_command()
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
-@tanjun.as_message_menu("report", default_to_ephemeral=True)
+@tanjun.as_message_menu("Report to Moderators", default_to_ephemeral=True)
 async def CommandReport(
     ctx: MenuContext,
     message: Message,
