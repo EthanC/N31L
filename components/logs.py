@@ -28,7 +28,9 @@ async def EventDirectMessage(
         "embeds": [
             {
                 "title": "Direct Message",
-                "description": f">>> {Utility.Trim(ctx.message.content, 4000)}",
+                "description": f">>> {Utility.Trim((content := ctx.message.content), 4000)}"
+                if content is not None
+                else None,
                 "timestamp": ctx.message.timestamp.isoformat(),
                 "color": int("00FF00", base=16),
                 "footer": {"text": f"{ctx.author.id}"},
