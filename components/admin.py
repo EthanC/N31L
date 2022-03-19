@@ -130,7 +130,7 @@ async def CommandProfile(
     "delay", "Time (in seconds) to wait before initiating reboot.", default=None
 )
 @tanjun.as_slash_command("reboot", "Restart the active N31L instance.")
-async def CommandRestart(
+async def CommandReboot(
     ctx: SlashContext, delay: Optional[int], state: State = tanjun.inject(type=State)
 ) -> None:
     """Handler for the /reboot slash command."""
@@ -157,8 +157,10 @@ async def CommandRestart(
         )
 
     try:
-        # Assume that N31L is run via a process manager, such as PM2, that
-        # will automatically restart the process.
+        logger.critical(
+            "N31L is rebooting, this function assumes that a process manager, such as PM2, will automatically restart the process"
+        )
+
         exit(0)
     except Exception as e:
         logger.critical(f"Failed to restart bot instance, {e}")
