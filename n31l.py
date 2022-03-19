@@ -122,7 +122,7 @@ def SetupLogging(config: Dict[str, Any]) -> None:
 
             logger.error(f"Failed to set logger severity to {level}, {e}")
 
-    if settings["files"]["enable"] is True:
+    if settings["files"]["enable"]:
         if (size := settings["files"]["debug"]) > 0:
             logger.add("n31l_debug.log", level="DEBUG", rotation=f"{size} MB")
 
@@ -134,7 +134,7 @@ def SetupLogging(config: Dict[str, Any]) -> None:
 
         logger.success("Enabled local file logging")
 
-    if settings["discord"]["enable"] is True:
+    if settings["discord"]["enable"]:
         level: str = settings["discord"]["severity"].upper()
         url: str = settings["discord"]["webhookUrl"]
 

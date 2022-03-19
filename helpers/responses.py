@@ -42,7 +42,7 @@ class Buttons:
         if emoji is not None:
             button.set_emoji(emoji)
 
-        if disabled is True:
+        if disabled:
             button.set_is_disabled(disabled)
 
         button.add_to_container()
@@ -56,7 +56,7 @@ class Responses:
     def ExpandUser(user: User, format: bool = True) -> str:
         """Build a reusable string for the provided identity."""
 
-        if format is True:
+        if format:
             return f"`{user.username}#{user.discriminator}` (`{user.id}`)"
 
         return f"{user.username}#{user.discriminator} ({user.id})"
@@ -64,7 +64,7 @@ class Responses:
     def ExpandRole(role: Role, format: bool = True) -> str:
         """Build a reusable string for the provided role."""
 
-        if format is True:
+        if format:
             return f"`{role.name}` (`{role.id}`)"
 
         return f"{role.name} ({role.id})"
@@ -72,7 +72,7 @@ class Responses:
     def ExpandGuild(guild: Guild, format: bool = True) -> str:
         """Build a reusable string for the provided guild."""
 
-        if format is True:
+        if format:
             return f"`{guild.name}` (`{guild.id}`)"
 
         return f"{guild.name} ({guild.id})"
@@ -80,7 +80,7 @@ class Responses:
     def ExpandChannel(channel: GuildChannel, format: bool = True) -> str:
         """Build a reusable string for the provided channel."""
 
-        if format is True:
+        if format:
             return f"`#{channel.name}` (`{channel.id}`)"
 
         return f"#{channel.name} ({channel.id})"

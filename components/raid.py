@@ -115,7 +115,7 @@ async def CommandRaidCollect(
         collect = False
 
     try:
-        while active is True:
+        while active:
             for m in await ctx.rest.fetch_messages(welcomes, before=last).limit(100):
                 last = m.created_at
 
@@ -142,7 +142,7 @@ async def CommandRaidCollect(
                     if userId == int(newest_join.id):
                         collect = True
 
-                if (userId not in users) and (collect is True):
+                if (userId not in users) and (collect):
                     users.append(userId)
 
                 if oldest_join is not None:
@@ -220,7 +220,7 @@ async def CommandRaidOffenseEnable(
 ) -> None:
     """Handler for the /raid offense enable command."""
 
-    if state.raidOffense is True:
+    if state.raidOffense:
         await ctx.respond(
             embed=Responses.Fail(
                 description=f"Offensive raid protection is already active, {state.raidOffCount:,} users banned so far."
@@ -264,7 +264,7 @@ async def CommandRaidOffenseDisable(
 ) -> None:
     """Handler for the /raid offense disable command."""
 
-    if state.raidOffense is False:
+    if not state.raidOffense:
         await ctx.respond(
             embed=Responses.Fail(description="Offensive raid protection is not active.")
         )
@@ -275,7 +275,7 @@ async def CommandRaidOffenseDisable(
         f"Disabled offensive raid protection, {state.raidOffCount:,} users banned."
     )
 
-    if auto is True:
+    if auto:
         await ctx.create_followup(embed=Responses.Success(description=response))
     else:
         await ctx.respond(embed=Responses.Success(description=response))
@@ -314,7 +314,7 @@ async def CommandRaidDefenseEnable(
 ) -> None:
     """Handler for the /raid defense enable command."""
 
-    if state.raidDefense is True:
+    if state.raidDefense:
         await ctx.respond(
             embed=Responses.Fail(
                 description="Defensive raid protection is already active."
@@ -375,7 +375,7 @@ async def CommandRaidDefenseDisable(
 ) -> None:
     """Handler for the /raid defense disable command."""
 
-    if state.raidDefense is False:
+    if not state.raidDefense:
         await ctx.respond(
             embed=Responses.Fail(description="Defensive raid protection is not active.")
         )
@@ -402,7 +402,7 @@ async def CommandRaidDefenseDisable(
 
     response: str = "Disabled defensive raid protection."
 
-    if auto is True:
+    if auto:
         await ctx.create_followup(embed=Responses.Success(description=response))
     else:
         await ctx.respond(embed=Responses.Success(description=response))
@@ -423,7 +423,7 @@ async def EventRaidOffense(
 ) -> None:
     """Handler for offensive raid protection."""
 
-    if state.raidOffense is False:
+    if not state.raidOffense:
         return
 
     accountAge: int = Utility.Elapsed(datetime.utcnow(), ctx.member.created_at)

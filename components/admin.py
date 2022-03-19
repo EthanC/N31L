@@ -47,7 +47,7 @@ async def CommandProfile(
 ) -> None:
     """Handler for the /profile slash command."""
 
-    if hasattr(user, "user") is True:
+    if hasattr(user, "user"):
         try:
             user.user = await ctx.rest.fetch_user(user.id)
         except Exception as e:
@@ -59,19 +59,19 @@ async def CommandProfile(
     altAvatar: Optional[str] = None
     accent: Optional[str] = None
 
-    if hasattr(user, "nickname") is True:
+    if hasattr(user, "nickname"):
         if (nickname := user.nickname) is not None:
             fields.append({"name": "Nickname", "value": nickname})
 
-    if hasattr(user, "created_at") is True:
+    if hasattr(user, "created_at"):
         if (created := user.created_at) is not None:
             fields.append({"name": "Created", "value": Timestamps.Relative(created)})
 
-    if hasattr(user, "joined_at") is True:
+    if hasattr(user, "joined_at"):
         if (joined := user.joined_at) is not None:
             fields.append({"name": "Joined", "value": Timestamps.Relative(joined)})
 
-    if hasattr(user, "premium_since") is True:
+    if hasattr(user, "premium_since"):
         if (booster := user.premium_since) is not None:
             fields.append(
                 {
@@ -80,29 +80,29 @@ async def CommandProfile(
                 }
             )
 
-    if hasattr(user, "communication_disabled_until") is True:
+    if hasattr(user, "communication_disabled_until"):
         if (timeout := user.communication_disabled_until()) is not None:
             fields.append(
                 {"name": "Timed Out", "value": f"Until {Timestamps.Relative(timeout)}"}
             )
 
-    if hasattr(user, "is_pending") is True:
-        if user.is_pending is True:
+    if hasattr(user, "is_pending"):
+        if user.is_pending:
             fields.append({"name": "Passed Screening", "value": "No"})
 
-    if hasattr(user, "is_mute") is True:
-        if user.is_mute is True:
+    if hasattr(user, "is_mute"):
+        if user.is_mute:
             fields.append({"name": "Muted", "value": "Yes"})
 
-    if hasattr(user, "is_deaf") is True:
-        if user.is_deaf is True:
+    if hasattr(user, "is_deaf"):
+        if user.is_deaf:
             fields.append({"name": "Deafened", "value": "Yes"})
 
-    if hasattr(user, "guild_avatar_url") is True:
+    if hasattr(user, "guild_avatar_url"):
         if (url := user.guild_avatar_url) is not None:
             altAvatar = url
 
-    if hasattr(user, "accent_color") is True:
+    if hasattr(user, "accent_color"):
         if (color := user.accent_color) is not None:
             accent = str(color).replace("#", "")
 
@@ -114,7 +114,7 @@ async def CommandProfile(
         thumbnail=user.default_avatar_url
         if (avatar := user.avatar_url) is None
         else avatar,
-        image=None if hasattr(user, "user") is False else user.user.banner_url,
+        image=None if not hasattr(user, "user") else user.user.banner_url,
         footer=user.id,
         timestamp=None if created is None else created.astimezone(),
     )
@@ -180,15 +180,15 @@ async def CommandServer(ctx: SlashContext) -> None:
     server: Guild = await ctx.fetch_guild()
     fields: List[Dict[str, Any]] = []
 
-    if hasattr(server, "owner_id") is True:
+    if hasattr(server, "owner_id"):
         if (owner := server.owner_id) is not None:
             fields.append({"name": "Owner", "value": f"<@{owner}>"})
 
-    if hasattr(server, "created_at") is True:
+    if hasattr(server, "created_at"):
         if (created := server.created_at) is not None:
             fields.append({"name": "Created", "value": Timestamps.Relative(created)})
 
-    if hasattr(server, "shard_id") is True:
+    if hasattr(server, "shard_id"):
         if (shard := server.shard_id) is not None:
             fields.append({"name": "Shard", "value": f"{shard:,}"})
 

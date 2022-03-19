@@ -33,7 +33,7 @@ async def CommandReport(
 ) -> None:
     """Handler for the Report to Moderators message command."""
 
-    if message.author.is_system is True:
+    if message.author.is_system:
         await ctx.respond(
             embed=Responses.Fail(description="You cannot report system messages.")
         )
@@ -56,7 +56,7 @@ async def CommandReport(
     if (attachments := message.attachments) is not None:
         for attachment in attachments:
             if imageUrl is None:
-                if attachment.media_type.startswith("image/") is True:
+                if attachment.media_type.startswith("image/"):
                     imageUrl = attachment.url
 
                     continue
@@ -146,8 +146,8 @@ async def CommandPurge(
         while len(messages) < amount:
             for m in await ctx.rest.fetch_messages(channel.id, before=last).limit(100):
                 last = m.timestamp
-                
-                if m.author.is_system is True:
+
+                if m.author.is_system:
                     continue
                 elif (messageId := m.id) in messages:
                     continue

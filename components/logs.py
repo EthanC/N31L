@@ -17,7 +17,7 @@ async def EventDirectMessage(
 ) -> None:
     """Handler for notifying of direct messages."""
 
-    if config["logging"]["discord"]["enable"] is False:
+    if not config["logging"]["discord"]["enable"]:
         return
     elif int(ctx.author.id) in config["users"]["owners"]:
         return
@@ -70,11 +70,11 @@ async def EventKeyword(
 ) -> None:
     """Handler for notifying of keyword mentions."""
 
-    if config["logging"]["discord"]["enable"] is False:
+    if not config["logging"]["discord"]["enable"]:
         return
-    elif ctx.author.is_bot is True:
+    elif ctx.author.is_bot:
         return
-    elif ctx.author.is_system is True:
+    elif ctx.author.is_system:
         return
     elif ctx.author.id in config["users"]["owners"]:
         return
@@ -153,11 +153,11 @@ async def EventMirror(
 ) -> None:
     """Handler for automatically mirroring HepBoat log archives."""
 
-    if ctx.author.is_bot is False:
+    if not ctx.author.is_bot:
         return
     elif int(ctx.author.id) != config["users"]["hepboat"]:
         return
-    elif hasattr(ctx.message, "content") is False:
+    elif not hasattr(ctx.message, "content"):
         return
     elif ctx.message.content is None:
         return
@@ -171,9 +171,9 @@ async def EventMirror(
     try:
         url = content.split("(<")[1].split(">)")[0]
 
-        if url.startswith("https://") is False:
+        if not url.startswith("https://"):
             raise Exception(f"expected startswith https://, got {url}")
-        elif url.endswith(".html") is False:
+        elif not url.endswith(".html"):
             raise Exception(f"expected endswith .html, got {url}")
     except Exception as e:
         logger.debug(f"Failed to validate HepBoat log archive URL, {e}")

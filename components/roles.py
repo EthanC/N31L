@@ -21,7 +21,7 @@ async def EventValidateRoles(
     given member upon message creation.
     """
 
-    if ctx.is_human is False:
+    if not ctx.is_human:
         return
 
     invalidated: List[int] = []

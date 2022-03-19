@@ -24,7 +24,7 @@ class Reddit:
             user_agent=credentials["userAgent"],
         )
 
-        if client.read_only is True:
+        if client.read_only:
             logger.error("Failed to authenticate with Reddit, client is read-only")
 
             return
@@ -109,7 +109,7 @@ class Reddit:
         try:
             subreddit = await client.subreddit(community, fetch=True)
 
-            while valid is False:
+            while not valid:
                 if attempts >= 5:
                     logger.debug(
                         f"Abandonning search for random image in Reddit community r/{community}, too many attempts"
@@ -132,15 +132,15 @@ class Reddit:
 
                 await post.load()
 
-                if post.is_reddit_media_domain is False:
+                if not post.is_reddit_media_domain:
                     continue
-                elif hasattr(post, "post_hint") is False:
+                elif not hasattr(post, "post_hint"):
                     continue
                 elif post.post_hint != "image":
                     continue
-                elif hasattr(post, "over_18") is False:
+                elif not hasattr(post, "over_18"):
                     continue
-                elif post.over_18 is True:
+                elif post.over_18:
                     continue
 
                 valid = True
