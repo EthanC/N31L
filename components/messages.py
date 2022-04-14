@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 import tanjun
 from helpers import Responses, Timestamps, Utility
 from hikari import (
+    GuildTextChannel,
     InteractionChannel,
     Member,
     MessageType,
@@ -124,7 +125,9 @@ async def CommandReport(
 @tanjun.with_int_slash_option(
     "amount", "Number of messages to be deleted.", min_value=2, max_value=100
 )
-@tanjun.with_channel_slash_option("channel", "Channel to fetch the messages from.")
+@tanjun.with_channel_slash_option(
+    "channel", "Channel to fetch the messages from.", types=[GuildTextChannel]
+)
 @tanjun.as_slash_command(
     "purge",
     "Mass delete messages in the specified channel.",
@@ -217,7 +220,7 @@ async def CommandPurge(
 @tanjun.with_own_permission_check(Permissions.READ_MESSAGE_HISTORY)
 @tanjun.with_str_slash_option("message_id", "Enter the ID of the message to parse.")
 @tanjun.with_channel_slash_option(
-    "channel", "Choose a channel to parse a message from."
+    "channel", "Choose a channel to parse a message from.", types=[GuildTextChannel]
 )
 @tanjun.as_slash_command(
     "users",

@@ -12,6 +12,7 @@ from hikari import (
     Attachment,
     DMChannel,
     Guild,
+    GuildTextChannel,
     InteractionChannel,
     OwnUser,
     Permissions,
@@ -351,7 +352,9 @@ async def CommandSendDirectMessage(
 @tanjun.with_str_slash_option(
     "content", "Enter the content of the message to send.", default=None
 )
-@tanjun.with_channel_slash_option("channel", "Choose a channel to send a message to.")
+@tanjun.with_channel_slash_option(
+    "channel", "Choose a channel to send a message to.", types=[GuildTextChannel]
+)
 @tanjun.as_slash_command(
     "message",
     "Send a message from N31L.",
