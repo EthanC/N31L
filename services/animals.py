@@ -132,7 +132,7 @@ class Cat:
                 name = breed["name"]
                 wiki = breed["wikipedia_url"]
 
-                if len((altNames := breed["alt_names"])) > 0:
+                if len((altNames := breed.get("alt_names", []))) > 0:
                     if name is None:
                         name = altNames
                     else:
