@@ -115,10 +115,12 @@ async def EventKeyword(
                     {
                         "name": "Keyword" if len(found) == 1 else "Keywords",
                         "value": ", ".join(found),
+                        "inline": True,
                     },
                     {
                         "name": "Message Link",
                         "value": f"[`#{ctx.get_channel().name}`](https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{ctx.message_id})",
+                        "inline": True,
                     },
                 ],
             }
@@ -130,6 +132,7 @@ async def EventKeyword(
             {
                 "name": "Attachment",
                 "value": f"[`{attachment.filename}`]({attachment.url})",
+                "inline": True,
             }
         )
 
