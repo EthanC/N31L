@@ -256,6 +256,13 @@ async def CommandParseUsers(
 
                         results.append(find)
 
+            if (title := embed.title) is not None:
+                for find in Utility.FindNumbers(title, 17, 18):
+                    if find in results:
+                        continue
+
+                    results.append(find)
+
             if (desc := embed.description) is not None:
                 for find in Utility.FindNumbers(desc, 17, 18):
                     if find in results:
