@@ -29,6 +29,33 @@ async def EventValidateRoles(
     invalidated: List[int] = []
     equipped: Sequence[Snowflake] = ctx.message.member.role_ids
 
+    if config["roles"]["limit"]:
+        matches: List[int] = []
+
+        for role in equipped:
+            if role in config["roles"]["allow"]:
+                matches.append(role)
+
+        if len(matches) > 1:
+            for match in matches[1:]:
+                await ctx.message.member.remove_role(
+                    match, reason="Member exceeds the limit of allowed roles."
+                )
+
+                await client.rest.create_message(
+                    config["channels"]["user"],
+                    Responses.Log(
+                        "shirt",
+                        f"Removed role (`{match}`) from {Responses.ExpandUser(ctx.author)} with reason: *Limit exceeded*",
+                    ),
+                )
+
+                logger.success(
+                    f"Invalidated role ({match}) for {Responses.ExpandUser(ctx.author, False)} in {Responses.ExpandGuild(ctx.get_guild(), False)}"
+                )
+
+            return
+
     for role in equipped:
         if role in config["roles"]["require"]:
             return
