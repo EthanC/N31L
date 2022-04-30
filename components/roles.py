@@ -54,7 +54,8 @@ async def EventValidateRoles(
                     f"Invalidated role ({match}) for {Responses.ExpandUser(ctx.author, False)} in {Responses.ExpandGuild(ctx.get_guild(), False)}"
                 )
 
-            return
+            # Fetch equipped roles again to continue validation
+            equipped: Sequence[Snowflake] = ctx.message.member.role_ids
 
     for role in equipped:
         if role in config["roles"]["require"]:
