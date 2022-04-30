@@ -15,6 +15,7 @@ reddit: SlashCommandGroup = component.with_slash_command(
     tanjun.slash_command_group("reddit", "Slash Commands to manage Reddit communities.")
 )
 communities: Dict[str, str] = {
+    "r/ModernWarfareII": "ModernWarfareII",
     "r/CODVanguard": "CODVanguard",
     "r/BlackOpsColdWar": "BlackOpsColdWar",
     "r/CODWarzone": "CODWarzone",
@@ -45,16 +46,6 @@ async def CommandRedditQueue(
     config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
 ) -> None:
     """Handler for the /reddit queue command."""
-
-    if config.get("debug") is not True:
-        if int(ctx.channel_id) != (req := config["channels"]["redditModerators"]):
-            await ctx.respond(
-                embed=Responses.Fail(
-                    description=f"This command can only be used in <#{req}>."
-                )
-            )
-
-            return
 
     client: Optional[Reddit] = await Reddit.CreateClient(
         config["credentials"]["reddit"]

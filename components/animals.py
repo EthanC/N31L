@@ -65,17 +65,6 @@ async def CommandAnimal(
 ) -> None:
     """Handler for the /animal command."""
 
-    if ctx.channel_id in config["channels"]["denyAnimals"]:
-        sandbox: int = config["channels"]["sandbox"]
-
-        await ctx.respond(
-            embed=Responses.Fail(
-                description=f"That command cannot be used in this channel, try <#{sandbox}> instead."
-            )
-        )
-
-        return
-
     if type is None:
         type = random.choice(animalTypes)
 

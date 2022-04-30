@@ -35,12 +35,9 @@
     "channels": {
         "guild": 1234567890,
         "moderators": 1234567890,
-        "redditModerators": 1234567890,
         "moderation": 1234567890,
         "user": 1234567890,
-        "sandbox": 1234567890,
-        "raidDefense": [123457890, 98766543210],
-        "denyAnimals": [123457890, 98766543210]
+        "raidDefense": [123457890, 98766543210]
     },
     "users": {
         "owners": [1234567890, 9876543210],
