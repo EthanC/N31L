@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 import tanjun
 from helpers import Responses, Timestamps, Utility
 from hikari import (
+    GuildMessageCreateEvent,
     GuildTextChannel,
     InteractionChannel,
     Member,
@@ -22,6 +23,34 @@ component: Component = Component(name="Messages")
 parse: SlashCommandGroup = component.with_slash_command(
     tanjun.slash_command_group("parse", "Slash Commands to parse messages.")
 )
+
+
+@component.with_listener(GuildMessageCreateEvent)
+async def EventShadowban(
+    ctx: GuildMessageCreateEvent,
+    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+) -> None:
+    """Silently delete user messages in the configured channels."""
+
+    if not config["shadowban"]["enable"]:
+        return
+    elif ctx.author.id not in config["shadowban"]["users"]:
+        return
+    elif ctx.message.channel_id not in config["shadowban"]["channels"]:
+        return
+
+    try:
+        await ctx.message.delete()
+    except Exception as e:
+        logger.error(
+            f"Failed to enforce shadowban for {Responses.ExpandUser(ctx.author, False)} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(ctx.get_channel(), False)}, {e}"
+        )
+
+        return
+
+    logger.success(
+        f"Enforced shadowban for {Responses.ExpandUser(ctx.author, False)} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(ctx.get_channel(), False)}"
+    )
 
 
 @component.with_menu_command()

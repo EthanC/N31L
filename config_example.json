@@ -47,5 +47,10 @@
         "limit": true,
         "require": [1234567890, 9876543210],
         "allow": [1324657980, 2315648970]
+    },
+    "shadowban": {
+        "enable": true,
+        "users": [1234567890],
+        "channels": [9876543210]
     }
 }
