@@ -102,6 +102,7 @@ async def EventKeyword(
             {
                 "title": ("Keyword" if len(found) == 1 else "Keywords") + " Mention",
                 "description": f">>> {Utility.Trim(ctx.message.content, 4000)}",
+                "url": f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{ctx.message_id}",
                 "timestamp": ctx.message.timestamp.isoformat(),
                 "color": int("00FF00", base=16),
                 "footer": {"text": f"{ctx.author.id}"},
@@ -118,8 +119,8 @@ async def EventKeyword(
                         "inline": True,
                     },
                     {
-                        "name": "Message Link",
-                        "value": f"[`#{ctx.get_channel().name}`](https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{ctx.message_id})",
+                        "name": "Channel",
+                        "value": f"`#{ctx.get_channel().name}`",
                         "inline": True,
                     },
                 ],
