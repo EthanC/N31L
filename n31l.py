@@ -14,7 +14,7 @@ from loguru import logger
 from notifiers.logging import NotificationHandler
 from tanjun import Client
 
-from components import Admin, Animals, Logs, Messages, Raid, Reddit, Roles
+from components import Admin, Animals, Food, Logs, Messages, Raid, Reddit, Roles
 from helpers import LogIntercept, MenuHooks, SlashHooks
 from models import State
 
@@ -74,6 +74,7 @@ def Initialize() -> None:
 
     client.add_component(Admin)
     client.add_component(Animals)
+    client.add_component(Food)
     client.add_component(Logs)
     client.add_component(Messages)
     client.add_component(Raid)

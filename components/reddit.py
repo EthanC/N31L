@@ -38,7 +38,6 @@ communities: Dict[str, str] = {
 @tanjun.as_slash_command(
     "queue",
     "Fetch the moderation and unmoderated queue counts for the specified Reddit community.",
-    default_permission=False,
 )
 async def CommandRedditQueue(
     ctx: SlashContext,

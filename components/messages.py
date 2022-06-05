@@ -157,11 +157,7 @@ async def CommandReport(
 @tanjun.with_channel_slash_option(
     "channel", "Channel to fetch the messages from.", types=[GuildTextChannel]
 )
-@tanjun.as_slash_command(
-    "purge",
-    "Mass delete messages in the specified channel.",
-    default_permission=False,
-)
+@tanjun.as_slash_command("purge", "Mass delete messages in the specified channel.")
 async def CommandPurge(
     ctx: SlashContext,
     channel: InteractionChannel,
@@ -251,11 +247,7 @@ async def CommandPurge(
 @tanjun.with_channel_slash_option(
     "channel", "Choose a channel to parse a message from.", types=[GuildTextChannel]
 )
-@tanjun.as_slash_command(
-    "users",
-    "Parse a message and return any user ID occurrences.",
-    default_permission=False,
-)
+@tanjun.as_slash_command("users", "Parse a message and return any user ID occurrences.")
 async def CommandParseUsers(
     ctx: SlashContext, channel: InteractionChannel, message_id: str
 ) -> None:

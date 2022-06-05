@@ -15,4 +15,16 @@ from .animals import (
     Rat,
     RedPanda,
 )
+from .food import (
+    Burger,
+    Dessert,
+    HotDog,
+    Pasta,
+    Pizza,
+    Rice,
+    Salad,
+    Sandwich,
+    Sushi,
+    Taco,
+)
 from .reddit import Reddit

@@ -293,7 +293,6 @@ async def CommandStatus(
 @tanjun.as_slash_command(
     "direct_message",
     "Send a direct message from N31L.",
-    default_permission=False,
     default_to_ephemeral=True,
 )
 async def CommandSendDirectMessage(
@@ -358,7 +357,6 @@ async def CommandSendDirectMessage(
 @tanjun.as_slash_command(
     "message",
     "Send a message from N31L.",
-    default_permission=False,
     default_to_ephemeral=True,
 )
 async def CommandSendMessage(
@@ -426,9 +424,7 @@ async def CommandSendMessage(
         "Watching": ActivityType.WATCHING.value,
     },
 )
-@tanjun.as_slash_command(
-    "activity", "Set the presence activity for N31L.", default_permission=False
-)
+@tanjun.as_slash_command("activity", "Set the presence activity for N31L.")
 async def CommandSetActivity(
     ctx: SlashContext,
     type: int,
@@ -463,7 +459,7 @@ async def CommandSetActivity(
 @tanjun.with_attachment_slash_option(
     "image", "Upload an image file or leave empty to use default avatar.", default=None
 )
-@tanjun.as_slash_command("avatar", "Set the avatar for N31L.", default_permission=False)
+@tanjun.as_slash_command("avatar", "Set the avatar for N31L.")
 async def CommandSetAvatar(ctx: SlashContext, image: Optional[Attachment]) -> None:
     """Handler for the /set avatar slash command."""
 
@@ -513,9 +509,7 @@ async def CommandSetAvatar(ctx: SlashContext, image: Optional[Attachment]) -> No
         "Online": Status.ONLINE.value,
     },
 )
-@tanjun.as_slash_command(
-    "status", "Set the presence status for N31L.", default_permission=False
-)
+@tanjun.as_slash_command("status", "Set the presence status for N31L.")
 async def CommandSetStatus(
     ctx: SlashContext, type: str, bot: GatewayBot = tanjun.inject(type=GatewayBot)
 ) -> None:
@@ -551,9 +545,7 @@ async def CommandSetStatus(
 @set.with_command
 @tanjun.with_owner_check()
 @tanjun.with_str_slash_option("username", "Enter a username.")
-@tanjun.as_slash_command(
-    "username", "Set the username for N31L.", default_permission=False
-)
+@tanjun.as_slash_command("username", "Set the username for N31L.")
 async def CommandSetUsername(ctx: SlashContext, input: str) -> None:
     """Handler for the /set username slash command."""
 

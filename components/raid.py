@@ -66,9 +66,7 @@ defense: SlashCommandGroup = raid.with_command(
     max_value=1000,
 )
 @tanjun.as_slash_command(
-    "collect",
-    "Collect IDs of newly-joined users for use with mass-ban commands.",
-    default_permission=False,
+    "collect", "Collect IDs of newly-joined users for use with mass-ban commands."
 )
 async def CommandRaidCollect(
     ctx: SlashContext,
@@ -209,7 +207,6 @@ async def CommandRaidCollect(
 @tanjun.as_slash_command(
     "enable",
     "Evaluate users upon join and ban if account age is less than provided threshold.",
-    default_permission=False,
 )
 async def CommandRaidOffenseEnable(
     ctx: SlashContext,
@@ -254,11 +251,7 @@ async def CommandRaidOffenseEnable(
 @tanjun.with_author_permission_check(Permissions.BAN_MEMBERS)
 @tanjun.with_own_permission_check(Permissions.BAN_MEMBERS)
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
-@tanjun.as_slash_command(
-    "disable",
-    "Disable offensive raid protection, if enabled.",
-    default_permission=False,
-)
+@tanjun.as_slash_command("disable", "Disable offensive raid protection, if enabled.")
 async def CommandRaidOffenseDisable(
     ctx: SlashContext, auto: bool = False, state: State = tanjun.inject(type=State)
 ) -> None:
@@ -302,9 +295,7 @@ async def CommandRaidOffenseDisable(
     max_value=3600,
 )
 @tanjun.as_slash_command(
-    "enable",
-    "Deny the Send Messages permission for @everyone in all channels.",
-    default_permission=False,
+    "enable", "Deny the Send Messages permission for @everyone in all channels."
 )
 async def CommandRaidDefenseEnable(
     ctx: SlashContext,
@@ -362,11 +353,7 @@ async def CommandRaidDefenseEnable(
 @tanjun.with_author_permission_check(Permissions.BAN_MEMBERS)
 @tanjun.with_own_permission_check(Permissions.MANAGE_CHANNELS)
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
-@tanjun.as_slash_command(
-    "disable",
-    "Disable defensive raid protection, if enabled.",
-    default_permission=False,
-)
+@tanjun.as_slash_command("disable", "Disable defensive raid protection, if enabled.")
 async def CommandRaidDefenseDisable(
     ctx: SlashContext,
     auto: bool = False,
