@@ -24,15 +24,19 @@ async def EventDirectMessage(
     elif int(ctx.author.id) == config["users"]["owner"]:
         return
 
+    content: Optional[str] = None
+
+    if hasattr(ctx.message, "content"):
+        if ctx.message.content is not None:
+            content = f">>> {Utility.Trim(ctx.message.content, 4000)}"
+
     payload: Dict[str, Any] = {
         "username": "N31L",
         "avatar_url": "https://i.imgur.com/cGtkGuI.png",
         "embeds": [
             {
                 "title": "Direct Message",
-                "description": f">>> {Utility.Trim((content := ctx.message.content), 4000)}"
-                if content is not None
-                else None,
+                "description": content,
                 "timestamp": ctx.message.timestamp.isoformat(),
                 "color": int("00FF00", base=16),
                 "footer": {"text": f"{ctx.author.id}"},
