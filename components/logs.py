@@ -19,7 +19,9 @@ async def EventDirectMessage(
 
     if not config["logging"]["discord"]["enable"]:
         return
-    elif int(ctx.author.id) in config["users"]["owners"]:
+    elif int(ctx.author.id) == config["users"]["bot"]:
+        return
+    elif int(ctx.author.id) == config["users"]["owner"]:
         return
 
     payload: Dict[str, Any] = {
@@ -78,7 +80,7 @@ async def EventKeyword(
         return
     elif ctx.author.is_system:
         return
-    elif ctx.author.id in config["users"]["owners"]:
+    elif ctx.author.id == config["users"]["owner"]:
         return
     elif ctx.message.content is None:
         return
@@ -146,6 +148,89 @@ async def EventKeyword(
 
     logger.success(
         f"Notified of keyword ({found}) mention by {Responses.ExpandUser(ctx.author, False)} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(ctx.get_channel(), False)}"
+    )
+
+
+@component.with_listener(GuildMessageCreateEvent)
+async def EventMention(
+    ctx: GuildMessageCreateEvent,
+    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+) -> None:
+    """Handler for notifying of mentions."""
+
+    if not config["logging"]["discord"]["enable"]:
+        return
+    elif ctx.author.is_bot:
+        return
+    elif ctx.author.is_system:
+        return
+    elif ctx.author.id == config["users"]["owner"]:
+        return
+    elif ctx.message.content is None:
+        return
+
+    found: List[str] = []
+
+    for id in config["logging"]["mentions"]:
+        if id not in ctx.message.mentions.user_ids:
+            continue
+
+        found.append(f"<@{id}>")
+
+    if len(found) == 0:
+        return
+
+    payload: Dict[str, Any] = {
+        "username": "N31L",
+        "avatar_url": "https://i.imgur.com/cGtkGuI.png",
+        "embeds": [
+            {
+                "title": "Mention",
+                "description": f">>> {Utility.Trim(ctx.message.content, 4000)}",
+                "url": f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{ctx.message_id}",
+                "timestamp": ctx.message.timestamp.isoformat(),
+                "color": int("00FF00", base=16),
+                "footer": {"text": f"{ctx.author.id}"},
+                "author": {
+                    "name": f"{ctx.author.username}#{ctx.author.discriminator}",
+                    "icon_url": str(ctx.author.default_avatar_url)
+                    if (avatar := ctx.author.avatar_url) is None
+                    else str(avatar),
+                },
+                "fields": [
+                    {
+                        "name": "User" if len(found) == 1 else "Users",
+                        "value": ", ".join(found),
+                        "inline": True,
+                    },
+                    {
+                        "name": "Channel",
+                        "value": f"`#{ctx.get_channel().name}`",
+                        "inline": True,
+                    },
+                ],
+            }
+        ],
+    }
+
+    for attachment in ctx.message.attachments:
+        payload["embeds"][0]["fields"].append(
+            {
+                "name": "Attachment",
+                "value": f"[`{attachment.filename}`]({attachment.url})",
+                "inline": True,
+            }
+        )
+
+    status: bool = await Utility.POST(
+        config["logging"]["discord"]["webhookUrl"], payload
+    )
+
+    if status is not True:
+        return
+
+    logger.success(
+        f"Notified of mention ({found}) by {Responses.ExpandUser(ctx.author, False)} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(ctx.get_channel(), False)}"
     )
 
 

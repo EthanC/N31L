@@ -12,7 +12,8 @@
             "info": 1024,
             "warning": 1024
         },
-        "keywords": ["notify", "for", "these", "words"]
+        "keywords": ["notify", "for", "these", "words"],
+        "mentions": [1234567890, 98766543210]
     },
     "credentials": {
         "discord": {
@@ -37,10 +38,11 @@
         "moderators": 1234567890,
         "moderation": 1234567890,
         "user": 1234567890,
-        "raidDefense": [123457890, 98766543210]
+        "raidDefense": [1234567890, 98766543210]
     },
     "users": {
-        "owners": [1234567890, 9876543210],
+        "owner": 1234567890,
+        "bot": 1234567890,
         "hepboat": 1234567890
     },
     "roles": {
