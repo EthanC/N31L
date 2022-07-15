@@ -176,25 +176,28 @@ async def CommandReboot(
 @component.with_slash_command()
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
 @tanjun.as_slash_command(
-    "server", "Fetch detailed information about the current server."
+    "server",
+    "Fetch detailed information about the current server.",
+    default_to_ephemeral=True,
 )
 async def CommandServer(ctx: SlashContext) -> None:
     """Handler for the /server slash command."""
 
     server: Guild = await ctx.fetch_guild()
-    fields: List[Dict[str, Any]] = []
+    creators: Dict[int, int] = {136986169563938816: 132693143173857281}
 
-    if hasattr(server, "owner_id"):
-        if (owner := server.owner_id) is not None:
-            fields.append({"name": "Owner", "value": f"<@{owner}>"})
+    fields: List[Dict[str, Any]] = []
 
     if hasattr(server, "created_at"):
         if (created := server.created_at) is not None:
             fields.append({"name": "Created", "value": Timestamps.Relative(created)})
 
-    if hasattr(server, "shard_id"):
-        if (shard := server.shard_id) is not None:
-            fields.append({"name": "Shard", "value": f"{shard:,}"})
+    if (creator := creators.get(server.id)):
+        fields.append({"name": "Creator", "value": f"<@{creator}>"})
+
+    if hasattr(server, "owner_id"):
+        if (owner := server.owner_id) is not None:
+            fields.append({"name": "Owner", "value": f"<@{owner}>"})
 
     await ctx.respond(
         embed=Responses.Success(
@@ -206,7 +209,9 @@ async def CommandServer(ctx: SlashContext) -> None:
             fields=fields,
             thumbnail=server.icon_url,
             image=server.banner_url,
-            footer=server.id,
+            footer=f"{server.id} ({server.shard_id})"
+            if hasattr(server, "shard_id")
+            else server.id,
             timestamp=server.created_at,
         )
     )
