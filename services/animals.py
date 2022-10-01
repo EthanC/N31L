@@ -10,21 +10,6 @@ from .reddit import Reddit
 class Axolotl:
     """Class containing axolotl image sources."""
 
-    async def AxoltlAPI() -> Optional[Embed]:
-        """Fetch a random axoltl image from AxoltlAPI."""
-
-        data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://axoltlapi.herokuapp.com/"
-        )
-
-        if data is None:
-            return
-
-        try:
-            return Responses.Success(color=None, image=data["url"])
-        except Exception as e:
-            logger.error(f"Failed to fetch from AxolotlAPI, {e}")
-
     async def RedditAxolotls(credentials: Dict[str, Any]) -> Optional[Embed]:
         """Fetch a random axolotl image from r/axolotls."""
 

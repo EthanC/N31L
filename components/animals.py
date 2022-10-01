@@ -76,11 +76,7 @@ async def CommandAnimal(
 
     while result is None:
         if type == "Axolotl":
-            source = random.randint(1, 2)
-
             if source == 1:
-                result = await Axolotl.AxoltlAPI()
-            elif source == 2:
                 result = await Axolotl.RedditAxolotls(redditLogin)
         elif type == "Bingus":
             if source == 1:
