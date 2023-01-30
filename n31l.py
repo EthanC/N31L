@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
                 logger.success("Installed libuv event loop")
             except Exception as e:
-                logger.error(f"Defaulted to asyncio event loop, {e}")
+                logger.debug(f"Defaulted to asyncio event loop, {e}")
 
         Initialize()
     except KeyboardInterrupt:

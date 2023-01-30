@@ -1,5 +1,7 @@
 # N31L
 
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EthanC/N31L/main.yml?branch=main) ![Docker Pulls](https://img.shields.io/docker/pulls/ethanchrisp/n31l?label=Docker%20Pulls) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/ethanchrisp/n31l/latest?label=Docker%20Image%20Size)
+
 N31L is a utilitarian Discord bot for the [Call of Duty server](https://discord.gg/CallofDuty).
 
 <p align="center">
@@ -15,16 +17,26 @@ Notice: N31L is purpose-built, this means that its functionality is intended onl
 -   Granular protection against automated raids
 -   LOTS of animal and food commands
 
-## Installation
+## Setup
 
-N31L requires Python 3.10 or greater. Required dependencies can be found in [`pyproject.toml`](https://github.com/EthanC/Perplex/blob/main/pyproject.toml).
+[Discord API](https://discord.com/developers/) credentials are required for functionality, and a [Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) is recommended for notifications.
 
-Several credentials, including a [Discord bot token](https://discord.com/developers/), [Reddit API key](https://reddit.com/prefs/apps), and more are required.
+### Docker (Recommended)
 
-## Usage
+Modify the following `docker-compose.yml` example file, then run `docker compose up`.
 
-Open `config_example.json` and provide the configurable values, then save and rename the file to `config.json`.
-
-```py
-python n31l.py
+```yml
+version: "3"
+services:
+  n31l:
+    container_name: n31l
+    image: ethanchrisp/n31l:latest
 ```
+
+### Standalone
+
+N31L is built for [Python 3.11](https://www.python.org/) or greater.
+
+1. Install required dependencies using [Poetry](https://python-poetry.org/): `poetry install`
+2. Rename `config_example.json` to `config.json`, then provide the configurable variables.
+3. Start N31L: `python n31l.py -OO`
