@@ -31,6 +31,9 @@ services:
   n31l:
     container_name: n31l
     image: ethanchrisp/n31l:latest
+    volumes:
+      - /path/to/config.json:/n31l/config.json:ro
+    restart: unless-stopped
 ```
 
 ### Standalone
