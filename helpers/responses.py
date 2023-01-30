@@ -3,51 +3,8 @@ from datetime import datetime
 from typing import Dict, List, Optional, Union
 
 from hikari import Guild, GuildChannel, Role, User
-from hikari.api.special_endpoints import ButtonBuilder, LinkButtonBuilder
 from hikari.embeds import Embed
-from hikari.impl.special_endpoints import ActionRowBuilder
-from hikari.messages import ButtonStyle
 from loguru import logger
-
-
-class Buttons:
-    """Class containing generic, modular button templates."""
-
-    def Link(container: ActionRowBuilder, label: str, url: str) -> ActionRowBuilder:
-        """Build a generic link button."""
-
-        button: LinkButtonBuilder = container.add_button(ButtonStyle.LINK, url)
-
-        button.set_label(label)
-
-        button.add_to_container()
-
-        return container
-
-    def Button(
-        container: ActionRowBuilder,
-        style: ButtonStyle,
-        id: str,
-        label: Optional[str] = None,
-        emoji: Optional[str] = None,
-        disabled: bool = False,
-    ) -> ActionRowBuilder:
-        """Build a generic button."""
-
-        button: ButtonBuilder = container.add_button(style, id)
-
-        if label is not None:
-            button.set_label(label)
-
-        if emoji is not None:
-            button.set_emoji(emoji)
-
-        if disabled:
-            button.set_is_disabled(disabled)
-
-        button.add_to_container()
-
-        return container
 
 
 class Responses:

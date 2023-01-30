@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import hikari
 import tanjun
-from helpers import Buttons, Responses, Timestamps
+from helpers import Responses, Timestamps
 from hikari import (
     Application,
     Attachment,
@@ -20,7 +20,7 @@ from hikari import (
 )
 from hikari.embeds import Embed
 from hikari.impl.bot import GatewayBot
-from hikari.impl.special_endpoints import ActionRowBuilder
+
 from hikari.interactions.base_interactions import InteractionMember
 from hikari.presences import Activity, ActivityType, Status
 from hikari.users import UserImpl
@@ -192,7 +192,7 @@ async def CommandServer(ctx: SlashContext) -> None:
         if (created := server.created_at) is not None:
             fields.append({"name": "Created", "value": Timestamps.Relative(created)})
 
-    if (creator := creators.get(server.id)):
+    if creator := creators.get(server.id):
         fields.append({"name": "Creator", "value": f"<@{creator}>"})
 
     if hasattr(server, "owner_id"):
@@ -230,7 +230,6 @@ async def CommandStatus(
     """Handler for the /status slash command."""
 
     stats: List[Dict[str, Any]] = []
-    external: ActionRowBuilder = ActionRowBuilder()
 
     # Make a request to Discord to determine the REST latency
     latStart: float = datetime.now().timestamp()
@@ -264,12 +263,6 @@ async def CommandStatus(
     stats.append(
         {"name": "Hikari", "value": f"[`{hikari.__version__}`]({hikari.__url__})"}
     )
-    stats.append(
-        {"name": "Tanjun", "value": f"[`{tanjun.__version__}`]({tanjun.__url__})"}
-    )
-
-    external = Buttons.Link(external, "GitHub", "https://github.com/EthanC/N31L")
-    external = Buttons.Link(external, "Discord", "https://discord.gg/CallofDuty")
 
     await ctx.respond(
         embed=Responses.Success(
@@ -282,7 +275,6 @@ async def CommandStatus(
             footer="Developed by Lacking#0001",
             footerIcon="https://i.imgur.com/KZnKBn2.gif",
         ),
-        component=external,
     )
 
 
@@ -551,13 +543,13 @@ async def CommandSetStatus(
 @tanjun.with_owner_check()
 @tanjun.with_str_slash_option("username", "Enter a username.")
 @tanjun.as_slash_command("username", "Set the username for N31L.")
-async def CommandSetUsername(ctx: SlashContext, input: str) -> None:
+async def CommandSetUsername(ctx: SlashContext, username: str) -> None:
     """Handler for the /set username slash command."""
 
     try:
-        await ctx.rest.edit_my_user(username=input)
+        await ctx.rest.edit_my_user(username=username)
     except Exception as e:
-        logger.error(f"Failed to set username to {input}, {e}")
+        logger.error(f"Failed to set username to {username}, {e}")
 
         await ctx.respond(
             embed=Responses.Fail(description=f"Failed to set username, {e}")
@@ -566,5 +558,5 @@ async def CommandSetUsername(ctx: SlashContext, input: str) -> None:
         return
 
     await ctx.respond(
-        embed=Responses.Success(description=f"Set username to `{input}`.")
+        embed=Responses.Success(description=f"Set username to `{username}`.")
     )
