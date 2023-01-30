@@ -12,7 +12,6 @@ from services import (
     HotDog,
     Pasta,
     Pizza,
-    Rice,
     Salad,
     Sandwich,
     Sushi,
@@ -29,7 +28,6 @@ foodTypes: List[str] = [
     "Hot Dog",
     "Pasta",
     "Pizza",
-    "Rice",
     "Salad",
     "Sandwich",
     "Sushi",
@@ -64,49 +62,30 @@ async def CommandFood(
 
     while result is None:
         if type == "Burger":
-            source = random.randint(1, 2)
-
-            if source == 1:
-                result = await Burger.Foodish()
-            elif source == 2:
-                result = await Burger.RedditBurgers(redditLogin)
+            result = await Burger.RedditBurgers(redditLogin)
         elif type == "Dessert":
-            source = random.randint(1, 8)
+            source = random.randint(1, 7)
 
             if source == 1:
-                result = await Dessert.Foodish()
-            elif source == 2:
                 result = await Dessert.RedditCake(redditLogin)
-            elif source == 3:
+            elif source == 2:
                 result = await Dessert.RedditCookies(redditLogin)
-            elif source == 4:
+            elif source == 3:
                 result = await Dessert.RedditCupcakes(redditLogin)
-            elif source == 5:
+            elif source == 4:
                 result = await Dessert.RedditDessert(redditLogin)
-            elif source == 6:
+            elif source == 5:
                 result = await Dessert.RedditDessertPorn(redditLogin)
-            elif source == 7:
+            elif source == 6:
                 result = await Dessert.RedditIcecreamery(redditLogin)
-            elif source == 8:
+            elif source == 7:
                 result = await Dessert.RedditPie(redditLogin)
         elif type == "Hot Dog":
             result = await HotDog.RedditHotDogs(redditLogin)
         elif type == "Pasta":
-            source = random.randint(1, 2)
-
-            if source == 1:
-                result = await Pasta.Foodish()
-            elif source == 2:
-                result = await Pasta.RedditPasta(redditLogin)
+            result = await Pasta.RedditPasta(redditLogin)
         elif type == "Pizza":
-            source = random.randint(1, 2)
-
-            if source == 1:
-                result = await Pizza.Foodish()
-            elif source == 2:
-                result = await Pizza.RedditPizza(redditLogin)
-        elif type == "Rice":
-            result = await Rice.Foodish()
+            result = await Pizza.RedditPizza(redditLogin)
         elif type == "Salad":
             result = await Salad.RedditSalads(redditLogin)
         elif type == "Sandwich":

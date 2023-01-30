@@ -21,7 +21,6 @@ from .food import (
     HotDog,
     Pasta,
     Pizza,
-    Rice,
     Salad,
     Sandwich,
     Sushi,

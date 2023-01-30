@@ -10,21 +10,6 @@ from .reddit import Reddit
 class Burger:
     """Class containing burger image sources."""
 
-    async def Foodish() -> Optional[Embed]:
-        """Fetch a random burger image from Foodish."""
-
-        data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://foodish-api.herokuapp.com/api/images/burger"
-        )
-
-        if data is None:
-            return
-
-        try:
-            return Responses.Success(color=None, image=data["image"])
-        except Exception as e:
-            logger.error(f"Failed to fetch from Foodish, {e}")
-
     async def RedditBurgers(credentials: Dict[str, Any]) -> Optional[Embed]:
         """Fetch a random burger image from r/burgers."""
 
@@ -33,21 +18,6 @@ class Burger:
 
 class Dessert:
     """Class containing dessert image sources."""
-
-    async def Foodish() -> Optional[Embed]:
-        """Fetch a random dessert image from Foodish."""
-
-        data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://foodish-api.herokuapp.com/api/images/dessert"
-        )
-
-        if data is None:
-            return
-
-        try:
-            return Responses.Success(color=None, image=data["image"])
-        except Exception as e:
-            logger.error(f"Failed to fetch from Foodish, {e}")
 
     async def RedditCake(credentials: Dict[str, Any]) -> Optional[Embed]:
         """Fetch a random dessert image from r/cake."""
@@ -97,21 +67,6 @@ class HotDog:
 class Pasta:
     """Class containing pasta image sources."""
 
-    async def Foodish() -> Optional[Embed]:
-        """Fetch a random pasta image from Foodish."""
-
-        data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://foodish-api.herokuapp.com/api/images/pasta"
-        )
-
-        if data is None:
-            return
-
-        try:
-            return Responses.Success(color=None, image=data["image"])
-        except Exception as e:
-            logger.error(f"Failed to fetch from Foodish, {e}")
-
     async def RedditPasta(credentials: Dict[str, Any]) -> Optional[Embed]:
         """Fetch a random pasta image from r/pasta."""
 
@@ -121,44 +76,10 @@ class Pasta:
 class Pizza:
     """Class containing pizza image sources."""
 
-    async def Foodish() -> Optional[Embed]:
-        """Fetch a random pizza image from Foodish."""
-
-        data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://foodish-api.herokuapp.com/api/images/pizza"
-        )
-
-        if data is None:
-            return
-
-        try:
-            return Responses.Success(color=None, image=data["image"])
-        except Exception as e:
-            logger.error(f"Failed to fetch from Foodish, {e}")
-
     async def RedditPizza(credentials: Dict[str, Any]) -> Optional[Embed]:
         """Fetch a random pizza image from r/Pizza."""
 
         return await Reddit.GetRandomImage("Pizza", credentials)
-
-
-class Rice:
-    """Class containing rice image sources."""
-
-    async def Foodish() -> Optional[Embed]:
-        """Fetch a random rice image from Foodish."""
-
-        data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://foodish-api.herokuapp.com/api/images/rice"
-        )
-
-        if data is None:
-            return
-
-        try:
-            return Responses.Success(color=None, image=data["image"])
-        except Exception as e:
-            logger.error(f"Failed to fetch from Foodish, {e}")
 
 
 class Salad:
