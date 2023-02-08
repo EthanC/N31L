@@ -48,5 +48,10 @@
         "enable": true,
         "users": [1234567890],
         "channels": [9876543210]
+    },
+    "archiveThreads": {
+        "enable": true,
+        "maxLife": 86400,
+        "channels": [1234567890, 9876543210]
     }
 }

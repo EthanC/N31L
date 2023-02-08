@@ -1,28 +1,71 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import tanjun
-from helpers import Responses, Timestamps, Utility
 from hikari import (
+    GuildForumChannel,
     GuildMessageCreateEvent,
     GuildTextChannel,
+    GuildThreadChannel,
     InteractionChannel,
     Member,
     MessageType,
     Permissions,
     StickerFormatType,
 )
+from hikari.impl.bot import GatewayBot
 from hikari.messages import Message
 from loguru import logger
 from tanjun import Component
 from tanjun.abc import MenuContext, SlashContext
 from tanjun.commands import SlashCommandGroup
 
+from helpers import Responses, Timestamps, Utility
+
 component: Component = Component(name="Messages")
 
 parse: SlashCommandGroup = component.with_slash_command(
     tanjun.slash_command_group("parse", "Slash Commands to parse messages.")
 )
+
+
+@component.with_schedule
+@tanjun.as_time_schedule(minutes=5)
+async def TaskArchiveThreads(
+    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    bot: GatewayBot = tanjun.inject(type=GatewayBot),
+) -> None:
+    """Automatically archive threads in the configured channels."""
+
+    if not config["archiveThreads"]["enable"]:
+        return
+
+    maxLife: int = config["archiveThreads"]["maxLife"]
+    threads: List[GuildThreadChannel] = await bot.rest.fetch_active_threads(
+        config["channels"]["guild"]
+    )
+
+    for thread in threads:
+        if thread.parent_id not in config["archiveThreads"]["channels"]:
+            continue
+        elif thread.is_archived:
+            continue
+        elif Utility.Elapsed(datetime.now(), thread.created_at) < maxLife:
+            continue
+
+        await bot.rest.edit_channel(thread.id, archived=True)
+
+        logger.success(
+            f"Archived thread {Responses.ExpandThread(thread, False)} as it exceeded the maximum lifespan"
+        )
+
+        await bot.rest.create_message(
+            config["channels"]["user"],
+            Responses.Log(
+                "thread",
+                f"Archived thread {Responses.ExpandThread(thread)} with reason: *Maximum lifespan exceeded*",
+            ),
+        )
 
 
 @component.with_listener(GuildMessageCreateEvent)

@@ -2,7 +2,7 @@ import hashlib
 from datetime import datetime
 from typing import Dict, List, Optional, Union
 
-from hikari import Guild, GuildChannel, Role, User
+from hikari import Guild, GuildChannel, GuildThreadChannel, Role, User
 from hikari.embeds import Embed
 from loguru import logger
 
@@ -41,6 +41,14 @@ class Responses:
             return f"`#{channel.name}` (`{channel.id}`)"
 
         return f"#{channel.name} ({channel.id})"
+
+    def ExpandThread(thread: GuildThreadChannel, format: bool = True) -> str:
+        """Build a reusable string for the provided thread."""
+
+        if format:
+            return f"`{thread.name}` (`{thread.id}`)"
+
+        return f"{thread.name} ({thread.id})"
 
     def Log(emoji: str, message: str, timestamp: Optional[datetime] = None) -> str:
         """Build a reusable log message."""
