@@ -1,11 +1,12 @@
 from typing import Any, Dict, List, Optional
 
 import tanjun
-from helpers import Responses, Utility
 from hikari.events.message_events import DMMessageCreateEvent, GuildMessageCreateEvent
 from hikari.files import Bytes
 from loguru import logger
 from tanjun import Client, Component
+
+from helpers import Responses, Utility
 
 component: Component = Component(name="Logs")
 
@@ -176,7 +177,7 @@ async def EventMention(
     found: List[str] = []
 
     for id in config["logging"]["mentions"]:
-        if id not in ctx.message.mentions.user_ids:
+        if id not in ctx.message.user_mentions_ids:
             continue
 
         found.append(f"<@{id}>")

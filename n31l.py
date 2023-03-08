@@ -48,6 +48,7 @@ def Initialize() -> None:
             | Intents.GUILD_MESSAGES
             | Intents.GUILD_MEMBERS
             | Intents.DM_MESSAGES
+            | Intents.MESSAGE_CONTENT
         ),
     )
     client: Client = tanjun.Client.from_gateway_bot(
