@@ -23,6 +23,8 @@ Notice: N31L is purpose-built, this means that its functionality is intended onl
 
 ### Docker (Recommended)
 
+Rename `config_example.json` to `config.json`, then provide the configurable variables.
+
 Modify the following `docker-compose.yml` example file, then run `docker compose up`.
 
 ```yml
@@ -31,6 +33,17 @@ services:
   n31l:
     container_name: n31l
     image: ethanchrisp/n31l:latest
+    environment:
+      DISCORD_TOKEN: XXXXXXXX
+      DISCORD_LOG_WEBHOOK: https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX
+      DISCORD_LOG_LEVEL: WARNING
+      DISCORD_SERVER_ID: 0000000000
+      CAT_API_KEY: XXXXXXXXXX
+      DOG_API_KEY: XXXXXXXXXX
+      REDDIT_USERNAME: XXXXXXXXXX
+      REDDIT_PASSWORD: XXXXXXXXXX
+      REDDIT_CLIENT_ID: XXXXXXXXXX
+      REDDIT_CLIENT_SECRET: XXXXXXXXXX
     volumes:
       - /path/to/config.json:/n31l/config.json:ro
     restart: unless-stopped
@@ -41,5 +54,6 @@ services:
 N31L is built for [Python 3.11](https://www.python.org/) or greater.
 
 1. Install required dependencies using [Poetry](https://python-poetry.org/): `poetry install`
-2. Rename `config_example.json` to `config.json`, then provide the configurable variables.
-3. Start N31L: `python n31l.py -OO`
+2. Rename `.env.example` to `.env`, then provide the environment variables.
+3. Rename `config_example.json` to `config.json`, then provide the configurable variables.
+4. Start N31L: `python n31l.py -OO`
