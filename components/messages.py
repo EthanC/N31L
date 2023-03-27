@@ -298,17 +298,22 @@ async def CommandParseUsers(
 
     results: List[int] = []
 
+    # Minimum and maximum length of Discord snowflakes
+    # https://discord.com/developers/docs/reference#snowflakes
+    sMin: int = 17
+    sMax: int = 19
+
     try:
         target: Message = await ctx.rest.fetch_message(channel.id, int(message_id))
 
         if target is None:
-            raise ValueError("message is null")
+            raise ValueError("target message is null")
 
         if target.type == MessageType.GUILD_MEMBER_JOIN:
             results.append(target.author.id)
 
         if (content := target.content) is not None:
-            for find in Utility.FindNumbers(content, 17, 18):
+            for find in Utility.FindNumbers(content, sMin, sMax):
                 if find in results:
                     continue
 
@@ -317,21 +322,21 @@ async def CommandParseUsers(
         for embed in target.embeds:
             if embed.author is not None:
                 if (name := embed.author.name) is not None:
-                    for find in Utility.FindNumbers(name, 17, 18):
+                    for find in Utility.FindNumbers(name, sMin, sMax):
                         if find in results:
                             continue
 
                         results.append(find)
 
             if (title := embed.title) is not None:
-                for find in Utility.FindNumbers(title, 17, 18):
+                for find in Utility.FindNumbers(title, sMin, sMax):
                     if find in results:
                         continue
 
                     results.append(find)
 
             if (desc := embed.description) is not None:
-                for find in Utility.FindNumbers(desc, 17, 18):
+                for find in Utility.FindNumbers(desc, sMin, sMax):
                     if find in results:
                         continue
 
@@ -339,13 +344,13 @@ async def CommandParseUsers(
 
             if (fields := embed.fields) is not None:
                 for field in fields:
-                    for find in Utility.FindNumbers(field.name, 17, 18):
+                    for find in Utility.FindNumbers(field.name, sMin, sMax):
                         if find in results:
                             continue
 
                         results.append(find)
 
-                    for find in Utility.FindNumbers(field.value, 17, 18):
+                    for find in Utility.FindNumbers(field.value, sMin, sMax):
                         if find in results:
                             continue
 
@@ -353,19 +358,19 @@ async def CommandParseUsers(
 
             if embed.footer is not None:
                 if (footer := embed.footer.text) is not None:
-                    for find in Utility.FindNumbers(footer, 17, 18):
+                    for find in Utility.FindNumbers(footer, sMin, sMax):
                         if find in results:
                             continue
 
                         results.append(find)
     except Exception as e:
         logger.error(
-            f"Failed to fetch message {message_id} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}, {e}"
+            f"Failed to parse message {message_id} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}, {e}"
         )
 
         await ctx.respond(
             embed=Responses.Fail(
-                description=f"Failed to fetch message in <#{channel.id}>, an unknown error occurred."
+                description=f"Failed to fetch parse in <#{channel.id}>, {e}"
             )
         )
 
@@ -384,14 +389,14 @@ async def CommandParseUsers(
     if len(results) == 0:
         await ctx.respond(
             embed=Responses.Warning(
-                description="No user IDs found in the specified message."
+                description="No user IDs found in the provided message."
             )
         )
 
         return
 
     await ctx.respond(
-        embed=Responses.Success(description=f"Found {len(results):,} user ID(s).")
+        embed=Responses.Success(description=f"Found {len(results):,} user ID(s)...")
     )
 
     for result in results:
