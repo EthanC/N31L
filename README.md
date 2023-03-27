@@ -5,7 +5,7 @@
 N31L is a utilitarian Discord bot for the [Call of Duty server](https://discord.gg/CallofDuty).
 
 <p align="center">
-    <img src="https://i.imgur.com/reqTkF4.png" draggable="false">
+    <img src="https://i.imgur.com/e5IW91q.png" draggable="false">
 </p>
 
 ## Features
@@ -14,7 +14,6 @@ Notice: N31L is purpose-built, this means that its functionality is intended onl
 
 -   Modern, interaction-based Discord bot utilizing the application commands API
 -   Designed to expand and enhance the Discord Moderator toolset
--   Granular protection against automated raids
 -   Thread and forum post management
 -   LOTS of animal and food commands
 

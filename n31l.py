@@ -32,15 +32,7 @@ def Initialize() -> None:
 
     config: Dict[str, Any] = LoadConfig()
 
-    state: State = State(
-        botStart=datetime.now(),
-        raidOffense=False,
-        raidOffAge=None,
-        raidOffReason=None,
-        raidOffActor=None,
-        raidOffCount=None,
-        raidDefense=False,
-    )
+    state: State = State(botStart=datetime.now())
 
     logging.basicConfig(handlers=[Intercept()], level=0, force=True)
 
@@ -53,7 +45,7 @@ def Initialize() -> None:
         logger.add(
             NotificationHandler("slack", defaults={"webhook_url": f"{logUrl}/slack"}),
             level=logLevel,
-            format="```\n{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - TEST\n```",
+            format="```\n{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - {message}\n```",
         )
 
         logger.success(f"Enabled logging to Discord webhook ({logLevel})")

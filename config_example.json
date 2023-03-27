@@ -1,38 +1,12 @@
 {
     "logging": {
-        "severity": "DEBUG",
-        "discord": {
-            "enable": true,
-            "severity": "ERROR",
-            "webhookUrl": "https://discord.com/api/webhooks/XXXXXXXXXX/XXXXXXXXXX"
-        },
         "keywords": ["notify", "for", "these", "words"],
         "mentions": [1234567890, 98766543210]
     },
-    "credentials": {
-        "discord": {
-            "token": "XXXXXXXXXX"
-        },
-        "catAPI": {
-            "apiKey": "XXXXXXXXXX"
-        },
-        "dogAPI": {
-            "apiKey": "XXXXXXXXXX"
-        },
-        "reddit": {
-            "username": "XXXXXXXXXX",
-            "password": "XXXXXXXXXX",
-            "clientId": "XXXXXXXXXX",
-            "clientSecret": "XXXXXXXXXX",
-            "userAgent": "https://github.com/EthanC/N31L"
-        }
-    },
     "channels": {
-        "guild": 1234567890,
         "moderators": 1234567890,
         "moderation": 1234567890,
-        "user": 1234567890,
-        "raidDefense": [1234567890, 98766543210]
+        "user": 1234567890
     },
     "users": {
         "owner": 1234567890,
