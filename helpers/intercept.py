@@ -1,15 +1,15 @@
 import logging
 from logging import Handler, LogRecord
 from types import FrameType
-from typing import Any
+from typing import Self
 
 from loguru import logger
 
 
-class LogIntercept(Handler):
+class Intercept(Handler):
     """Handler to intercept logging messages and redirect to Loguru."""
 
-    def emit(self: Any, record: LogRecord):
+    def emit(self: Self, record: LogRecord):
         """Log emitter."""
 
         level: str = record.levelno
@@ -17,9 +17,10 @@ class LogIntercept(Handler):
         depth: int = 2
 
         try:
+            # TODO: Handle TRACE_HIKARI level
             level = logger.level(record.levelname).name
-        except Exception:
-            pass
+        except Exception as e:
+            logger.trace(f"Failed to determine logger intercept level, {e}")
 
         while frame.f_code.co_filename == logging.__file__:
             frame = frame.f_back

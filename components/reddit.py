@@ -3,11 +3,12 @@ from typing import Any, Dict, List, Optional
 import tanjun
 from asyncpraw.models.reddit.subreddit import Subreddit
 from asyncpraw.reddit import Reddit
-from helpers import Responses
 from loguru import logger
-from services import Reddit
 from tanjun import Component, SlashCommandGroup
 from tanjun.abc import SlashContext
+
+from helpers import Responses
+from services import Reddit
 
 component: Component = Component(name="Reddit")
 
@@ -39,16 +40,10 @@ communities: Dict[str, str] = {
     "queue",
     "Fetch the moderation and unmoderated queue counts for the specified Reddit community.",
 )
-async def CommandRedditQueue(
-    ctx: SlashContext,
-    community: Optional[str],
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
-) -> None:
+async def CommandRedditQueue(ctx: SlashContext, community: Optional[str]) -> None:
     """Handler for the /reddit queue command."""
 
-    client: Optional[Reddit] = await Reddit.CreateClient(
-        config["credentials"]["reddit"]
-    )
+    client: Optional[Reddit] = await Reddit.CreateClient()
 
     if client is None:
         await ctx.respond(

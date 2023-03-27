@@ -1,4 +1,4 @@
 from .hooks import MenuHooks, SlashHooks
-from .intercept import LogIntercept
+from .intercept import Intercept
 from .responses import Responses, Timestamps
 from .utils import Utility

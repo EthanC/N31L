@@ -1,3 +1,4 @@
+from os import environ
 from typing import Any, Dict, List, Optional
 
 import tanjun
@@ -18,9 +19,7 @@ async def EventDirectMessage(
 ) -> None:
     """Handler for notifying of direct messages."""
 
-    if not config["logging"]["discord"]["enable"]:
-        return
-    elif int(ctx.author.id) == config["users"]["bot"]:
+    if int(ctx.author.id) == config["users"]["bot"]:
         return
     elif int(ctx.author.id) == config["users"]["owner"]:
         return
@@ -60,9 +59,7 @@ async def EventDirectMessage(
             }
         )
 
-    status: bool = await Utility.POST(
-        config["logging"]["discord"]["webhookUrl"], payload
-    )
+    status: bool = await Utility.POST(environ.get("DISCORD_LOG_WEBHOOK"), payload)
 
     if status is not True:
         return
@@ -79,9 +76,7 @@ async def EventKeyword(
 ) -> None:
     """Handler for notifying of keyword mentions."""
 
-    if not config["logging"]["discord"]["enable"]:
-        return
-    elif ctx.author.is_bot:
+    if ctx.author.is_bot:
         return
     elif ctx.author.is_system:
         return
@@ -144,9 +139,7 @@ async def EventKeyword(
             }
         )
 
-    status: bool = await Utility.POST(
-        config["logging"]["discord"]["webhookUrl"], payload
-    )
+    status: bool = await Utility.POST(environ.get("DISCORD_LOG_WEBHOOK"), payload)
 
     if status is not True:
         return
@@ -163,9 +156,7 @@ async def EventMention(
 ) -> None:
     """Handler for notifying of mentions."""
 
-    if not config["logging"]["discord"]["enable"]:
-        return
-    elif ctx.author.is_bot:
+    if ctx.author.is_bot:
         return
     elif ctx.author.is_system:
         return
@@ -227,9 +218,7 @@ async def EventMention(
             }
         )
 
-    status: bool = await Utility.POST(
-        config["logging"]["discord"]["webhookUrl"], payload
-    )
+    status: bool = await Utility.POST(environ.get("DISCORD_LOG_WEBHOOK"), payload)
 
     if status is not True:
         return

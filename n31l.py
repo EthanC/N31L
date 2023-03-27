@@ -2,9 +2,11 @@ import json
 import logging
 import os
 from datetime import datetime
-from sys import exit, stderr
+from os import environ
+from sys import exit
 from typing import Any, Dict
 
+import dotenv
 import hikari
 import tanjun
 from hikari.impl.bot import GatewayBot
@@ -15,7 +17,7 @@ from notifiers.logging import NotificationHandler
 from tanjun import Client
 
 from components import Admin, Animals, Food, Logs, Messages, Raid, Reddit, Roles
-from helpers import LogIntercept, MenuHooks, SlashHooks
+from helpers import Intercept, MenuHooks, SlashHooks
 from models import State
 
 
@@ -25,8 +27,11 @@ def Initialize() -> None:
     logger.info("N31L")
     logger.info("https://github.com/EthanC/N31L")
 
+    if dotenv.load_dotenv():
+        logger.success("Loaded environment variables")
+
     config: Dict[str, Any] = LoadConfig()
-    debug: bool = config.get("debug", False)
+
     state: State = State(
         botStart=datetime.now(),
         raidOffense=False,
@@ -37,10 +42,30 @@ def Initialize() -> None:
         raidDefense=False,
     )
 
-    SetupLogging(config)
+    logging.basicConfig(handlers=[Intercept()], level=0, force=True)
+
+    if logUrl := environ.get("DISCORD_LOG_WEBHOOK"):
+        if not (logLevel := environ.get("DISCORD_LOG_LEVEL")):
+            logger.critical("Level for Discord webhook logging is not set")
+
+            return
+
+        logger.add(
+            NotificationHandler("slack", defaults={"webhook_url": f"{logUrl}/slack"}),
+            level=logLevel,
+            format="```\n{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - TEST\n```",
+        )
+
+        logger.success(f"Enabled logging to Discord webhook ({logLevel})")
+        logger.trace(logUrl)
+
+    if not environ.get("DISCORD_TOKEN"):
+        logger.critical("Failed to create bot instance, DISCORD_TOKEN is not set")
+
+        return
 
     bot: GatewayBot = hikari.GatewayBot(
-        config["credentials"]["discord"]["token"],
+        environ.get("DISCORD_TOKEN"),
         allow_color=False,
         banner=None,
         intents=(
@@ -51,8 +76,14 @@ def Initialize() -> None:
             | Intents.MESSAGE_CONTENT
         ),
     )
+
+    if not environ.get("DISCORD_SERVER_ID"):
+        logger.critical("Failed to register bot commands, DISCORD_SERVER_ID is not set")
+
+        return
+
     client: Client = tanjun.Client.from_gateway_bot(
-        bot, declare_global_commands=config["channels"]["guild"]
+        bot, declare_global_commands=int(environ.get("DISCORD_SERVER_ID"))
     )
 
     client.set_type_dependency(Dict[str, Any], config)
@@ -83,7 +114,7 @@ def Initialize() -> None:
     client.add_component(Roles)
 
     bot.run(
-        asyncio_debug=debug,
+        asyncio_debug=environ.get("DEBUG", False),
         activity=Activity(name="Call of Duty server", type=ActivityType.WATCHING),
         status=Status.DO_NOT_DISTURB,
     )
@@ -103,49 +134,6 @@ def LoadConfig() -> Dict[str, Any]:
     logger.success("Loaded configuration")
 
     return config
-
-
-def SetupLogging(config: Dict[str, Any]) -> None:
-    """Setup the logger using the configured values."""
-
-    settings: Dict[str, Any] = config["logging"]
-
-    logging.basicConfig(handlers=[LogIntercept()], level=0)
-
-    if (level := settings["severity"].upper()) != "DEBUG":
-        try:
-            logger.remove()
-            logger.add(stderr, level=level)
-
-            logger.success(f"Set logger severity to {level}")
-        except Exception as e:
-            # Fallback to default logger settings
-            logger.add(stderr, level="DEBUG")
-
-            logger.error(f"Failed to set logger severity to {level}, {e}")
-
-    if settings["discord"]["enable"]:
-        level: str = settings["discord"]["severity"].upper()
-        url: str = settings["discord"]["webhookUrl"]
-
-        try:
-            # Notifiers library does not natively support Discord at
-            # this time. However, Discord will accept payloads which
-            # are compatible with Slack by appending to the url.
-            # https://github.com/liiight/notifiers/issues/400
-            handler: NotificationHandler = NotificationHandler(
-                "slack", defaults={"webhook_url": f"{url}/slack"}
-            )
-
-            logger.add(
-                handler,
-                level=level,
-                format="```\n{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - {message}\n```",
-            )
-
-            logger.success(f"Enabled logging to Discord with severity {level}")
-        except Exception as e:
-            logger.error(f"Failed to enable logging to Discord, {e}")
 
 
 if __name__ == "__main__":

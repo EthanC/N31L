@@ -1,27 +1,29 @@
 import asyncio
+from os import environ
 from typing import Any, Dict, Optional
 
 import asyncpraw
 from asyncpraw.models.reddit.submission import Submission
 from asyncpraw.models.reddit.subreddit import Subreddit
 from asyncpraw.reddit import Reddit
-from helpers import Responses, Utility
 from hikari.embeds import Embed
 from loguru import logger
+
+from helpers import Responses, Utility
 
 
 class Reddit:
     """Class containing generic Reddit functions."""
 
-    async def CreateClient(credentials: Dict[str, Any]) -> Optional[Reddit]:
-        """Create an authenticated Reddit client using the provided credentials."""
+    async def CreateClient() -> Optional[Reddit]:
+        """Create an authenticated Reddit client using the configured credentials."""
 
         client: Reddit = asyncpraw.Reddit(
-            username=credentials["username"],
-            password=credentials["password"],
-            client_id=credentials["clientId"],
-            client_secret=credentials["clientSecret"],
-            user_agent=credentials["userAgent"],
+            username=environ.get("REDDIT_USERNAME"),
+            password=environ.get("REDDIT_PASSWORD"),
+            client_id=environ.get("REDDIT_CLIENT_ID"),
+            client_secret=environ.get("REDDIT_CLIENT_SECRET"),
+            user_agent="https://github.com/EthanC/N31L",
         )
 
         if client.read_only:
@@ -91,12 +93,10 @@ class Reddit:
 
         return total
 
-    async def GetRandomImage(
-        community: str, credentials: Dict[str, Any]
-    ) -> Optional[Embed]:
+    async def GetRandomImage(community: str) -> Optional[Embed]:
         """Fetch a random image from the specified Reddit community."""
 
-        client: Optional[Reddit] = await Reddit.CreateClient(credentials)
+        client: Optional[Reddit] = await Reddit.CreateClient()
 
         if client is None:
             return

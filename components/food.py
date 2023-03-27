@@ -1,25 +1,16 @@
 import asyncio
 import random
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 import tanjun
-from helpers import Responses
 from hikari import Permissions
 from hikari.embeds import Embed
-from services import (
-    Burger,
-    Dessert,
-    HotDog,
-    Pasta,
-    Pizza,
-    Salad,
-    Sandwich,
-    Sushi,
-    Taco,
-)
-from services.food import Pasta
 from tanjun import Component
 from tanjun.abc import SlashContext
+
+from helpers import Responses
+from services import Burger, Dessert, HotDog, Pasta, Pizza, Salad, Sandwich, Sushi, Taco
+from services.food import Pasta
 
 component: Component = Component(name="Food")
 foodTypes: List[str] = [
@@ -44,17 +35,11 @@ foodTypes: List[str] = [
     default=None,
 )
 @tanjun.as_slash_command("food", "Fetch a random picture of food.")
-async def CommandFood(
-    ctx: SlashContext,
-    type: Optional[str],
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
-) -> None:
+async def CommandFood(ctx: SlashContext, type: Optional[str]) -> None:
     """Handler for the /food command."""
 
     if type is None:
         type = random.choice(foodTypes)
-
-    redditLogin: Dict[str, str] = config["credentials"]["reddit"]
 
     result: Optional[Embed] = None
     source: int = 1
@@ -62,45 +47,45 @@ async def CommandFood(
 
     while result is None:
         if type == "Burger":
-            result = await Burger.RedditBurgers(redditLogin)
+            result = await Burger.RedditBurgers()
         elif type == "Dessert":
             source = random.randint(1, 7)
 
             if source == 1:
-                result = await Dessert.RedditCake(redditLogin)
+                result = await Dessert.RedditCake()
             elif source == 2:
-                result = await Dessert.RedditCookies(redditLogin)
+                result = await Dessert.RedditCookies()
             elif source == 3:
-                result = await Dessert.RedditCupcakes(redditLogin)
+                result = await Dessert.RedditCupcakes()
             elif source == 4:
-                result = await Dessert.RedditDessert(redditLogin)
+                result = await Dessert.RedditDessert()
             elif source == 5:
-                result = await Dessert.RedditDessertPorn(redditLogin)
+                result = await Dessert.RedditDessertPorn()
             elif source == 6:
-                result = await Dessert.RedditIcecreamery(redditLogin)
+                result = await Dessert.RedditIcecreamery()
             elif source == 7:
-                result = await Dessert.RedditPie(redditLogin)
+                result = await Dessert.RedditPie()
         elif type == "Hot Dog":
-            result = await HotDog.RedditHotDogs(redditLogin)
+            result = await HotDog.RedditHotDogs()
         elif type == "Pasta":
-            result = await Pasta.RedditPasta(redditLogin)
+            result = await Pasta.RedditPasta()
         elif type == "Pizza":
-            result = await Pizza.RedditPizza(redditLogin)
+            result = await Pizza.RedditPizza()
         elif type == "Salad":
-            result = await Salad.RedditSalads(redditLogin)
+            result = await Salad.RedditSalads()
         elif type == "Sandwich":
             source = random.randint(1, 3)
 
             if source == 1:
-                result = await Sandwich.RedditEatSandwiches(redditLogin)
+                result = await Sandwich.RedditEatSandwiches()
             if source == 2:
-                result = await Sandwich.RedditGrilledCheese(redditLogin)
+                result = await Sandwich.RedditGrilledCheese()
             elif source == 3:
-                result = await Sandwich.RedditSandwiches(redditLogin)
+                result = await Sandwich.RedditSandwiches()
         elif type == "Sushi":
-            result = await Sushi.RedditSushi(redditLogin)
+            result = await Sushi.RedditSushi()
         elif type == "Taco":
-            result = await Taco.RedditTacos(redditLogin)
+            result = await Taco.RedditTacos()
 
         retries += 1
 

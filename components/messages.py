@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
+from datetime import datetime
+from os import environ
 from typing import Any, Dict, List, Optional
 
 import tanjun
 from hikari import (
-    GuildForumChannel,
     GuildMessageCreateEvent,
     GuildTextChannel,
     GuildThreadChannel,
@@ -42,7 +42,7 @@ async def TaskArchiveThreads(
 
     maxLife: int = config["archiveThreads"]["maxLife"]
     threads: List[GuildThreadChannel] = await bot.rest.fetch_active_threads(
-        config["channels"]["guild"]
+        int(environ.get("DISCORD_SERVER_ID"))
     )
 
     for thread in threads:
