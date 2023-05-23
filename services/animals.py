@@ -40,7 +40,7 @@ class Bird:
         """Fetch a random bird image from SomeRandomAPI."""
 
         data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://some-random-api.ml/animal/birb"
+            "https://some-random-api.com/animal/bird"
         )
 
         if data is None:
@@ -178,26 +178,11 @@ class Cat:
         except Exception as e:
             logger.error(f"Failed to fetch from CATAAS, {e}")
 
-    async def RandomCat() -> Optional[Embed]:
-        """Fetch a random cat image from RandomCat."""
-
-        data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://aws.random.cat/meow"
-        )
-
-        if data is None:
-            return
-
-        try:
-            return Responses.Success(color=None, image=data["file"])
-        except Exception as e:
-            logger.error(f"Failed to fetch from RandomCat, {e}")
-
     async def SomeRandomAPI() -> Optional[Embed]:
         """Fetch a random cat image from SomeRandomAPI."""
 
         data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://some-random-api.ml/animal/cat"
+            "https://some-random-api.com/animal/cat"
         )
 
         if data is None:
@@ -349,7 +334,7 @@ class Dog:
         """Fetch a random dog image from SomeRandomAPI."""
 
         data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://some-random-api.ml/animal/dog"
+            "https://some-random-api.com/animal/dog"
         )
 
         if data is None:
@@ -408,7 +393,7 @@ class Fox:
         """Fetch a random fox image from SomeRandomAPI."""
 
         data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://some-random-api.ml/animal/fox"
+            "https://some-random-api.com/animal/fox"
         )
 
         if data is None:
@@ -432,7 +417,7 @@ class Kangaroo:
         """Fetch a random kangaroo image from SomeRandomAPI."""
 
         data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://some-random-api.ml/animal/kangaroo"
+            "https://some-random-api.com/animal/kangaroo"
         )
 
         if data is None:
@@ -451,7 +436,7 @@ class Koala:
         """Fetch a random koala image from SomeRandomAPI."""
 
         data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://some-random-api.ml/animal/koala"
+            "https://some-random-api.com/animal/koala"
         )
 
         if data is None:
@@ -508,7 +493,7 @@ class Panda:
         """Fetch a random panda image from SomeRandomAPI."""
 
         data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://some-random-api.ml/animal/panda"
+            "https://some-random-api.com/animal/panda"
         )
 
         if data is None:
@@ -532,7 +517,7 @@ class Raccoon:
         """Fetch a random panda image from SomeRandomAPI."""
 
         data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://some-random-api.ml/animal/raccoon"
+            "https://some-random-api.com/animal/raccoon"
         )
 
         if data is None:
@@ -570,7 +555,7 @@ class RedPanda:
         """Fetch a random panda image from SomeRandomAPI."""
 
         data: Optional[Dict[str, Any]] = await Utility.GET(
-            "https://some-random-api.ml/animal/red_panda"
+            "https://some-random-api.com/animal/red_panda"
         )
 
         if data is None:

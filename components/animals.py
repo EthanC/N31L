@@ -97,29 +97,27 @@ async def CommandAnimal(ctx: SlashContext, type: Optional[str]) -> None:
             elif source == 3:
                 result = await Bunny.RedditRabbits()
         elif type == "Cat":
-            source = random.randint(1, 11)
+            source = random.randint(1, 10)
 
             if source == 1:
                 result = await Cat.TheCatAPI()
             elif source == 2:
                 result = await Cat.CATAAS()
             elif source == 3:
-                result = await Cat.RandomCat()
-            elif source == 4:
                 result = await Cat.SomeRandomAPI()
-            elif source == 5:
+            elif source == 4:
                 result = await Cat.RedditBlurryPicturesCats()
-            elif source == 6:
+            elif source == 5:
                 result = await Cat.RedditCatPics()
-            elif source == 7:
+            elif source == 6:
                 result = await Cat.RedditCatPictures()
-            elif source == 8:
+            elif source == 7:
                 result = await Cat.RedditCats()
-            elif source == 9:
+            elif source == 8:
                 result = await Cat.RedditCatsStandingUp()
-            elif source == 10:
+            elif source == 9:
                 result = await Cat.RedditCursedCats()
-            elif source == 11:
+            elif source == 10:
                 result = await Cat.RedditSphynx()
         elif type == "Capybara":
             source = random.randint(1, 2)
