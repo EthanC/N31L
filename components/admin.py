@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional, Union
 
 import hikari
 import tanjun
-from helpers import Responses, Timestamps
 from hikari import (
     Application,
     Attachment,
@@ -19,16 +18,18 @@ from hikari import (
     User,
 )
 from hikari.embeds import Embed
+from hikari.errors import NotFoundError
 from hikari.impl.bot import GatewayBot
-
 from hikari.interactions.base_interactions import InteractionMember
 from hikari.presences import Activity, ActivityType, Status
 from hikari.users import UserImpl
 from loguru import logger
-from models import State
-from tanjun import Component
+from tanjun import Client, Component
 from tanjun.abc import SlashContext
 from tanjun.commands import SlashCommandGroup
+
+from helpers import Responses, Timestamps
+from models import State
 
 component: Component = Component(name="Admin")
 
@@ -38,6 +39,61 @@ send: SlashCommandGroup = component.with_slash_command(
 set: SlashCommandGroup = component.with_slash_command(
     tanjun.slash_command_group("set", "Manage the state of N31L.")
 )
+
+
+@component.with_slash_command()
+@tanjun.with_own_permission_check(Permissions.BAN_MEMBERS)
+@tanjun.with_str_slash_option("reason", "Enter a reason for unbanning this user.")
+@tanjun.with_user_slash_option("user", "Enter a user (userId acceptable).")
+@tanjun.as_slash_command("unban", "Unban a user from the current server.")
+async def CommandUnban(
+    ctx: SlashContext,
+    user: Union[InteractionMember, UserImpl],
+    reason: str,
+    client: Client = tanjun.inject(type=Client),
+    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+) -> None:
+    """Handler for the /unban slash command."""
+
+    server: Guild = await ctx.fetch_guild()
+
+    try:
+        await server.unban(
+            user,
+            reason=f"Unbanned by {Responses.ExpandUser(ctx.author, False)} with reason: {reason}",
+        )
+    except NotFoundError:
+        await ctx.respond(
+            Responses.Warning(
+                description=f"{Responses.ExpandUser(user)} is not banned in this server."
+            )
+        )
+
+        return
+    except Exception as e:
+        logger.error(
+            f"Failed to unban {Responses.ExpandUser(user)} in {Responses.ExpandGuild(ctx.guild_id)}, {e}"
+        )
+
+        await ctx.respond(
+            Responses.Fail(
+                description=f"Failed to unban {Responses.ExpandUser(user)}, an unknown error occurred."
+            )
+        )
+
+        return
+
+    await client.rest.create_message(
+        config["channels"]["moderation"],
+        Responses.Log(
+            "hammer",
+            f"{Responses.ExpandUser(user)} unbanned by {Responses.ExpandUser(ctx.author)} with reason: *{reason}*",
+        ),
+    )
+
+    await ctx.respond(
+        embed=Responses.Success(description=f"Unbanned {Responses.ExpandUser(user)}")
+    )
 
 
 @component.with_slash_command()
