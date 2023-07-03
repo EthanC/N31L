@@ -34,9 +34,10 @@ services:
     container_name: n31l
     image: ethanchrisp/n31l:latest
     environment:
+      LOG_LEVEL: INFO
+      LOG_DISCORD_WEBHOOK_URL: https://discord.com/api/webhooks/YYYYYYYY/YYYYYYYY
+      LOG_DISCORD_WEBHOOK_LEVEL: WARNING
       DISCORD_TOKEN: XXXXXXXX
-      DISCORD_LOG_WEBHOOK: https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX
-      DISCORD_LOG_LEVEL: WARNING
       DISCORD_SERVER_ID: 0000000000
       CAT_API_KEY: XXXXXXXXXX
       DOG_API_KEY: XXXXXXXXXX

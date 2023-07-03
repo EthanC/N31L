@@ -69,8 +69,8 @@ async def CommandRaidCollect(
         if welcomes is None:
             raise ValueError("system messages channel is not set")
     except Exception as e:
-        logger.error(
-            f"Failed to fetch system messages channel in {Responses.ExpandGuild(ctx.get_guild(), False)}, {e}"
+        logger.opt(exception=e).error(
+            f"Failed to fetch system messages channel in {Responses.ExpandGuild(ctx.get_guild(), False)}"
         )
 
         await ctx.respond(
@@ -138,9 +138,7 @@ async def CommandRaidCollect(
 
                         break
     except Exception as e:
-        logger.error(
-            f"Failed to collect {amount:,} recently-joined users in {Responses.ExpandGuild(ctx.get_guild(), False)}, {e}"
-        )
+        logger.opt(exception=e).error(f"Failed to collect {amount:,} recently-joined users in {Responses.ExpandGuild(ctx.get_guild(), False)}")
 
         if len(users) == 0:
             await ctx.respond(

@@ -259,7 +259,7 @@ async def EventMirror(
         elif not url.endswith(".html"):
             raise Exception(f"expected endswith .html, got {url}")
     except Exception as e:
-        logger.debug(f"Failed to validate HepBoat log archive URL, {e}")
+        logger.opt(exception=e).debug(f"Failed to validate HepBoat log archive URL")
 
         return
 
@@ -276,7 +276,9 @@ async def EventMirror(
     try:
         filename = url.split("/")[-1].split(".")[0]
     except Exception as e:
-        logger.debug(f"Failed to determine HepBoat log archive filename, {e}")
+        logger.opt(exception=e).debug(
+            f"Failed to determine HepBoat log archive filename"
+        )
 
         return
 
@@ -290,8 +292,8 @@ async def EventMirror(
             if (user := f"`{user}`") not in users:
                 users.append(user)
         except Exception as e:
-            logger.debug(
-                f"Failed to determine relevant user and channel in HepBoat log archive, {e}"
+            logger.opt(exception=e).debug(
+                f"Failed to determine relevant user and channel in HepBoat log archive"
             )
 
     if channelId is not None:

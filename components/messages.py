@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 
 import tanjun
 from hikari import (
+    GatewayBot,
     GuildMessageCreateEvent,
     GuildTextChannel,
     GuildThreadChannel,
@@ -13,7 +14,6 @@ from hikari import (
     Permissions,
     StickerFormatType,
 )
-from hikari.impl.bot import GatewayBot
 from hikari.messages import Message
 from loguru import logger
 from tanjun import Component
@@ -85,8 +85,8 @@ async def EventShadowban(
     try:
         await ctx.message.delete()
     except Exception as e:
-        logger.error(
-            f"Failed to enforce shadowban for {Responses.ExpandUser(ctx.author, False)} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(ctx.get_channel(), False)}, {e}"
+        logger.opt(exception=e).error(
+            f"Failed to enforce shadowban for {Responses.ExpandUser(ctx.author, False)} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(ctx.get_channel(), False)}"
         )
 
         return
@@ -235,8 +235,8 @@ async def CommandPurge(
                 if len(messages) == amount:
                     break
     except Exception as e:
-        logger.error(
-            f"Failed to fetch messages in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}, {e}"
+        logger.opt(exception=e).error(
+            f"Failed to fetch messages in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}"
         )
 
         if len(messages) == 0:
@@ -251,8 +251,8 @@ async def CommandPurge(
     try:
         await ctx.rest.delete_messages(channel.id, messages)
     except Exception as e:
-        logger.error(
-            f"Failed to delete messages in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}, {e}"
+        logger.opt(exception=e).error(
+            f"Failed to delete messages in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}"
         )
 
         await ctx.respond(
@@ -364,8 +364,8 @@ async def CommandParseUsers(
 
                         results.append(find)
     except Exception as e:
-        logger.error(
-            f"Failed to parse message {message_id} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}, {e}"
+        logger.opt(exception=e).error(
+            f"Failed to parse message {message_id} in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}"
         )
 
         await ctx.respond(
@@ -384,7 +384,9 @@ async def CommandParseUsers(
         except Exception as e:
             results.remove(result)
 
-            logger.debug(f"{result} is not a user ID, removed from results ({e})")
+            logger.opt(exception=e).debug(
+                f"{result} is not a user ID, removed from results"
+            )
 
     if len(results) == 0:
         await ctx.respond(

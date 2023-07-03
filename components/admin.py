@@ -10,6 +10,7 @@ from hikari import (
     Application,
     Attachment,
     DMChannel,
+    GatewayBot,
     Guild,
     GuildTextChannel,
     InteractionChannel,
@@ -19,7 +20,6 @@ from hikari import (
 )
 from hikari.embeds import Embed
 from hikari.errors import NotFoundError
-from hikari.impl.bot import GatewayBot
 from hikari.interactions.base_interactions import InteractionMember
 from hikari.presences import Activity, ActivityType, Status
 from hikari.users import UserImpl
@@ -71,8 +71,8 @@ async def CommandUnban(
 
         return
     except Exception as e:
-        logger.error(
-            f"Failed to unban {Responses.ExpandUser(user)} in {Responses.ExpandGuild(ctx.guild_id)}, {e}"
+        logger.opt(exception=e).error(
+            f"Failed to unban {Responses.ExpandUser(user)} in {Responses.ExpandGuild(ctx.guild_id)}"
         )
 
         await ctx.respond(
@@ -109,8 +109,8 @@ async def CommandProfile(
         try:
             user.user = await ctx.rest.fetch_user(user.id)
         except Exception as e:
-            logger.warning(
-                f"Failed to fetch user {Responses.ExpandUser(user.id, False)}, {e}"
+            logger.opt(exception=e).warning(
+                f"Failed to fetch user {Responses.ExpandUser(user.id, False)}"
             )
 
     fields: List[Dict[str, Any]] = []
@@ -215,12 +215,12 @@ async def CommandReboot(
 
     try:
         logger.critical(
-            "N31L is rebooting, this function assumes that a process manager, such as PM2, will automatically restart the process"
+            "N31L is rebooting, this function assumes that a process manager, such as Docker, will automatically restart the process"
         )
 
         exit(0)
     except Exception as e:
-        logger.critical(f"Failed to restart bot instance, {e}")
+        logger.opt(exception=e).critical(f"Failed to restart bot instance")
 
         await ctx.create_followup(
             embed=Responses.Fail(
@@ -372,8 +372,8 @@ async def CommandSendDirectMessage(
             dm.id, content, attachments=[] if attachment is None else [attachment]
         )
     except Exception as e:
-        logger.error(
-            f"Failed to send direct message to {Responses.ExpandUser(user, False)}, {e}"
+        logger.opt(exception=e).error(
+            f"Failed to send direct message to {Responses.ExpandUser(user, False)}"
         )
         logger.trace(content)
 
@@ -434,8 +434,8 @@ async def CommandSendMessage(
             channel.id, content, attachments=[] if attachment is None else [attachment]
         )
     except Exception as e:
-        logger.error(
-            f"Failed to send message to {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}, {e}"
+        logger.opt(exception=e).error(
+            f"Failed to send message to {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandChannel(channel, False)}"
         )
         logger.trace(content)
 
@@ -490,8 +490,8 @@ async def CommandSetActivity(
     try:
         await bot.update_presence(activity=Activity(name=name, url=url, type=type))
     except Exception as e:
-        logger.error(
-            f"Failed to set presence activity to {ActivityType(type).name} {name}, {e}"
+        logger.opt(exception=e).error(
+            f"Failed to set presence activity to {ActivityType(type).name} {name}"
         )
 
         await ctx.respond(
@@ -537,7 +537,7 @@ async def CommandSetAvatar(ctx: SlashContext, image: Optional[Attachment]) -> No
         else:
             await ctx.rest.edit_my_user(avatar=None)
     except Exception as e:
-        logger.error(f"Failed to set avatar to {url}, {e}")
+        logger.opt(exception=e).error(f"Failed to set avatar to {url}")
 
         await ctx.respond(
             embed=Responses.Fail(description=f"Failed to set avatar, {e}")
@@ -580,7 +580,9 @@ async def CommandSetStatus(
     try:
         await bot.update_presence(status=type)
     except Exception as e:
-        logger.error(f"Failed to set presence status to {Status(type).name}, {e}")
+        logger.opt(exception=e).error(
+            f"Failed to set presence status to {Status(type).name}"
+        )
 
         await ctx.respond(
             embed=Responses.Fail(description=f"Failed to set presence status, {e}")
@@ -605,7 +607,7 @@ async def CommandSetUsername(ctx: SlashContext, username: str) -> None:
     try:
         await ctx.rest.edit_my_user(username=username)
     except Exception as e:
-        logger.error(f"Failed to set username to {username}, {e}")
+        logger.opt(exception=e).error(f"Failed to set username to {username}")
 
         await ctx.respond(
             embed=Responses.Fail(description=f"Failed to set username, {e}")

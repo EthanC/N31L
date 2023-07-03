@@ -39,7 +39,7 @@ class Reddit:
         try:
             await client.close()
         except Exception as e:
-            logger.warning(f"Failed to close Reddit session, {e}")
+            logger.opt(exception=e).warning(f"Failed to close Reddit session")
 
     async def GetSubreddit(client: Reddit, community: str) -> Optional[Subreddit]:
         """Fetch the subreddit object for the specified Reddit community."""
@@ -47,7 +47,9 @@ class Reddit:
         try:
             return await client.subreddit(community, fetch=True)
         except Exception as e:
-            logger.error(f"Failed to fetch Reddit community r/{community}, {e}")
+            logger.opt(exception=e).error(
+                f"Failed to fetch Reddit community r/{community}"
+            )
 
     async def CountModqueue(client: Reddit, community: Subreddit) -> int:
         """
@@ -61,9 +63,11 @@ class Reddit:
             async for _ in community.mod.modqueue(limit=None):
                 total += 1
         except Exception as e:
-            logger.error(
-                f"Failed to count moderation queue in Reddit community r/{community.display_name}, {e}"
+            logger.opt(exception=e).error(
+                f"Failed to count moderation queue in Reddit community r/{community.display_name}"
             )
+
+            return total
 
         logger.success(
             f"Fetched moderation queue count ({total:,}) for Reddit community r/{community.display_name}"
@@ -83,9 +87,11 @@ class Reddit:
             async for _ in community.mod.unmoderated(limit=None):
                 total += 1
         except Exception as e:
-            logger.error(
-                f"Failed to count unmoderated queue in Reddit community r/{community.display_name}, {e}"
+            logger.opt(exception=e).error(
+                f"Failed to count unmoderated queue in Reddit community r/{community.display_name}"
             )
+
+            return total
 
         logger.success(
             f"Fetched unmoderated queue count ({total:,}) for Reddit community r/{community.display_name}"
@@ -150,8 +156,8 @@ class Reddit:
             # Sleep to prevent rate-limiting
             await asyncio.sleep(float(1))
         except Exception as e:
-            logger.error(
-                f"Failed to fetch random image post from Reddit community r/{community}, {e}"
+            logger.opt(exception=e).error(
+                f"Failed to fetch random image post from Reddit community r/{community}"
             )
 
         await Reddit.DestroyClient(client)

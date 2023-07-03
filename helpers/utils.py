@@ -26,14 +26,14 @@ class Utility:
 
             logger.trace(res.text)
         except Exception as e:
-            logger.error(f"Failed to GET {url}, {e}")
+            logger.opt(exception=e).error(f"Failed to GET {url}")
 
             return
 
         try:
             return res.json()
-        except:
-            pass
+        except Exception as e:
+            logger.opt(exception=e).debug("Failed to parse response as JSON")
 
         return res.text
 
@@ -52,7 +52,7 @@ class Utility:
 
                 res.raise_for_status()
         except Exception as e:
-            logger.error(f"Failed to POST {url}, {e}")
+            logger.opt(exception=e).error(f"Failed to POST {url}")
 
             return False
 
@@ -80,7 +80,7 @@ class Utility:
         try:
             result = result.rsplit(" ", 1)[0]
         except Exception as e:
-            logger.debug(f"Failed to cleanly trim string, {e}")
+            logger.opt(exception=e).debug(f"Failed to cleanly trim string")
             logger.trace(result)
 
         if end is not None:
@@ -107,7 +107,7 @@ class Utility:
 
                 results.append(int(entry))
         except Exception as e:
-            logger.debug(f"Failed to find numbers in string, {e}")
+            logger.opt(exception=e).debug(f"Failed to find numbers in string")
             logger.trace(input)
 
         return results

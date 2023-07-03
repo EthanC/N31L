@@ -3,17 +3,16 @@ import logging
 import os
 from datetime import datetime
 from os import environ
-from sys import exit
+from sys import exit, stdout
 from typing import Any, Dict
 
 import dotenv
-import hikari
 import tanjun
-from hikari.impl.bot import GatewayBot
+from hikari import GatewayBot
 from hikari.intents import Intents
 from hikari.presences import Activity, ActivityType, Status
 from loguru import logger
-from notifiers.logging import NotificationHandler
+from loguru_discord import DiscordSink
 from tanjun import Client
 
 from components import Admin, Animals, Food, Logs, Messages, Raid, Reddit, Roles
@@ -29,6 +28,7 @@ def Initialize() -> None:
 
     if dotenv.load_dotenv():
         logger.success("Loaded environment variables")
+        logger.trace(environ)
 
     config: Dict[str, Any] = LoadConfig()
 
@@ -36,27 +36,28 @@ def Initialize() -> None:
 
     logging.basicConfig(handlers=[Intercept()], level=0, force=True)
 
-    if logUrl := environ.get("DISCORD_LOG_WEBHOOK"):
-        if not (logLevel := environ.get("DISCORD_LOG_LEVEL")):
-            logger.critical("Level for Discord webhook logging is not set")
+    if level := environ.get("LOG_LEVEL"):
+        logger.remove()
+        logger.add(stdout, level=level)
 
-            return
+        logger.success(f"Set console logging level to {level}")
 
+    if url := environ.get("LOG_DISCORD_WEBHOOK_URL"):
         logger.add(
-            NotificationHandler("slack", defaults={"webhook_url": f"{logUrl}/slack"}),
-            level=logLevel,
-            format="```\n{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - {message}\n```",
+            DiscordSink(url),
+            level=environ.get("LOG_DISCORD_WEBHOOK_LEVEL"),
+            backtrace=False,
         )
 
-        logger.success(f"Enabled logging to Discord webhook ({logLevel})")
-        logger.trace(logUrl)
+        logger.success(f"Enabled logging to Discord webhook")
+        logger.trace(url)
 
     if not environ.get("DISCORD_TOKEN"):
         logger.critical("Failed to create bot instance, DISCORD_TOKEN is not set")
 
         return
 
-    bot: GatewayBot = hikari.GatewayBot(
+    bot: GatewayBot = GatewayBot(
         environ.get("DISCORD_TOKEN"),
         allow_color=False,
         banner=None,
@@ -119,7 +120,7 @@ def LoadConfig() -> Dict[str, Any]:
         with open("config.json", "r") as file:
             config: Dict[str, Any] = json.loads(file.read())
     except Exception as e:
-        logger.critical(f"Failed to load configuration, {e}")
+        logger.opt(exception=e).critical("Failed to load configuration")
 
         exit(1)
 
@@ -140,7 +141,7 @@ if __name__ == "__main__":
 
                 logger.success("Installed libuv event loop")
             except Exception as e:
-                logger.debug(f"Defaulted to asyncio event loop, {e}")
+                logger.opt(exception=e).debug("Defaulted to asyncio event loop")
 
         Initialize()
     except KeyboardInterrupt:
