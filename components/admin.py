@@ -328,8 +328,8 @@ async def CommandStatus(
             author="N31L",
             authorUrl="https://github.com/EthanC/N31L",
             authorIcon="https://i.imgur.com/cGtkGuI.png",
-            footer="Developed by Lacking#0001",
-            footerIcon="https://i.imgur.com/KZnKBn2.gif",
+            footer="Developed by lacking",
+            footerIcon="https://i.imgur.com/WTQid9f.gif",
         ),
     )
 
