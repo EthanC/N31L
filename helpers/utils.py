@@ -80,7 +80,7 @@ class Utility:
         try:
             result = result.rsplit(" ", 1)[0]
         except Exception as e:
-            logger.opt(exception=e).debug(f"Failed to cleanly trim string")
+            logger.opt(exception=e).debug("Failed to cleanly trim string")
             logger.trace(result)
 
         if end is not None:
@@ -107,7 +107,7 @@ class Utility:
 
                 results.append(int(entry))
         except Exception as e:
-            logger.opt(exception=e).debug(f"Failed to find numbers in string")
+            logger.opt(exception=e).debug("Failed to find numbers in string")
             logger.trace(input)
 
         return results

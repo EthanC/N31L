@@ -57,4 +57,4 @@ N31L is built for [Python 3.11](https://www.python.org/) or greater.
 1. Install required dependencies using [Poetry](https://python-poetry.org/): `poetry install`
 2. Rename `.env.example` to `.env`, then provide the environment variables.
 3. Rename `config_example.json` to `config.json`, then provide the configurable variables.
-4. Start N31L: `python n31l.py -OO`
+4. Start N31L: `python -OO n31l.py`

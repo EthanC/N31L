@@ -1,4 +1,4 @@
-FROM python:3.11.3-slim-bullseye
+FROM python:3.11.4-slim-bullseye
 
 WORKDIR /n31l
 
@@ -13,4 +13,4 @@ RUN poetry install
 
 COPY . .
 
-CMD [ "python", "n31l.py", "-OO" ]
+CMD [ "python", "-OO n31l.py" ]

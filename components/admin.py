@@ -220,7 +220,7 @@ async def CommandReboot(
 
         exit(0)
     except Exception as e:
-        logger.opt(exception=e).critical(f"Failed to restart bot instance")
+        logger.opt(exception=e).critical("Failed to restart bot instance")
 
         await ctx.create_followup(
             embed=Responses.Fail(

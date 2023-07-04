@@ -31,9 +31,9 @@ def Initialize() -> None:
         logger.trace(environ)
 
     config: Dict[str, Any] = LoadConfig()
-
     state: State = State(botStart=datetime.now())
 
+    # Reroute standard logging to Loguru
     logging.basicConfig(handlers=[Intercept()], level=0, force=True)
 
     if level := environ.get("LOG_LEVEL"):
@@ -49,7 +49,7 @@ def Initialize() -> None:
             backtrace=False,
         )
 
-        logger.success(f"Enabled logging to Discord webhook")
+        logger.success("Enabled logging to Discord webhook")
         logger.trace(url)
 
     if not environ.get("DISCORD_TOKEN"):

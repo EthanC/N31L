@@ -259,7 +259,7 @@ async def EventMirror(
         elif not url.endswith(".html"):
             raise Exception(f"expected endswith .html, got {url}")
     except Exception as e:
-        logger.opt(exception=e).debug(f"Failed to validate HepBoat log archive URL")
+        logger.opt(exception=e).debug("Failed to validate HepBoat log archive URL")
 
         return
 
