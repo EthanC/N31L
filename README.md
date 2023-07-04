@@ -1,6 +1,6 @@
 # N31L
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EthanC/N31L/main.yml?branch=main) ![Docker Pulls](https://img.shields.io/docker/pulls/ethanchrisp/n31l?label=Docker%20Pulls) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/ethanchrisp/n31l/latest?label=Docker%20Image%20Size)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EthanC/N31L/ci.yml?branch=main) ![Docker Pulls](https://img.shields.io/docker/pulls/ethanchrisp/n31l?label=Docker%20Pulls) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/ethanchrisp/n31l/latest?label=Docker%20Image%20Size)
 
 N31L is a utilitarian Discord bot for the [Call of Duty server](https://discord.gg/CallofDuty).
 
