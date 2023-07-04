@@ -13,4 +13,4 @@ RUN poetry install
 
 COPY . .
 
-CMD [ "python", "-OO n31l.py" ]
+CMD [ "python", "-OO", "n31l.py" ]
