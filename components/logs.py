@@ -59,7 +59,7 @@ async def EventDirectMessage(
             }
         )
 
-    status: bool = await Utility.POST(environ.get("DISCORD_LOG_WEBHOOK"), payload)
+    status: bool = await Utility.POST(environ.get("LOG_DISCORD_WEBHOOK_URL"), payload)
 
     if status is not True:
         return
@@ -139,7 +139,7 @@ async def EventKeyword(
             }
         )
 
-    status: bool = await Utility.POST(environ.get("DISCORD_LOG_WEBHOOK"), payload)
+    status: bool = await Utility.POST(environ.get("LOG_DISCORD_WEBHOOK_URL"), payload)
 
     if status is not True:
         return
@@ -218,7 +218,7 @@ async def EventMention(
             }
         )
 
-    status: bool = await Utility.POST(environ.get("DISCORD_LOG_WEBHOOK"), payload)
+    status: bool = await Utility.POST(environ.get("LOG_DISCORD_WEBHOOK_URL"), payload)
 
     if status is not True:
         return
