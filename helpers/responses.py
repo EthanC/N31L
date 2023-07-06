@@ -2,7 +2,7 @@ import hashlib
 from datetime import datetime
 from typing import Dict, List, Optional, Union
 
-from hikari import Guild, GuildChannel, GuildThreadChannel, Role, User
+from hikari import Guild, GuildChannel, GuildThreadChannel, Role, Snowflake, User
 from hikari.embeds import Embed
 from loguru import logger
 
@@ -10,13 +10,32 @@ from loguru import logger
 class Responses:
     """Class containing generic, modular response templates."""
 
-    def ExpandUser(user: User, format: bool = True) -> str:
+    def ExpandUser(user: User, format: bool = True, showId: bool = True) -> str:
         """Build a reusable string for the provided identity."""
 
-        if format:
-            return f"`{user.username}#{user.discriminator}` (`{user.id}`)"
+        result: str = ""
 
-        return f"{user.username}#{user.discriminator} ({user.id})"
+        username: str = user.username
+        userId: Snowflake = user.id
+
+        if hasattr(user, "discriminator"):
+            if (discrim := int(user.discriminator)) != 0:
+                username += f"#{discrim}"
+
+        if format:
+            result += f"`{username}`"
+        else:
+            result += username
+
+        if showId:
+            if format:
+                result += f" (`{userId}`)"
+            else:
+                result += f" ({userId})"
+
+        logger.trace(result)
+
+        return result
 
     def ExpandRole(role: Role, format: bool = True) -> str:
         """Build a reusable string for the provided role."""

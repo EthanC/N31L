@@ -167,7 +167,7 @@ async def CommandProfile(
     result: Embed = Responses.Success(
         color=accent,
         fields=fields,
-        author=f"{user.username}#{user.discriminator}",
+        author=Responses.ExpandUser(user, False, False),
         authorIcon=altAvatar,
         thumbnail=user.default_avatar_url
         if (avatar := user.avatar_url) is None

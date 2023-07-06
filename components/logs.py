@@ -41,7 +41,7 @@ async def EventDirectMessage(
                 "color": int("00FF00", base=16),
                 "footer": {"text": f"{ctx.author.id}"},
                 "author": {
-                    "name": f"{ctx.author.username}#{ctx.author.discriminator}",
+                    "name": Responses.ExpandUser(ctx.author, False, False),
                     "icon_url": str(ctx.author.default_avatar_url)
                     if (avatar := ctx.author.avatar_url) is None
                     else str(avatar),
@@ -109,7 +109,7 @@ async def EventKeyword(
                 "color": int("00FF00", base=16),
                 "footer": {"text": f"{ctx.author.id}"},
                 "author": {
-                    "name": f"{ctx.author.username}#{ctx.author.discriminator}",
+                    "name": Responses.ExpandUser(ctx.author, False, False),
                     "icon_url": str(ctx.author.default_avatar_url)
                     if (avatar := ctx.author.avatar_url) is None
                     else str(avatar),
@@ -188,7 +188,7 @@ async def EventMention(
                 "color": int("00FF00", base=16),
                 "footer": {"text": f"{ctx.author.id}"},
                 "author": {
-                    "name": f"{ctx.author.username}#{ctx.author.discriminator}",
+                    "name": Responses.ExpandUser(ctx.author, False, False),
                     "icon_url": str(ctx.author.default_avatar_url)
                     if (avatar := ctx.author.avatar_url) is None
                     else str(avatar),
