@@ -1,4 +1,3 @@
-import json
 import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
@@ -46,7 +45,7 @@ class Utility:
             async with httpx.AsyncClient() as http:
                 res: Response = await http.post(
                     url,
-                    data=json.dumps(payload),
+                    json=payload,
                     headers={"content-type": "application/json"},
                 )
 
