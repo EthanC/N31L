@@ -319,7 +319,9 @@ async def CommandStatus(
     stats.append(
         {"name": "Hikari", "value": f"[`{hikari.__version__}`]({hikari.__url__})"}
     )
-    stats.append("GitHub", "[EthanC/N31L](https://github.com/EthanC/N31L)")
+    stats.append(
+        {"name": "GitHub", "value": "[EthanC/N31L](https://github.com/EthanC/N31L)"}
+    )
 
     await ctx.respond(
         embed=Responses.Success(
