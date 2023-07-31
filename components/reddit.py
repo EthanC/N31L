@@ -16,6 +16,7 @@ reddit: SlashCommandGroup = component.with_slash_command(
     tanjun.slash_command_group("reddit", "Slash Commands to manage Reddit communities.")
 )
 communities: Dict[str, str] = {
+    "r/ModernWarfareIII": "ModernWarfareIII",
     "r/ModernWarfareII": "ModernWarfareII",
     "r/CODVanguard": "CODVanguard",
     "r/BlackOpsColdWar": "BlackOpsColdWar",
