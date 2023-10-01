@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 import dotenv
 import tanjun
-from hikari import GatewayBot
+from hikari import GatewayBot, GatewayConnectionError
 from hikari.intents import Intents
 from hikari.presences import Activity, ActivityType, Status
 from loguru import logger
@@ -44,7 +44,7 @@ def Initialize() -> None:
 
     if url := environ.get("LOG_DISCORD_WEBHOOK_URL"):
         logger.add(
-            DiscordSink(url),
+            DiscordSink(url, suppress=[GatewayConnectionError]),
             level=environ.get("LOG_DISCORD_WEBHOOK_LEVEL"),
             backtrace=False,
         )
