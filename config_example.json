@@ -1,6 +1,7 @@
 {
     "logging": {
         "keywords": ["notify", "for", "these", "words"],
+        "kwIgnore": [1234567890, 9876543210],
         "mentions": [1234567890, 98766543210],
         "lifetime": 86400
     },
@@ -26,7 +27,7 @@
     },
     "archiveThreads": {
         "enable": true,
-        "maxLife": 86400,
+        "lifetime": 86400,
         "channels": [1234567890, 9876543210]
     }
 }

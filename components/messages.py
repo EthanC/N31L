@@ -40,7 +40,7 @@ async def TaskArchiveThreads(
     if not config["archiveThreads"]["enable"]:
         return
 
-    maxLife: int = config["archiveThreads"]["maxLife"]
+    lifetime: int = config["archiveThreads"]["lifetime"]
     threads: List[GuildThreadChannel] = await bot.rest.fetch_active_threads(
         int(environ.get("DISCORD_SERVER_ID"))
     )
@@ -50,7 +50,7 @@ async def TaskArchiveThreads(
             continue
         elif thread.is_archived:
             continue
-        elif Utility.Elapsed(datetime.now(), thread.created_at) < maxLife:
+        elif Utility.Elapsed(datetime.now(), thread.created_at) < lifetime:
             continue
 
         await bot.rest.edit_channel(thread.id, archived=True)

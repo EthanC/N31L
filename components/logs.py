@@ -89,6 +89,8 @@ async def EventKeyword(
         return
     elif ctx.author.id == config["users"]["owner"]:
         return
+    elif ctx.message.channel_id in config["logging"]["kwIgnore"]:
+        return
     elif ctx.message.content is None:
         return
 
