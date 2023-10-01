@@ -1,7 +1,8 @@
 {
     "logging": {
         "keywords": ["notify", "for", "these", "words"],
-        "mentions": [1234567890, 98766543210]
+        "mentions": [1234567890, 98766543210],
+        "lifetime": 86400
     },
     "channels": {
         "moderators": 1234567890,
