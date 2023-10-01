@@ -504,11 +504,6 @@ class Panda:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from SomeRandomAPI")
 
-    async def RedditPanda() -> Optional[Embed]:
-        """Fetch a random panda image from r/panda."""
-
-        return await Reddit.GetRandomImage("panda")
-
 
 class Raccoon:
     """Class containing raccoon image sources."""

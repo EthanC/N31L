@@ -180,12 +180,8 @@ async def CommandAnimal(ctx: SlashContext, type: Optional[str]) -> None:
             if source == 1:
                 result = await Otter.RedditOtterable()
         elif type == "Panda":
-            source = random.randint(1, 2)
-
             if source == 1:
                 result = await Panda.SomeRandomAPI()
-            elif source == 2:
-                result = await Panda.RedditPanda()
         elif type == "Raccoon":
             source = random.randint(1, 3)
 
