@@ -248,7 +248,7 @@ async def EventMirror(
     content: str = ctx.message.content.lower()
     url: Optional[str] = None
 
-    if "hep.gg/api/archive/" not in content:
+    if "prime-dash.hepbo.at/api/archive/" not in content:
         return
 
     try:
