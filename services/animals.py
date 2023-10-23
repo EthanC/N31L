@@ -172,8 +172,8 @@ class Cat:
         try:
             return Responses.Success(
                 color=None,
-                image="https://cataas.com" + data["url"],
-                footer=None if (tags := data["tags"]) is None else ", ".join(tags),
+                image="https://cataas.com/cat/" + data["_id"],
+                footer=None if (tags := data.get("tags")) is None else ", ".join(tags),
             )
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from CATAAS")
