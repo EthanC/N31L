@@ -31,7 +31,7 @@ def Initialize() -> None:
         logger.trace(environ)
 
     config: Dict[str, Any] = LoadConfig()
-    state: State = State(botStart=datetime.now(), threadMessages=[])
+    state: State = State(botStart=datetime.now())
 
     # Reroute standard logging to Loguru
     logging.basicConfig(handlers=[Intercept()], level=0, force=True)

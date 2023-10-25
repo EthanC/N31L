@@ -1,20 +1,16 @@
-from datetime import datetime
 from os import environ
 from typing import Any, Dict, List, Optional
 
 import tanjun
-from hikari import ChannelType, PartialChannel
 from hikari.events.message_events import (
     DMMessageCreateEvent,
     GuildMessageCreateEvent,
-    GuildMessageDeleteEvent,
 )
 from hikari.files import Bytes
 from loguru import logger
 from tanjun import Client, Component
 
 from helpers import Responses, Utility
-from models import State
 
 component: Component = Component(name="Logs")
 
@@ -318,128 +314,3 @@ async def EventMirror(
     )
 
     logger.success(f"Mirrored Zeppelin log archive {url}")
-
-
-@component.with_listener(GuildMessageCreateEvent)
-async def EventStoreThreadMessage(
-    ctx: GuildMessageCreateEvent,
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
-    state: State = tanjun.inject(type=State),
-) -> None:
-    """Temporarily store thread messages for future logging."""
-
-    if not ctx.message:
-        return
-
-    channel: PartialChannel = await ctx.message.fetch_channel()
-
-    if not channel:
-        return
-
-    # Disregard message deletions in regular channels. Zeppelin is only
-    # missing thread message deletions.
-    if (channel.type != ChannelType.GUILD_PUBLIC_THREAD) and (
-        channel.type != ChannelType.GUILD_PRIVATE_THREAD
-    ):
-        return
-
-    content: str = ctx.message.content
-
-    for attachment in ctx.message.attachments:
-        content += f"\n<{attachment.url}>"
-
-    state.threadMessages.append(
-        {
-            "id": ctx.message.id,
-            "created": int(ctx.message.created_at.timestamp()),
-            "content": content,
-        }
-    )
-
-    logger.debug(
-        f"Added {Responses.ExpandUser(ctx.message.author, False)} thread message ({ctx.message.id}) in {Responses.ExpandThread(channel, False)} {Responses.ExpandGuild(ctx.get_guild(), False)} to cache"
-    )
-    logger.trace(content)
-    logger.trace(state.threadMessages)
-
-
-@component.with_schedule
-@tanjun.as_time_schedule(minutes=5)
-async def TaskPurgeThreadMessages(
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
-    state: State = tanjun.inject(type=State),
-) -> None:
-    """Automatically delete cached thread messages older than the configured lifetime."""
-
-    limit: int = config["logging"]["lifetime"]
-    idx: int = 0
-    count: int = 0
-
-    for message in state.threadMessages:
-        now: int = int(datetime.now().timestamp())
-        age: int = now - message["created"]
-        mId: int = message["id"]
-
-        if age > limit:
-            state.threadMessages.pop(idx)
-
-            logger.debug(
-                f"Removed thread message ({mId}) from cache due to age exceeding configured lifetime ({age} > {limit})"
-            )
-            logger.trace(message["content"])
-
-            count += 1
-
-        idx += 1
-
-    logger.info(
-        f"Purged {count:,} cached thread messages per configured lifetime ({limit})"
-    )
-
-
-@component.with_listener(GuildMessageDeleteEvent)
-async def EventThreadDelete(
-    ctx: GuildMessageDeleteEvent,
-    client: Client = tanjun.inject(type=Client),
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
-    state: State = tanjun.inject(type=State),
-) -> None:
-    """Handler for logging deleted messages in Threads."""
-
-    if not ctx.old_message:
-        return
-
-    channel: PartialChannel = await ctx.old_message.fetch_channel()
-
-    if not channel:
-        return
-
-    # Disregard message deletions in regular channels. Zeppelin is only
-    # missing thread message deletions.
-    if (channel.type != ChannelType.GUILD_PUBLIC_THREAD) and (
-        channel.type != ChannelType.GUILD_PRIVATE_THREAD
-    ):
-        return
-
-    result: str = f"{Responses.ExpandUser(ctx.old_message.author)} thread message deleted in {Responses.ExpandThread(await ctx.old_message.fetch_channel())}"
-
-    idx: int = 0
-
-    for old in state.threadMessages:
-        if old["id"] != ctx.old_message.id:
-            continue
-
-        result += "\n>>> " + old["content"]
-
-        # Message is deleted, we no longer need to cache it
-        state.threadMessages.pop(idx)
-
-        idx += 1
-
-    await client.rest.create_message(
-        config["channels"]["moderation"], Responses.Log("wastebasket", result)
-    )
-
-    logger.success(
-        f"Logged {Responses.ExpandUser(ctx.old_message.author, False)} thread message deletion in {Responses.ExpandGuild(ctx.get_guild(), False)} {Responses.ExpandThread(channel, False)}"
-    )

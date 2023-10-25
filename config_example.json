@@ -2,8 +2,7 @@
     "logging": {
         "keywords": ["notify", "for", "these", "words"],
         "kwIgnore": [1234567890, 9876543210],
-        "mentions": [1234567890, 98766543210],
-        "lifetime": 86400
+        "mentions": [1234567890, 98766543210]
     },
     "channels": {
         "moderators": 1234567890,
