@@ -243,11 +243,11 @@ async def EventMirror(
     client: Client = tanjun.inject(type=Client),
     config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
 ) -> None:
-    """Handler for automatically mirroring HepBoat log archives."""
+    """Handler for automatically mirroring Zeppelin log archives."""
 
     if not ctx.author.is_bot:
         return
-    elif int(ctx.author.id) != config["users"]["hepboat"]:
+    elif int(ctx.author.id) != config["users"]["zeppelin"]:
         return
     elif not hasattr(ctx.message, "content"):
         return
@@ -257,7 +257,7 @@ async def EventMirror(
     content: str = ctx.message.content.lower()
     url: Optional[str] = None
 
-    if "prime-dash.hepbo.at/api/archive/" not in content:
+    if "zeppelin.gg/api/archives/" not in content:
         return
 
     try:
@@ -265,28 +265,26 @@ async def EventMirror(
 
         if not url.startswith("https://"):
             raise Exception(f"expected startswith https://, got {url}")
-        elif not url.endswith(".html"):
-            raise Exception(f"expected endswith .html, got {url}")
     except Exception as e:
-        logger.opt(exception=e).debug("Failed to validate HepBoat log archive URL")
+        logger.opt(exception=e).debug("Failed to validate Zeppelin log archive URL")
 
         return
 
-    data: Optional[str] = await Utility.GET(url.replace(".html", ".txt"))
+    data: Optional[str] = await Utility.GET(url)
 
     if data is None:
         return
 
-    result: str = Responses.Log("mirror", f"Mirror of HepBoat log archive <{url}>")
+    result: str = Responses.Log("mirror", f"Mirror of Zeppelin log archive <{url}>")
     filename: Optional[str] = None
     channelId: Optional[int] = None
     users: List[str] = []
 
     try:
-        filename = url.split("/")[-1].split(".")[0]
+        filename = url.split("/")[-1] + ".txt"
     except Exception as e:
         logger.opt(exception=e).debug(
-            f"Failed to determine HepBoat log archive filename"
+            f"Failed to determine Zeppelin log archive filename"
         )
 
         return
@@ -302,7 +300,7 @@ async def EventMirror(
                 users.append(user)
         except Exception as e:
             logger.opt(exception=e).debug(
-                f"Failed to determine relevant user and channel in HepBoat log archive"
+                f"Failed to determine relevant user and channel in Zeppelin log archive"
             )
 
     if channelId is not None:
@@ -319,7 +317,7 @@ async def EventMirror(
         attachment=Bytes(data, f"{filename}.txt"),
     )
 
-    logger.success(f"Mirrored HepBoat log archive {url}")
+    logger.success(f"Mirrored Zeppelin log archive {url}")
 
 
 @component.with_listener(GuildMessageCreateEvent)
@@ -338,7 +336,7 @@ async def EventStoreThreadMessage(
     if not channel:
         return
 
-    # Disregard message deletions in regular channels. HepBoat is only
+    # Disregard message deletions in regular channels. Zeppelin is only
     # missing thread message deletions.
     if (channel.type != ChannelType.GUILD_PUBLIC_THREAD) and (
         channel.type != ChannelType.GUILD_PRIVATE_THREAD
@@ -416,7 +414,7 @@ async def EventThreadDelete(
     if not channel:
         return
 
-    # Disregard message deletions in regular channels. HepBoat is only
+    # Disregard message deletions in regular channels. Zeppelin is only
     # missing thread message deletions.
     if (channel.type != ChannelType.GUILD_PUBLIC_THREAD) and (
         channel.type != ChannelType.GUILD_PRIVATE_THREAD

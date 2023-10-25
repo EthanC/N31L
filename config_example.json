@@ -13,7 +13,7 @@
     "users": {
         "owner": 1234567890,
         "bot": 1234567890,
-        "hepboat": 1234567890
+        "zeppelin": 1234567890
     },
     "roles": {
         "limit": true,
