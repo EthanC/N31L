@@ -75,7 +75,7 @@ class Responses:
         if timestamp is None:
             timestamp = datetime.now()
 
-        return f"[{Timestamps.ShortTime(timestamp)}] :{emoji}: {message}"
+        return f"[{Timestamps.LongTime(timestamp)}] :{emoji}: {message}"
 
     def Success(
         title: Optional[str] = None,
