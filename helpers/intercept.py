@@ -17,7 +17,9 @@ class Intercept(Handler):
         depth: int = 2
 
         try:
-            # TODO: Handle TRACE_HIKARI level
+            if record.levelname == "TRACE_HIKARI":
+                record.levelname = "TRACE"
+
             level = logger.level(record.levelname).name
         except Exception as e:
             logger.opt(exception=e).trace("Failed to determine logger intercept level")
