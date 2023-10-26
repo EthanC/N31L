@@ -19,7 +19,9 @@ class Utility:
 
         try:
             async with httpx.AsyncClient() as http:
-                res: Response = await http.get(url, headers=headers)
+                res: Response = await http.get(
+                    url, headers=headers, follow_redirects=True
+                )
 
             res.raise_for_status()
 

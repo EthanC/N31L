@@ -253,11 +253,13 @@ async def EventMirror(
     content: str = ctx.message.content.lower()
     url: Optional[str] = None
 
-    if "zeppelin.gg/api/archives/" not in content:
+    if "api.zeppelin.gg/archives/" not in content:
         return
 
+    logger.trace(content)
+
     try:
-        url = content.split("(<")[1].split(">)")[0]
+        url = content.split("(")[-1].split(")")[0]
 
         if not url.startswith("https://"):
             raise Exception(f"expected startswith https://, got {url}")
@@ -272,40 +274,14 @@ async def EventMirror(
         return
 
     result: str = Responses.Log("mirror", f"Mirror of Zeppelin log archive <{url}>")
-    filename: Optional[str] = None
-    channelId: Optional[int] = None
-    users: List[str] = []
+    filename: Optional[str] = "archive"
 
     try:
-        filename = url.split("/")[-1] + ".txt"
+        filename = url.split("/")[-1]
     except Exception as e:
-        logger.opt(exception=e).debug(
+        logger.opt(exception=e).warning(
             f"Failed to determine Zeppelin log archive filename"
         )
-
-        return
-
-    for line in data.splitlines():
-        try:
-            if channelId is None:
-                channelId = int(line.split("/ ")[1].split("/ ")[0])
-
-            user: str = line.split("/ ")[2].split(")")[0]
-
-            if (user := f"`{user}`") not in users:
-                users.append(user)
-        except Exception as e:
-            logger.opt(exception=e).debug(
-                f"Failed to determine relevant user and channel in Zeppelin log archive"
-            )
-
-    if channelId is not None:
-        result += (
-            f" in {Responses.ExpandChannel(ctx.get_guild().get_channel(channelId))}"
-        )
-
-    if len(users) > 0:
-        result += " (" + ", ".join(users) + ")"
 
     await client.rest.create_message(
         config["channels"]["moderation"],
