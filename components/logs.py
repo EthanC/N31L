@@ -9,6 +9,7 @@ from hikari.events.message_events import (
 from hikari.files import Bytes
 from loguru import logger
 from tanjun import Client, Component
+from urlextract import URLExtract
 
 from helpers import Responses, Utility
 
@@ -241,9 +242,11 @@ async def EventMirror(
 ) -> None:
     """Handler for automatically mirroring Zeppelin log archives."""
 
-    if not ctx.author.is_bot:
+    if int(ctx.channel_id) != config["channels"]["moderation"]:
         return
-    elif int(ctx.author.id) != config["users"]["zeppelin"]:
+    elif not ctx.author.is_bot:
+        return
+    elif int(ctx.author.id) == config["users"]["bot"]:
         return
     elif not hasattr(ctx.message, "content"):
         return
@@ -251,42 +254,38 @@ async def EventMirror(
         return
 
     content: str = ctx.message.content.lower()
-    url: Optional[str] = None
+    urls: List[str] = []
+    extractor: URLExtract = URLExtract()
 
-    if "api.zeppelin.gg/archives/" not in content:
-        return
+    urls = extractor.find_urls(content, True)
 
     logger.trace(content)
+    logger.trace(urls)
 
-    try:
-        url = content.split("(")[-1].split(")")[0]
+    for url in urls:
+        if not url.startswith("https://api.zeppelin.gg/archives/"):
+            continue
 
-        if not url.startswith("https://"):
-            raise Exception(f"expected startswith https://, got {url}")
-    except Exception as e:
-        logger.opt(exception=e).debug("Failed to validate Zeppelin log archive URL")
+        data: Optional[str] = await Utility.GET(url)
 
-        return
+        if data is None:
+            return
 
-    data: Optional[str] = await Utility.GET(url)
+        result: str = Responses.Log("mirror", f"Mirror of Zeppelin log archive <{url}>")
+        filename: str = "archive"
 
-    if data is None:
-        return
+        try:
+            filename = url.split("/")[-1]
+        except Exception as e:
+            logger.opt(exception=e).warning(
+                f"Failed to determine Zeppelin log archive filename"
+            )
 
-    result: str = Responses.Log("mirror", f"Mirror of Zeppelin log archive <{url}>")
-    filename: Optional[str] = "archive"
-
-    try:
-        filename = url.split("/")[-1]
-    except Exception as e:
-        logger.opt(exception=e).warning(
-            f"Failed to determine Zeppelin log archive filename"
+        await client.rest.create_message(
+            config["channels"]["moderation"],
+            result,
+            attachment=Bytes(data, f"{filename}.txt"),
+            reply=ctx.message,
         )
 
-    await client.rest.create_message(
-        config["channels"]["moderation"],
-        result,
-        attachment=Bytes(data, f"{filename}.txt"),
-    )
-
-    logger.success(f"Mirrored Zeppelin log archive {url}")
+        logger.success(f"Mirrored Zeppelin log archive {url}")
