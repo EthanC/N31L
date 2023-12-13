@@ -3,8 +3,11 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 import httpx
+from hikari import GatewayBot, Member
 from httpx import Response
 from loguru import logger
+
+from .responses import Responses
 
 
 class Utility:
@@ -112,3 +115,27 @@ class Utility:
             logger.trace(input)
 
         return results
+
+    async def UserHasRole(
+        userId: int, roleId: int, serverId: int, bot: GatewayBot
+    ) -> bool:
+        """
+        Return a boolean value indicating whether or not a server
+        member has the specified role.
+        """
+
+        user: Member = await bot.rest.fetch_member(serverId, userId)
+
+        for role in user.role_ids:
+            if int(role) == roleId:
+                logger.debug(
+                    f"{Responses.ExpandUser(user.user, False)} has role {roleId} in server {serverId}"
+                )
+
+                return True
+
+        logger.debug(
+            f"{Responses.ExpandUser(user.user, False)} does not have role {roleId} in server {serverId}"
+        )
+
+        return False

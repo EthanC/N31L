@@ -26,6 +26,7 @@
     "archiveThreads": {
         "enable": true,
         "lifetime": 86400,
+        "immuneRoles": [1234567890, 9876543210],
         "channels": [1234567890, 9876543210]
     }
 }

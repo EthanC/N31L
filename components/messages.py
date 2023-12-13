@@ -40,6 +40,8 @@ async def TaskArchiveThreads(
     if not config["archiveThreads"]["enable"]:
         return
 
+    logger.info("Beginning recurring task to archive threads...")
+
     lifetime: int = config["archiveThreads"]["lifetime"]
     threads: List[GuildThreadChannel] = await bot.rest.fetch_active_threads(
         int(environ.get("DISCORD_SERVER_ID"))
@@ -52,6 +54,10 @@ async def TaskArchiveThreads(
             continue
         elif Utility.Elapsed(datetime.now(), thread.created_at) < lifetime:
             continue
+
+        for role in config["archiveThreads"].get("immuneRoles", []):
+            if await Utility.UserHasRole(thread.owner_id, role, thread.guild_id):
+                continue
 
         await bot.rest.edit_channel(thread.id, archived=True)
 
