@@ -128,7 +128,9 @@ async def EventKeyword(
                     },
                     {
                         "name": "Channel",
-                        "value": f"`#{ctx.get_channel().name}`",
+                        "value": "Unknown"
+                        if not (chan := ctx.get_channel())
+                        else f"`#{chan.name}`",
                         "inline": True,
                     },
                 ],
@@ -207,7 +209,9 @@ async def EventMention(
                     },
                     {
                         "name": "Channel",
-                        "value": f"`#{ctx.get_channel().name}`",
+                        "value": "Unknown"
+                        if not (chan := ctx.get_channel())
+                        else f"`#{chan.name}`",
                         "inline": True,
                     },
                 ],
@@ -278,7 +282,7 @@ async def EventMirror(
             filename = url.split("/")[-1]
         except Exception as e:
             logger.opt(exception=e).warning(
-                f"Failed to determine Zeppelin log archive filename"
+                "Failed to determine Zeppelin log archive filename"
             )
 
         await client.rest.create_message(

@@ -1,8 +1,6 @@
 from typing import Any, Dict, Optional
 
-from helpers import Responses, Utility
 from hikari.embeds import Embed
-from loguru import logger
 
 from .reddit import Reddit
 

@@ -1,6 +1,6 @@
 import asyncio
 from os import environ
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import asyncpraw
 from asyncpraw.models.reddit.submission import Submission
@@ -39,7 +39,7 @@ class Reddit:
         try:
             await client.close()
         except Exception as e:
-            logger.opt(exception=e).warning(f"Failed to close Reddit session")
+            logger.opt(exception=e).warning("Failed to close Reddit session")
 
     async def GetSubreddit(client: Reddit, community: str) -> Optional[Subreddit]:
         """Fetch the subreddit object for the specified Reddit community."""

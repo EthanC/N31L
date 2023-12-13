@@ -10,7 +10,6 @@ from tanjun.abc import SlashContext
 
 from helpers import Responses
 from services import Burger, Dessert, HotDog, Pasta, Pizza, Salad, Sandwich, Sushi, Taco
-from services.food import Pasta
 
 component: Component = Component(name="Food")
 foodTypes: List[str] = [

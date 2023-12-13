@@ -530,7 +530,7 @@ async def CommandSetAvatar(ctx: SlashContext, image: Optional[Attachment]) -> No
 
                 await ctx.respond(
                     embed=Responses.Fail(
-                        description=f"Failed to set avatar, provided attachment is not a valid image"
+                        description="Failed to set avatar, provided attachment is not a valid image"
                     )
                 )
 

@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 from .admin import component as Admin
 from .animals import component as Animals
 from .food import component as Food

@@ -1,11 +1,12 @@
 from typing import Any, Dict, List, Sequence
 
 import tanjun
-from helpers.responses import Responses
 from hikari.events.message_events import GuildMessageCreateEvent
 from hikari.snowflakes import Snowflake
 from loguru import logger
 from tanjun import Client, Component
+
+from helpers.responses import Responses
 
 component: Component = Component(name="Roles")
 

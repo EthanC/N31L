@@ -228,9 +228,9 @@ class Timestamps:
         Example: "January 21, 2022"
         """
 
-        if type(timestamp) is float:
+        if isinstance(timestamp, float):
             timestamp = int(timestamp)
-        elif type(timestamp) is datetime:
+        elif isinstance(timestamp, datetime):
             timestamp = int(timestamp.timestamp())
 
         return f"<t:{timestamp}:D>"
@@ -242,9 +242,9 @@ class Timestamps:
         Example: "Friday, January 21, 2022 at 4:20 PM"
         """
 
-        if type(timestamp) is float:
+        if isinstance(timestamp, float):
             timestamp = int(timestamp)
-        elif type(timestamp) is datetime:
+        elif isinstance(timestamp, datetime):
             timestamp = int(timestamp.timestamp())
 
         return f"<t:{timestamp}:F>"
@@ -256,9 +256,9 @@ class Timestamps:
         Example: "January 21, 2022 at 4:20 PM"
         """
 
-        if type(timestamp) is float:
+        if isinstance(timestamp, float):
             timestamp = int(timestamp)
-        elif type(timestamp) is datetime:
+        elif isinstance(timestamp, datetime):
             timestamp = int(timestamp.timestamp())
 
         return f"<t:{timestamp}:f>"
@@ -270,9 +270,9 @@ class Timestamps:
         Example: "4:20:00 PM"
         """
 
-        if type(timestamp) is float:
+        if isinstance(timestamp, float):
             timestamp = int(timestamp)
-        elif type(timestamp) is datetime:
+        elif isinstance(timestamp, datetime):
             timestamp = int(timestamp.timestamp())
 
         return f"<t:{timestamp}:T>"
@@ -284,9 +284,9 @@ class Timestamps:
         Example: "in 2 minutes" or "6 minutes ago"
         """
 
-        if type(timestamp) is float:
+        if isinstance(timestamp, float):
             timestamp = int(timestamp)
-        elif type(timestamp) is datetime:
+        elif isinstance(timestamp, datetime):
             timestamp = int(timestamp.timestamp())
 
         return f"<t:{timestamp}:R>"
@@ -298,9 +298,9 @@ class Timestamps:
         Example: "1/21/2022"
         """
 
-        if type(timestamp) is float:
+        if isinstance(timestamp, float):
             timestamp = int(timestamp)
-        elif type(timestamp) is datetime:
+        elif isinstance(timestamp, datetime):
             timestamp = int(timestamp.timestamp())
 
         return f"<t:{timestamp}:d>"
@@ -312,9 +312,9 @@ class Timestamps:
         Example: "4:20 PM"
         """
 
-        if type(timestamp) is float:
+        if isinstance(timestamp, float):
             timestamp = int(timestamp)
-        elif type(timestamp) is datetime:
+        elif isinstance(timestamp, datetime):
             timestamp = int(timestamp.timestamp())
 
         return f"<t:{timestamp}:t>"
