@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 import httpx
-from hikari import GatewayBot, Member
+from hikari import GatewayBot, Member, NotFoundError
 from httpx import Response
 from loguru import logger
 
@@ -124,18 +124,26 @@ class Utility:
         member has the specified role.
         """
 
-        user: Member = await bot.rest.fetch_member(serverId, userId)
+        user: Optional[Member] = None
 
-        for role in user.role_ids:
-            if int(role) == roleId:
-                logger.debug(
-                    f"{Responses.ExpandUser(user.user, False)} has role {roleId} in server {serverId}"
-                )
+        try:
+            user = await bot.rest.fetch_member(serverId, userId)
+        except NotFoundError as e:
+            logger.debug(f"Failed to locate member {userId} in server {serverId}, {e}")
+        except Exception as e:
+            logger.error(f"Failed to locate member {userId} in server {serverId}, {e}")
 
-                return True
+        if user:
+            for role in user.role_ids:
+                if int(role) == roleId:
+                    logger.debug(
+                        f"{Responses.ExpandUser(user.user, False)} has role {roleId} in server {serverId}"
+                    )
 
-        logger.debug(
-            f"{Responses.ExpandUser(user.user, False)} does not have role {roleId} in server {serverId}"
-        )
+                    return True
+
+            logger.debug(
+                f"{Responses.ExpandUser(user.user, False)} does not have role {roleId} in server {serverId}"
+            )
 
         return False

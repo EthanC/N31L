@@ -56,7 +56,7 @@ async def TaskArchiveThreads(
             continue
 
         for role in config["archiveThreads"].get("immuneRoles", []):
-            if await Utility.UserHasRole(thread.owner_id, role, thread.guild_id):
+            if await Utility.UserHasRole(thread.owner_id, role, thread.guild_id, bot):
                 continue
 
         await bot.rest.edit_channel(thread.id, archived=True)
