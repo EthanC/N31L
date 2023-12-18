@@ -117,14 +117,21 @@ class Utility:
         return results
 
     async def UserHasRole(
-        userId: int, roleId: int, serverId: int, bot: GatewayBot
+        userId: int, roleIds: Union[int, List[int]], serverId: int, bot: GatewayBot
     ) -> bool:
         """
         Return a boolean value indicating whether or not a server
-        member has the specified role.
+        member has a specified role.
+
+        If an array of role IDs is provided, return True upon first
+        successful match.
         """
 
         user: Optional[Member] = None
+
+        # Accept both a singular int or array of integers.
+        if isinstance(roleIds, int):
+            roleIds = [roleIds]
 
         try:
             user = await bot.rest.fetch_member(serverId, userId)
@@ -135,15 +142,15 @@ class Utility:
 
         if user:
             for role in user.role_ids:
-                if int(role) == roleId:
+                if (current := int(role)) in roleIds:
                     logger.debug(
-                        f"{Responses.ExpandUser(user.user, False)} has role {roleId} in server {serverId}"
+                        f"{Responses.ExpandUser(user.user, False)} has role {current} in server {serverId}"
                     )
 
                     return True
 
             logger.debug(
-                f"{Responses.ExpandUser(user.user, False)} does not have role {roleId} in server {serverId}"
+                f"{Responses.ExpandUser(user.user, False)} does not have role {current} in server {serverId}"
             )
 
         return False

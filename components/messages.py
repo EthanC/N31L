@@ -30,7 +30,7 @@ parse: SlashCommandGroup = component.with_slash_command(
 
 
 @component.with_schedule
-@tanjun.as_time_schedule(minutes=5)
+@tanjun.as_interval(300)
 async def TaskArchiveThreads(
     config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
     bot: GatewayBot = tanjun.inject(type=GatewayBot),
@@ -54,10 +54,13 @@ async def TaskArchiveThreads(
             continue
         elif Utility.Elapsed(datetime.now(), thread.created_at) < lifetime:
             continue
-
-        for role in config["archiveThreads"].get("immuneRoles", []):
-            if await Utility.UserHasRole(thread.owner_id, role, thread.guild_id, bot):
-                continue
+        elif await Utility.UserHasRole(
+            thread.owner_id,
+            config["archiveThreads"]["immuneRoles"],
+            thread.guild_id,
+            bot,
+        ):
+            continue
 
         await bot.rest.edit_channel(thread.id, archived=True)
 
