@@ -386,16 +386,8 @@ async def CommandParseUsers(
         return
 
     for result in results:
-        try:
-            logger.debug(
-                f"Validated {result} as user {(await ctx.rest.fetch_user(result)).username}"
-            )
-        except Exception as e:
+        if not await Utility.IsValidUser(result, ctx.client):
             results.remove(result)
-
-            logger.opt(exception=e).debug(
-                f"{result} is not a user ID, removed from results"
-            )
 
     if len(results) == 0:
         await ctx.respond(

@@ -274,8 +274,23 @@ async def EventMirror(
 
         if data is None:
             return
+        
+        found: list[str] = []
 
-        result: str = Responses.Log("mirror", f"Mirror of Zeppelin log archive <{url}>")
+        for line in data.splitlines():
+            for find in Utility.FindNumbers(line, 17, 19):
+                if await Utility.IsValidUser(find, client):
+                    found.append(f"`{find}`")
+        
+        # Ensure there are no duplicate users
+        found: list[str] = list(set(found))
+
+        result: str = f"Mirror of Zeppelin log archive <{url}>"
+
+        if len(found) > 0:
+            result += f" ({", ".join(found)})"
+
+        result = Responses.Log("mirror", result)
         filename: str = "archive"
 
         try:

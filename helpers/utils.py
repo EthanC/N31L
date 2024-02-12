@@ -6,6 +6,7 @@ import httpx
 from hikari import GatewayBot, Member, NotFoundError
 from httpx import Response
 from loguru import logger
+from tanjun import Client
 
 from .responses import Responses
 
@@ -37,7 +38,7 @@ class Utility:
         try:
             return res.json()
         except Exception as e:
-            logger.opt(exception=e).debug("Failed to parse response as JSON")
+            logger.opt(exception=e).trace("Failed to parse response as JSON")
 
         return res.text
 
@@ -109,6 +110,8 @@ class Utility:
                     if len(entry) > maxLen:
                         continue
 
+                logger.debug(f"Found number {entry} in string {input}")
+
                 results.append(int(entry))
         except Exception as e:
             logger.opt(exception=e).debug("Failed to find numbers in string")
@@ -154,3 +157,18 @@ class Utility:
             )
 
         return False
+    
+    async def IsValidUser(userId: int, client: Client) -> bool:
+        """
+        Determine if the provided integer is a valid
+        Discord user ID.
+        """
+
+        try:
+            logger.debug(f"Validated {userId} as user {(await client.rest.fetch_user(userId)).username}")
+        except Exception as e:
+            logger.opt(exception=e).debug(f"Invalidated potential user ID {userId}")
+
+            return
+
+        return True
