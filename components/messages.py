@@ -69,7 +69,7 @@ async def TaskArchiveThreads(
         )
 
         await bot.rest.create_message(
-            config["channels"]["user"],
+            config["channels"]["threads"],
             Responses.Log(
                 "thread",
                 f"Archived thread {Responses.ExpandThread(thread)} with reason: *Maximum lifespan exceeded*",
