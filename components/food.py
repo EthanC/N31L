@@ -99,5 +99,5 @@ async def CommandFood(ctx: SlashContext, type: Optional[str]) -> None:
 
         # Sleep to prevent rate-limiting
         await asyncio.sleep(float(1))
-
+        
     await ctx.respond(embed=result)
