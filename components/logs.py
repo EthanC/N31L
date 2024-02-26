@@ -1,5 +1,5 @@
 from os import environ
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import tanjun
 from hikari.events.message_events import (
@@ -19,7 +19,7 @@ component: Component = Component(name="Logs")
 @component.with_listener(DMMessageCreateEvent)
 async def EventDirectMessage(
     ctx: DMMessageCreateEvent,
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    config: dict[str, Any] = tanjun.inject(type=dict[str, Any]),
 ) -> None:
     """Handler for notifying of direct messages."""
 
@@ -28,13 +28,13 @@ async def EventDirectMessage(
     elif int(ctx.author.id) == config["users"]["owner"]:
         return
 
-    content: Optional[str] = None
+    content: str | None = None
 
     if hasattr(ctx.message, "content"):
         if ctx.message.content is not None:
             content = f">>> {Utility.Trim(ctx.message.content, 4000)}"
 
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "username": "N31L",
         "avatar_url": "https://i.imgur.com/cGtkGuI.png",
         "embeds": [
@@ -76,7 +76,7 @@ async def EventDirectMessage(
 @component.with_listener(GuildMessageCreateEvent)
 async def EventKeyword(
     ctx: GuildMessageCreateEvent,
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    config: dict[str, Any] = tanjun.inject(type=dict[str, Any]),
 ) -> None:
     """Handler for notifying of keyword mentions."""
 
@@ -91,8 +91,8 @@ async def EventKeyword(
     elif ctx.message.content is None:
         return
 
-    words: List[str] = [word.lower() for word in ctx.message.content.split()]
-    found: List[str] = []
+    words: list[str] = [word.lower() for word in ctx.message.content.split()]
+    found: list[str] = []
 
     for keyword in config["logging"]["keywords"]:
         if keyword not in words:
@@ -103,7 +103,7 @@ async def EventKeyword(
     if len(found) == 0:
         return
 
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "username": "N31L",
         "avatar_url": "https://i.imgur.com/cGtkGuI.png",
         "embeds": [
@@ -160,7 +160,7 @@ async def EventKeyword(
 @component.with_listener(GuildMessageCreateEvent)
 async def EventMention(
     ctx: GuildMessageCreateEvent,
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    config: dict[str, Any] = tanjun.inject(type=dict[str, Any]),
 ) -> None:
     """Handler for notifying of mentions."""
 
@@ -173,7 +173,7 @@ async def EventMention(
     elif ctx.message.content is None:
         return
 
-    found: List[str] = []
+    found: list[str] = []
 
     for id in config["logging"]["mentions"]:
         if id not in ctx.message.user_mentions_ids:
@@ -184,7 +184,7 @@ async def EventMention(
     if len(found) == 0:
         return
 
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "username": "N31L",
         "avatar_url": "https://i.imgur.com/cGtkGuI.png",
         "embeds": [
@@ -242,7 +242,7 @@ async def EventMention(
 async def EventMirror(
     ctx: GuildMessageCreateEvent,
     client: Client = tanjun.inject(type=Client),
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    config: dict[str, Any] = tanjun.inject(type=dict[str, Any]),
 ) -> None:
     """Handler for automatically mirroring Zeppelin log archives."""
 
@@ -258,7 +258,7 @@ async def EventMirror(
         return
 
     content: str = ctx.message.content.lower()
-    urls: List[str] = []
+    urls: list[str] = []
     extractor: URLExtract = URLExtract()
 
     urls = extractor.find_urls(content, True)
@@ -270,7 +270,7 @@ async def EventMirror(
         if not url.startswith("https://api.zeppelin.gg/archives/"):
             continue
 
-        data: Optional[str] = await Utility.GET(url)
+        data: str | None = await Utility.GET(url)
 
         if data is None:
             return

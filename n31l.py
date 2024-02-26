@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from os import environ
 from sys import exit, stdout
-from typing import Any, Dict
+from typing import Any
 
 import dotenv
 import tanjun
@@ -30,7 +30,7 @@ def Initialize() -> None:
         logger.success("Loaded environment variables")
         logger.trace(environ)
 
-    config: Dict[str, Any] = LoadConfig()
+    config: dict[str, Any] = LoadConfig()
     state: State = State(botStart=datetime.now())
 
     # Reroute standard logging to Loguru
@@ -79,7 +79,7 @@ def Initialize() -> None:
         bot, declare_global_commands=int(environ.get("DISCORD_SERVER_ID"))
     )
 
-    client.set_type_dependency(Dict[str, Any], config)
+    client.set_type_dependency(dict[str, Any], config)
     client.set_type_dependency(State, state)
     client.set_type_dependency(GatewayBot, bot)
     client.set_type_dependency(Client, client)
@@ -113,12 +113,12 @@ def Initialize() -> None:
     )
 
 
-def LoadConfig() -> Dict[str, Any]:
+def LoadConfig() -> dict[str, Any]:
     """Load the configuration values specified in config.json"""
 
     try:
         with open("config.json", "r") as file:
-            config: Dict[str, Any] = json.loads(file.read())
+            config: dict[str, Any] = json.loads(file.read())
     except Exception as e:
         logger.opt(exception=e).critical("Failed to load configuration")
 

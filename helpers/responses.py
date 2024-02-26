@@ -1,6 +1,5 @@
 import hashlib
 from datetime import datetime
-from typing import Dict, List, Optional, Union
 
 from hikari import Guild, GuildChannel, GuildThreadChannel, Role, Snowflake, User
 from hikari.embeds import Embed
@@ -69,7 +68,7 @@ class Responses:
 
         return f"{thread.name} ({thread.id})"
 
-    def Log(emoji: str, message: str, timestamp: Optional[datetime] = None) -> str:
+    def Log(emoji: str, message: str, timestamp: datetime | None = None) -> str:
         """Build a reusable log message."""
 
         if timestamp is None:
@@ -78,19 +77,19 @@ class Responses:
         return f"[{Timestamps.LongTime(timestamp)}] :{emoji}: {message}"
 
     def Success(
-        title: Optional[str] = None,
-        url: Optional[str] = None,
+        title: str | None = None,
+        url: str | None = None,
         color: str = "3BA55D",
-        description: Optional[str] = None,
-        fields: List[Dict[str, Union[str, bool]]] = [],
-        author: Optional[str] = None,
-        authorUrl: Optional[str] = None,
-        authorIcon: Optional[str] = None,
-        thumbnail: Optional[str] = None,
-        image: Optional[str] = None,
-        footer: Optional[str] = None,
-        footerIcon: Optional[str] = None,
-        timestamp: Optional[datetime] = None,
+        description: str | None = None,
+        fields: list[dict[str, str | bool]] = [],
+        author: str | None = None,
+        authorUrl: str | None = None,
+        authorIcon: str | None = None,
+        thumbnail: str | None = None,
+        image: str | None = None,
+        footer: str | None = None,
+        footerIcon: str | None = None,
+        timestamp: datetime | None = None,
     ) -> Embed:
         """Build a generic successful response Embed object."""
 
@@ -122,19 +121,19 @@ class Responses:
         return result
 
     def Warning(
-        title: Optional[str] = None,
-        url: Optional[str] = None,
+        title: str | None = None,
+        url: str | None = None,
         color: str = "FAA81A",
-        description: Optional[str] = None,
-        fields: List[Dict[str, Union[str, bool]]] = [],
-        author: Optional[str] = None,
-        authorUrl: Optional[str] = None,
-        authorIcon: Optional[str] = None,
-        thumbnail: Optional[str] = None,
-        image: Optional[str] = None,
-        footer: Optional[str] = None,
-        footerIcon: Optional[str] = None,
-        timestamp: Optional[datetime] = None,
+        description: str | None = None,
+        fields: list[dict[str, str | bool]] = [],
+        author: str | None = None,
+        authorUrl: str | None = None,
+        authorIcon: str | None = None,
+        thumbnail: str | None = None,
+        image: str | None = None,
+        footer: str | None = None,
+        footerIcon: str | None = None,
+        timestamp: datetime | None = None,
     ) -> Embed:
         """Build a generic warning response Embed object."""
 
@@ -166,19 +165,19 @@ class Responses:
         return result
 
     def Fail(
-        title: Optional[str] = None,
-        url: Optional[str] = None,
+        title: str | None = None,
+        url: str | None = None,
         color: str = "ED4245",
-        description: Optional[str] = None,
-        fields: List[Dict[str, Union[str, bool]]] = [],
-        author: Optional[str] = None,
-        authorUrl: Optional[str] = None,
-        authorIcon: Optional[str] = None,
-        thumbnail: Optional[str] = None,
-        image: Optional[str] = None,
-        footer: Optional[str] = None,
+        description: str | None = None,
+        fields: list[dict[str, str | bool]] = [],
+        author: str | None = None,
+        authorUrl: str | None = None,
+        authorIcon: str | None = None,
+        thumbnail: str | None = None,
+        image: str | None = None,
+        footer: str | None = None,
         footerIcon: str = "https://i.imgur.com/IwCRM6v.png",
-        timestamp: Optional[datetime] = None,
+        timestamp: datetime | None = None,
     ) -> Embed:
         """Build a generic failed response Embed object."""
 
@@ -221,7 +220,7 @@ class Responses:
 class Timestamps:
     """Class containing markdown, timestamp formatting templates."""
 
-    def LongDate(timestamp: Union[int, float, datetime]) -> str:
+    def LongDate(timestamp: int | float | datetime) -> str:
         """
         Create a long date timestamp using markdown formatting.
 
@@ -235,7 +234,7 @@ class Timestamps:
 
         return f"<t:{timestamp}:D>"
 
-    def ExtraLongDateShortTime(timestamp: Union[int, float, datetime]) -> str:
+    def ExtraLongDateShortTime(timestamp: int | float | datetime) -> str:
         """
         Create an extra long date and short time timestamp using markdown formatting.
 
@@ -249,7 +248,7 @@ class Timestamps:
 
         return f"<t:{timestamp}:F>"
 
-    def LongDateShortTime(timestamp: Union[int, float, datetime]) -> str:
+    def LongDateShortTime(timestamp: int | float | datetime) -> str:
         """
         Create a long date and short time timestamp using markdown formatting.
 
@@ -263,7 +262,7 @@ class Timestamps:
 
         return f"<t:{timestamp}:f>"
 
-    def LongTime(timestamp: Union[int, float, datetime]) -> str:
+    def LongTime(timestamp: int | float | datetime) -> str:
         """
         Create a long time timestamp using markdown formatting.
 
@@ -277,7 +276,7 @@ class Timestamps:
 
         return f"<t:{timestamp}:T>"
 
-    def Relative(timestamp: Union[int, float, datetime]) -> str:
+    def Relative(timestamp: int | float | datetime) -> str:
         """
         Create a relative timestamp using markdown formatting.
 
@@ -291,7 +290,7 @@ class Timestamps:
 
         return f"<t:{timestamp}:R>"
 
-    def ShortDate(timestamp: Union[int, float, datetime]) -> str:
+    def ShortDate(timestamp: int | float | datetime) -> str:
         """
         Create a short date timestamp using markdown formatting.
 
@@ -305,7 +304,7 @@ class Timestamps:
 
         return f"<t:{timestamp}:d>"
 
-    def ShortTime(timestamp: Union[int, float, datetime]) -> str:
+    def ShortTime(timestamp: int | float | datetime) -> str:
         """
         Create a short time timestamp using markdown formatting.
 

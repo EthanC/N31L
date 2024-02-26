@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List, Optional, Union
 
 import tanjun
 from hikari import InteractionMember, MessageType, Permissions
@@ -53,15 +52,15 @@ raid: SlashCommandGroup = component.with_slash_command(
 )
 async def CommandRaidCollect(
     ctx: SlashContext,
-    amount: Optional[int],
-    max_created: Optional[int],
-    max_joined: Optional[int],
-    newest_join: Optional[Union[InteractionMember, UserImpl]],
-    oldest_join: Optional[Union[InteractionMember, UserImpl]],
+    amount: int | None,
+    max_created: int | None,
+    max_joined: int | None,
+    newest_join: InteractionMember | UserImpl | None,
+    oldest_join: InteractionMember | UserImpl | None,
 ) -> None:
     """Handler for the /raid collect command."""
 
-    welcomes: Optional[int] = None
+    welcomes: int | None = None
 
     try:
         welcomes = (await ctx.fetch_guild()).system_channel_id
@@ -79,7 +78,7 @@ async def CommandRaidCollect(
 
         return
 
-    users: List[int] = []
+    users: list[int] = []
     start: datetime = datetime.now()
     last: datetime = start
     collect: bool = True

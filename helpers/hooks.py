@@ -18,7 +18,7 @@ class MenuHooks:
         )
 
     async def PostExecution(
-        ctx: MenuContext, config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any])
+        ctx: MenuContext, config: dict[str, Any] = tanjun.inject(type=dict[str, Any])
     ) -> None:
         """Menu command pre-execution hook."""
 
@@ -52,7 +52,7 @@ class SlashHooks:
         )
 
     async def PostExecution(
-        ctx: SlashContext, config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any])
+        ctx: SlashContext, config: dict[str, Any] = tanjun.inject(type=dict[str, Any])
     ) -> None:
         """Slash command post-execution hook."""
 

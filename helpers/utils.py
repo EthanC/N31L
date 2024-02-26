@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import httpx
 from hikari import GatewayBot, Member, NotFoundError
@@ -14,9 +14,7 @@ from .responses import Responses
 class Utility:
     """Utilitarian functions designed for N31L."""
 
-    async def GET(
-        url: str, headers: Optional[Dict[str, str]] = None
-    ) -> Optional[Union[str, Dict[str, Any]]]:
+    async def GET(url: str, headers: dict[str, str] | None = None) -> str | dict[str, Any] | None:
         """Perform an HTTP GET request and return its response."""
 
         logger.debug(f"GET {url}")
@@ -42,7 +40,7 @@ class Utility:
 
         return res.text
 
-    async def POST(url: str, payload: Dict[str, Any]) -> bool:
+    async def POST(url: str, payload: dict[str, Any]) -> bool:
         """Perform an HTTP POST request and return its status."""
 
         logger.debug(f"POST {url}")
@@ -63,7 +61,7 @@ class Utility:
 
         return True
 
-    def Elapsed(a: Union[datetime, int, float], b: Union[datetime, int, float]) -> int:
+    def Elapsed(a: datetime | int | float, b: datetime | int | float) -> int:
         """Determine the elapsed seconds between the provided datetime objects."""
 
         if type(a) is datetime:
@@ -74,7 +72,7 @@ class Utility:
 
         return int(a - b)
 
-    def Trim(input: str, length: int, end: Optional[str] = "...") -> str:
+    def Trim(input: str, length: int, end: str | None = "...") -> str:
         """Trim a string using the provided parameters."""
 
         if len(input) <= length:
@@ -94,11 +92,11 @@ class Utility:
         return result
 
     def FindNumbers(
-        input: str, minLen: Optional[int] = None, maxLen: Optional[int] = None
-    ) -> List[int]:
+        input: str, minLen: int | None = None, maxLen: int | None = None
+    ) -> list[int]:
         """Return all number sequences found in the given string."""
 
-        results: List[int] = []
+        results: list[int] = []
 
         try:
             for entry in re.findall("\\d+", input):
@@ -119,9 +117,7 @@ class Utility:
 
         return results
 
-    async def UserHasRole(
-        userId: int, roleIds: Union[int, List[int]], serverId: int, bot: GatewayBot
-    ) -> bool:
+    async def UserHasRole(userId: int, roleIds: int | list[int], serverId: int, bot: GatewayBot) -> bool:
         """
         Return a boolean value indicating whether or not a server
         member has a specified role.
@@ -130,7 +126,7 @@ class Utility:
         successful match.
         """
 
-        user: Optional[Member] = None
+        user: Member | None = None
 
         # Accept both a singular int or array of integers.
         if isinstance(roleIds, int):

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Sequence
+from typing import Any, Sequence
 
 import tanjun
 from hikari.events.message_events import GuildMessageCreateEvent
@@ -15,7 +15,7 @@ component: Component = Component(name="Roles")
 async def EventValidateRoles(
     ctx: GuildMessageCreateEvent,
     client: Client = tanjun.inject(type=Client),
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    config: dict[str, Any] = tanjun.inject(type=dict[str, Any]),
 ) -> None:
     """
     Validate that the configured role requirements are met for the
@@ -27,11 +27,11 @@ async def EventValidateRoles(
     elif ctx.message.member is None:
         return
 
-    invalidated: List[int] = []
+    invalidated: list[int] = []
     equipped: Sequence[Snowflake] = ctx.message.member.role_ids
 
     if config["roles"]["limit"]:
-        matches: List[int] = []
+        matches: list[int] = []
 
         for role in equipped:
             if role in config["roles"]["allow"]:

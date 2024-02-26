@@ -1,6 +1,5 @@
 import asyncio
 import random
-from typing import List, Optional
 
 import tanjun
 from hikari import Permissions
@@ -12,7 +11,7 @@ from helpers import Responses
 from services import Burger, Dessert, HotDog, Pasta, Pizza, Salad, Sandwich, Sushi, Taco
 
 component: Component = Component(name="Food")
-foodTypes: List[str] = [
+foodTypes: list[str] = [
     "Burger",
     "Dessert",
     "Hot Dog",
@@ -34,13 +33,13 @@ foodTypes: List[str] = [
     default=None,
 )
 @tanjun.as_slash_command("food", "Fetch a random picture of food.")
-async def CommandFood(ctx: SlashContext, type: Optional[str]) -> None:
+async def CommandFood(ctx: SlashContext, type: str | None) -> None:
     """Handler for the /food command."""
 
     if type is None:
         type = random.choice(foodTypes)
 
-    result: Optional[Embed] = None
+    result: Embed | None = None
     source: int = 1
     retries: int = 0
 

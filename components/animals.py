@@ -1,6 +1,5 @@
 import asyncio
 import random
-from typing import List, Optional
 
 import tanjun
 from hikari import Permissions
@@ -28,7 +27,7 @@ from services import (
 )
 
 component: Component = Component(name="Animals")
-animalTypes: List[str] = [
+animalTypes: list[str] = [
     "Axolotl",
     "Bingus",
     "Bird",
@@ -59,13 +58,13 @@ animalTypes: List[str] = [
     default=None,
 )
 @tanjun.as_slash_command("animal", "Fetch a random picture of an animal.")
-async def CommandAnimal(ctx: SlashContext, type: Optional[str]) -> None:
+async def CommandAnimal(ctx: SlashContext, type: str | None) -> None:
     """Handler for the /animal command."""
 
     if type is None:
         type = random.choice(animalTypes)
 
-    result: Optional[Embed] = None
+    result: Embed | None = None
     source: int = 1
     retries: int = 0
 

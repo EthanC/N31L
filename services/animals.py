@@ -1,5 +1,5 @@
 from os import environ
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from hikari.embeds import Embed
 from loguru import logger
@@ -12,7 +12,7 @@ from .reddit import Reddit
 class Axolotl:
     """Class containing axolotl image sources."""
 
-    async def RedditAxolotls() -> Optional[Embed]:
+    async def RedditAxolotls() -> Embed | None:
         """Fetch a random axolotl image from r/axolotls."""
 
         return await Reddit.GetRandomImage("axolotls")
@@ -21,10 +21,10 @@ class Axolotl:
 class Bird:
     """Class containing bird image sources."""
 
-    async def RandomDuk() -> Optional[Embed]:
+    async def RandomDuk() -> Embed | None:
         """Fetch a random bird image from RandomDuk."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://random-d.uk/api/v2/random"
         )
 
@@ -36,10 +36,10 @@ class Bird:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from RandomDuk")
 
-    async def SomeRandomAPI() -> Optional[Embed]:
+    async def SomeRandomAPI() -> Embed | None:
         """Fetch a random bird image from SomeRandomAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://some-random-api.com/animal/bird"
         )
 
@@ -51,12 +51,12 @@ class Bird:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from SomeRandomAPI")
 
-    async def RedditBirbs() -> Optional[Embed]:
+    async def RedditBirbs() -> Embed | None:
         """Fetch a random bird image from r/Birbs."""
 
         return await Reddit.GetRandomImage("Birbs")
 
-    async def RedditBirdPics() -> Optional[Embed]:
+    async def RedditBirdPics() -> Embed | None:
         """Fetch a random bird image from r/birdpics."""
 
         return await Reddit.GetRandomImage("birdpics")
@@ -65,10 +65,10 @@ class Bird:
 class Bunny:
     """Class containing bunny image sources."""
 
-    async def BunniesIO() -> Optional[Embed]:
+    async def BunniesIO() -> Embed | None:
         """Fetch a random bunny image from BunniesIO."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://api.bunnies.io/v2/loop/random/?media=gif"
         )
 
@@ -80,12 +80,12 @@ class Bunny:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from BunniesIO")
 
-    async def RedditBunnies() -> Optional[Embed]:
+    async def RedditBunnies() -> Embed | None:
         """Fetch a random bird image from r/Bunnies."""
 
         return await Reddit.GetRandomImage("Bunnies")
 
-    async def RedditRabbits() -> Optional[Embed]:
+    async def RedditRabbits() -> Embed | None:
         """Fetch a random bird image from r/Rabbits."""
 
         return await Reddit.GetRandomImage("Rabbits")
@@ -94,10 +94,10 @@ class Bunny:
 class Cat:
     """Class containing cat image sources."""
 
-    async def TheCatAPI() -> Optional[Embed]:
+    async def TheCatAPI() -> Embed | None:
         """Fetch a random cat image from TheCatAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://api.thecatapi.com/v1/images/search",
             headers={"x-api-key": environ.get("CAT_API_KEY")},
         )
@@ -106,16 +106,16 @@ class Cat:
             return
 
         try:
-            cat: Dict[str, Any] = data[0]
+            cat: dict[str, Any] = data[0]
 
-            name: Optional[str] = None
-            wiki: Optional[str] = None
-            info: Optional[str] = None
-            facts: List[Dict[str, Union[str, bool]]] = []
-            tags: Optional[List[str]] = None
+            name: str | None = None
+            wiki: str | None = None
+            info: str | None = None
+            facts: list[dict[str, str | bool]] = []
+            tags: list[str] | None = None
 
             if len((breeds := cat["breeds"])) > 0:
-                breed: Dict[str, Any] = breeds[0]
+                breed: dict[str, Any] = breeds[0]
 
                 name = breed["name"]
                 wiki = breed["wikipedia_url"]
@@ -159,10 +159,10 @@ class Cat:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from TheCatAPI")
 
-    async def CATAAS() -> Optional[Embed]:
+    async def CATAAS() -> Embed | None:
         """Fetch a random cat image from CATAAS."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://cataas.com/cat?json=true"
         )
 
@@ -178,10 +178,10 @@ class Cat:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from CATAAS")
 
-    async def SomeRandomAPI() -> Optional[Embed]:
+    async def SomeRandomAPI() -> Embed | None:
         """Fetch a random cat image from SomeRandomAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://some-random-api.com/animal/cat"
         )
 
@@ -193,37 +193,37 @@ class Cat:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from SomeRandomAPI")
 
-    async def RedditBlurryPicturesCats() -> Optional[Embed]:
+    async def RedditBlurryPicturesCats() -> Embed | None:
         """Fetch a random cat image from r/blurrypicturesofcats."""
 
         return await Reddit.GetRandomImage("blurrypicturesofcats")
 
-    async def RedditCatPics() -> Optional[Embed]:
+    async def RedditCatPics() -> Embed | None:
         """Fetch a random cat image from r/catpics."""
 
         return await Reddit.GetRandomImage("catpics")
 
-    async def RedditCatPictures() -> Optional[Embed]:
+    async def RedditCatPictures() -> Embed | None:
         """Fetch a random cat image from r/catpictures."""
 
         return await Reddit.GetRandomImage("catpictures")
 
-    async def RedditCats() -> Optional[Embed]:
+    async def RedditCats() -> Embed | None:
         """Fetch a random cat image from r/cats."""
 
         return await Reddit.GetRandomImage("cats")
 
-    async def RedditCatsStandingUp() -> Optional[Embed]:
+    async def RedditCatsStandingUp() -> Embed | None:
         """Fetch a random cat image from r/CatsStandingUp."""
 
         return await Reddit.GetRandomImage("CatsStandingUp")
 
-    async def RedditCursedCats() -> Optional[Embed]:
+    async def RedditCursedCats() -> Embed | None:
         """Fetch a random cat image from r/cursedcats."""
 
         return await Reddit.GetRandomImage("cursedcats")
 
-    async def RedditSphynx() -> Optional[Embed]:
+    async def RedditSphynx() -> Embed | None:
         """Fetch a random cat image from r/sphynx."""
 
         return await Reddit.GetRandomImage("sphynx")
@@ -232,12 +232,12 @@ class Cat:
 class Capybara:
     """Class containing capybara image sources."""
 
-    async def RedditCapybara() -> Optional[Embed]:
+    async def RedditCapybara() -> Embed | None:
         """Fetch a random capybara image from r/capybara."""
 
         return await Reddit.GetRandomImage("capybara")
 
-    async def RedditCrittersoncapybaras() -> Optional[Embed]:
+    async def RedditCrittersoncapybaras() -> Embed | None:
         """Fetch a random capybara image from r/Crittersoncapybaras."""
 
         return await Reddit.GetRandomImage("Crittersoncapybaras")
@@ -246,10 +246,10 @@ class Capybara:
 class Dog:
     """Class containing dog image sources."""
 
-    async def TheDogAPI() -> Optional[Embed]:
+    async def TheDogAPI() -> Embed | None:
         """Fetch a random dog image from TheDogAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://api.thedogapi.com/v1/images/search",
             headers={"x-api-key": environ.get("DOG_API_KEY")},
         )
@@ -258,13 +258,13 @@ class Dog:
             return
 
         try:
-            dog: Dict[str, Any] = data[0]
+            dog: dict[str, Any] = data[0]
 
-            name: Optional[str] = None
-            facts: List[Dict[str, Union[str, bool]]] = []
+            name: str | None = None
+            facts: list[dict[str, str | bool]] = []
 
             if len((breeds := dog["breeds"])) > 0:
-                breed: Dict[str, Any] = breeds[0]
+                breed: dict[str, Any] = breeds[0]
 
                 name = breed["name"]
 
@@ -277,10 +277,10 @@ class Dog:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from TheDogAPI")
 
-    async def DogCEO() -> Optional[Embed]:
+    async def DogCEO() -> Embed | None:
         """Fetch a random dog image from DogCEO."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://dog.ceo/api/breeds/image/random"
         )
 
@@ -300,10 +300,10 @@ class Dog:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from DogCEO")
 
-    async def RandomDog() -> Optional[Embed]:
+    async def RandomDog() -> Embed | None:
         """Fetch a random dog image from RandomDog."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://random.dog/woof.json"
         )
 
@@ -315,10 +315,10 @@ class Dog:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from RandomDog")
 
-    async def ShibeOnline() -> Optional[Embed]:
+    async def ShibeOnline() -> Embed | None:
         """Fetch a random dog image from ShibeOnline."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://shibe.online/api/shibes"
         )
 
@@ -330,10 +330,10 @@ class Dog:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from ShibeOnline")
 
-    async def SomeRandomAPI() -> Optional[Embed]:
+    async def SomeRandomAPI() -> Embed | None:
         """Fetch a random dog image from SomeRandomAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://some-random-api.com/animal/dog"
         )
 
@@ -345,27 +345,27 @@ class Dog:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from SomeRandomAPI")
 
-    async def RedditBlurryPicturesDogs() -> Optional[Embed]:
+    async def RedditBlurryPicturesDogs() -> Embed | None:
         """Fetch a random dog image from r/blurrypicturesofdogs."""
 
         return await Reddit.GetRandomImage("blurrypicturesofdogs")
 
-    async def RedditDogPictures() -> Optional[Embed]:
+    async def RedditDogPictures() -> Embed | None:
         """Fetch a random dog image from r/dogpictures."""
 
         return await Reddit.GetRandomImage("dogpictures")
 
-    async def RedditLookMyDog() -> Optional[Embed]:
+    async def RedditLookMyDog() -> Embed | None:
         """Fetch a random dog image from r/lookatmydog."""
 
         return await Reddit.GetRandomImage("lookatmydog")
 
-    async def RedditPuppies() -> Optional[Embed]:
+    async def RedditPuppies() -> Embed | None:
         """Fetch a random dog image from r/puppies."""
 
         return await Reddit.GetRandomImage("puppies")
 
-    async def RedditShiba() -> Optional[Embed]:
+    async def RedditShiba() -> Embed | None:
         """Fetch a random dog image from r/shiba."""
 
         return await Reddit.GetRandomImage("shiba")
@@ -374,10 +374,10 @@ class Dog:
 class Fox:
     """Class containing fox image sources."""
 
-    async def RandomFox() -> Optional[Embed]:
+    async def RandomFox() -> Embed | None:
         """Fetch a random fox image from RandomFox."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://randomfox.ca/floof/"
         )
 
@@ -389,10 +389,10 @@ class Fox:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from RandomFox")
 
-    async def SomeRandomAPI() -> Optional[Embed]:
+    async def SomeRandomAPI() -> Embed | None:
         """Fetch a random fox image from SomeRandomAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://some-random-api.com/animal/fox"
         )
 
@@ -404,7 +404,7 @@ class Fox:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from SomeRandomAPI")
 
-    async def RedditFoxes() -> Optional[Embed]:
+    async def RedditFoxes() -> Embed | None:
         """Fetch a random fox image from r/foxes."""
 
         return await Reddit.GetRandomImage("foxes")
@@ -413,10 +413,10 @@ class Fox:
 class Kangaroo:
     """Class containing kangaroo image sources."""
 
-    async def SomeRandomAPI() -> Optional[Embed]:
+    async def SomeRandomAPI() -> Embed | None:
         """Fetch a random kangaroo image from SomeRandomAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://some-random-api.com/animal/kangaroo"
         )
 
@@ -432,10 +432,10 @@ class Kangaroo:
 class Koala:
     """Class containing koala image sources."""
 
-    async def SomeRandomAPI() -> Optional[Embed]:
+    async def SomeRandomAPI() -> Embed | None:
         """Fetch a random koala image from SomeRandomAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://some-random-api.com/animal/koala"
         )
 
@@ -447,7 +447,7 @@ class Koala:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from SomeRandomAPI")
 
-    async def RedditKoalas() -> Optional[Embed]:
+    async def RedditKoalas() -> Embed | None:
         """Fetch a random koala image from r/koalas."""
 
         return await Reddit.GetRandomImage("koalas")
@@ -456,10 +456,10 @@ class Koala:
 class Lizard:
     """Class containing lizard image sources."""
 
-    async def NekosLife() -> Optional[Embed]:
+    async def NekosLife() -> Embed | None:
         """Fetch a random lizard image from NekosLife."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://nekos.life/api/v2/img/lizard"
         )
 
@@ -471,7 +471,7 @@ class Lizard:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from NekosLife")
 
-    async def RedditLizards() -> Optional[Embed]:
+    async def RedditLizards() -> Embed | None:
         """Fetch a random lizard image from r/Lizards."""
 
         return await Reddit.GetRandomImage("Lizards")
@@ -480,7 +480,7 @@ class Lizard:
 class Otter:
     """Class containing otter image sources."""
 
-    async def RedditOtterable() -> Optional[Embed]:
+    async def RedditOtterable() -> Embed | None:
         """Fetch a random otter image from r/Otterable."""
 
         return await Reddit.GetRandomImage("Otterable")
@@ -489,10 +489,10 @@ class Otter:
 class Panda:
     """Class containing panda image sources."""
 
-    async def SomeRandomAPI() -> Optional[Embed]:
+    async def SomeRandomAPI() -> Embed | None:
         """Fetch a random panda image from SomeRandomAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://some-random-api.com/animal/panda"
         )
 
@@ -508,10 +508,10 @@ class Panda:
 class Raccoon:
     """Class containing raccoon image sources."""
 
-    async def SomeRandomAPI() -> Optional[Embed]:
+    async def SomeRandomAPI() -> Embed | None:
         """Fetch a random panda image from SomeRandomAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://some-random-api.com/animal/raccoon"
         )
 
@@ -523,12 +523,12 @@ class Raccoon:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from SomeRandomAPI")
 
-    async def RedditRaccoons() -> Optional[Embed]:
+    async def RedditRaccoons() -> Embed | None:
         """Fetch a random raccoon image from r/Raccoons."""
 
         return await Reddit.GetRandomImage("Raccoons")
 
-    async def RedditTrashPandas() -> Optional[Embed]:
+    async def RedditTrashPandas() -> Embed | None:
         """Fetch a random raccoon image from r/trashpandas."""
 
         return await Reddit.GetRandomImage("trashpandas")
@@ -537,7 +537,7 @@ class Raccoon:
 class Rat:
     """Class containing rat image sources."""
 
-    async def RedditRats() -> Optional[Embed]:
+    async def RedditRats() -> Embed | None:
         """Fetch a random rat image from r/RATS."""
 
         return await Reddit.GetRandomImage("RATS")
@@ -546,10 +546,10 @@ class Rat:
 class RedPanda:
     """Class containing red panda image sources."""
 
-    async def SomeRandomAPI() -> Optional[Embed]:
+    async def SomeRandomAPI() -> Embed | None:
         """Fetch a random panda image from SomeRandomAPI."""
 
-        data: Optional[Dict[str, Any]] = await Utility.GET(
+        data: dict[str, Any] | None = await Utility.GET(
             "https://some-random-api.com/animal/red_panda"
         )
 
@@ -561,7 +561,7 @@ class RedPanda:
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from SomeRandomAPI")
 
-    async def RedditRedPandas() -> Optional[Embed]:
+    async def RedditRedPandas() -> Embed | None:
         """Fetch a random red panda image from r/redpandas."""
 
         return await Reddit.GetRandomImage("redpandas")

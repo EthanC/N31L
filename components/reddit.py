@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import tanjun
 from asyncpraw.models.reddit.subreddit import Subreddit
@@ -15,7 +15,7 @@ component: Component = Component(name="Reddit")
 reddit: SlashCommandGroup = component.with_slash_command(
     tanjun.slash_command_group("reddit", "Slash Commands to manage Reddit communities.")
 )
-communities: Dict[str, str] = {
+communities: dict[str, str] = {
     "r/ModernWarfareIII": "ModernWarfareIII",
     "r/ModernWarfareII": "ModernWarfareII",
     "r/CODVanguard": "CODVanguard",
@@ -41,10 +41,10 @@ communities: Dict[str, str] = {
     "queue",
     "Fetch the moderation and unmoderated queue counts for the specified Reddit community.",
 )
-async def CommandRedditQueue(ctx: SlashContext, community: Optional[str]) -> None:
+async def CommandRedditQueue(ctx: SlashContext, community: str | None) -> None:
     """Handler for the /reddit queue command."""
 
-    client: Optional[Reddit] = await Reddit.CreateClient()
+    client: Reddit | None = await Reddit.CreateClient()
 
     if client is None:
         await ctx.respond(
@@ -56,10 +56,10 @@ async def CommandRedditQueue(ctx: SlashContext, community: Optional[str]) -> Non
         return
 
     if community is None:
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
 
         for entry in communities:
-            subreddit: Optional[Subreddit] = await Reddit.GetSubreddit(
+            subreddit: Subreddit | None = await Reddit.GetSubreddit(
                 client, communities[entry]
             )
 

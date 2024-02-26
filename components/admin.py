@@ -2,7 +2,7 @@ import asyncio
 import sys
 from datetime import datetime
 from sys import exit
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import hikari
 import tanjun
@@ -48,10 +48,10 @@ set: SlashCommandGroup = component.with_slash_command(
 @tanjun.as_slash_command("unban", "Unban a user from the current server.")
 async def CommandUnban(
     ctx: SlashContext,
-    user: Union[InteractionMember, UserImpl],
+    user: InteractionMember | UserImpl,
     reason: str,
     client: Client = tanjun.inject(type=Client),
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    config: dict[str, Any] = tanjun.inject(type=dict[str, Any]),
 ) -> None:
     """Handler for the /unban slash command."""
 
@@ -100,9 +100,7 @@ async def CommandUnban(
 @tanjun.with_own_permission_check(Permissions.SEND_MESSAGES)
 @tanjun.with_user_slash_option("user", "Enter a user to fetch the profile of.")
 @tanjun.as_slash_command("profile", "Fetch detailed information about a Discord user.")
-async def CommandProfile(
-    ctx: SlashContext, user: Union[InteractionMember, UserImpl]
-) -> None:
+async def CommandProfile(ctx: SlashContext, user: InteractionMember | UserImpl) -> None:
     """Handler for the /profile slash command."""
 
     if hasattr(user, "user"):
@@ -113,9 +111,9 @@ async def CommandProfile(
                 f"Failed to fetch user {Responses.ExpandUser(user.id, False)}"
             )
 
-    fields: List[Dict[str, Any]] = []
-    altAvatar: Optional[str] = None
-    accent: Optional[str] = None
+    fields: list[dict[str, Any]] = []
+    altAvatar: str | None = None
+    accent: str | None = None
 
     if hasattr(user, "nickname"):
         if (nickname := user.nickname) is not None:
@@ -188,11 +186,11 @@ async def CommandProfile(
 )
 @tanjun.as_slash_command("reboot", "Restart the active N31L instance.")
 async def CommandReboot(
-    ctx: SlashContext, delay: Optional[int], state: State = tanjun.inject(type=State)
+    ctx: SlashContext, delay: int | None, state: State = tanjun.inject(type=State)
 ) -> None:
     """Handler for the /reboot slash command."""
 
-    started: Dict[str, Any] = {
+    started: dict[str, Any] = {
         "name": "Instance Started",
         "value": Timestamps.Relative(state.botStart),
     }
@@ -240,9 +238,9 @@ async def CommandServer(ctx: SlashContext) -> None:
     """Handler for the /server slash command."""
 
     server: Guild = await ctx.fetch_guild()
-    creators: Dict[int, int] = {136986169563938816: 132693143173857281}
+    creators: dict[int, int] = {136986169563938816: 132693143173857281}
 
-    fields: List[Dict[str, Any]] = []
+    fields: list[dict[str, Any]] = []
 
     if hasattr(server, "created_at"):
         if (created := server.created_at) is not None:
@@ -285,7 +283,7 @@ async def CommandStatus(
 ) -> None:
     """Handler for the /status slash command."""
 
-    stats: List[Dict[str, Any]] = []
+    stats: list[dict[str, Any]] = []
 
     # Make a request to Discord to determine the REST latency
     latStart: float = datetime.now().timestamp()
@@ -354,8 +352,8 @@ async def CommandStatus(
 async def CommandSendDirectMessage(
     ctx: SlashContext,
     user: User,
-    content: Optional[str],
-    attachment: Optional[Attachment],
+    content: str | None,
+    attachment: Attachment | None,
 ) -> None:
     """Handler for the /send direct_message slash command."""
 
@@ -418,8 +416,8 @@ async def CommandSendDirectMessage(
 async def CommandSendMessage(
     ctx: SlashContext,
     channel: InteractionChannel,
-    content: Optional[str],
-    attachment: Optional[Attachment],
+    content: str | None,
+    attachment: Attachment | None,
 ) -> None:
     """Handler for the /send message slash command."""
 
@@ -485,7 +483,7 @@ async def CommandSetActivity(
     ctx: SlashContext,
     type: int,
     name: str,
-    url: Optional[str] = None,
+    url: str | None = None,
     bot: GatewayBot = tanjun.inject(type=GatewayBot),
 ) -> None:
     """Handler for the /set activity slash command."""
@@ -516,10 +514,10 @@ async def CommandSetActivity(
     "image", "Upload an image file or leave empty to use default avatar.", default=None
 )
 @tanjun.as_slash_command("avatar", "Set the avatar for N31L.")
-async def CommandSetAvatar(ctx: SlashContext, image: Optional[Attachment]) -> None:
+async def CommandSetAvatar(ctx: SlashContext, image: Attachment | None) -> None:
     """Handler for the /set avatar slash command."""
 
-    url: Optional[str] = None if image is None else image.url
+    url: str | None = None if image is None else image.url
 
     try:
         if image is not None:
@@ -571,7 +569,7 @@ async def CommandSetStatus(
 ) -> None:
     """Handler for the /set status slash command."""
 
-    color: Optional[str] = None
+    color: str | None = None
 
     if type == Status.DO_NOT_DISTURB:
         color = "ED4245"

@@ -1,6 +1,5 @@
 import asyncio
 from os import environ
-from typing import Optional
 
 import asyncpraw
 from asyncpraw.models.reddit.submission import Submission
@@ -15,7 +14,7 @@ from helpers import Responses, Utility
 class Reddit:
     """Class containing generic Reddit functions."""
 
-    async def CreateClient() -> Optional[Reddit]:
+    async def CreateClient() -> Reddit | None:
         """Create an authenticated Reddit client using the configured credentials."""
 
         client: Reddit = asyncpraw.Reddit(
@@ -41,7 +40,7 @@ class Reddit:
         except Exception as e:
             logger.opt(exception=e).warning("Failed to close Reddit session")
 
-    async def GetSubreddit(client: Reddit, community: str) -> Optional[Subreddit]:
+    async def GetSubreddit(client: Reddit, community: str) -> Subreddit | None:
         """Fetch the subreddit object for the specified Reddit community."""
 
         try:
@@ -99,16 +98,16 @@ class Reddit:
 
         return total
 
-    async def GetRandomImage(community: str) -> Optional[Embed]:
+    async def GetRandomImage(community: str) -> Embed | None:
         """Fetch a random image from the specified Reddit community."""
 
-        client: Optional[Reddit] = await Reddit.CreateClient()
+        client: Reddit | None = await Reddit.CreateClient()
 
         if client is None:
             return
 
-        subreddit: Optional[Subreddit] = None
-        post: Optional[Submission] = None
+        subreddit: Subreddit | None = None
+        post: Submission | None = None
         valid: bool = False
         attempts: int = 0
 

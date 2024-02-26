@@ -1,6 +1,6 @@
 from datetime import datetime
 from os import environ
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import tanjun
 from hikari import (
@@ -32,7 +32,7 @@ parse: SlashCommandGroup = component.with_slash_command(
 @component.with_schedule
 @tanjun.as_interval(300)
 async def TaskArchiveThreads(
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    config: dict[str, Any] = tanjun.inject(type=dict[str, Any]),
     bot: GatewayBot = tanjun.inject(type=GatewayBot),
 ) -> None:
     """Automatically archive threads in the configured channels."""
@@ -43,7 +43,7 @@ async def TaskArchiveThreads(
     logger.info("Beginning recurring task to archive threads...")
 
     lifetime: int = config["archiveThreads"]["lifetime"]
-    threads: List[GuildThreadChannel] = await bot.rest.fetch_active_threads(
+    threads: list[GuildThreadChannel] = await bot.rest.fetch_active_threads(
         int(environ.get("DISCORD_SERVER_ID"))
     )
 
@@ -80,7 +80,7 @@ async def TaskArchiveThreads(
 @component.with_listener(GuildMessageCreateEvent)
 async def EventShadowban(
     ctx: GuildMessageCreateEvent,
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    config: dict[str, Any] = tanjun.inject(type=dict[str, Any]),
 ) -> None:
     """Silently delete user messages in the configured channels."""
 
@@ -111,7 +111,7 @@ async def EventShadowban(
 async def CommandReport(
     ctx: MenuContext,
     message: Message,
-    config: Dict[str, Any] = tanjun.inject(type=Dict[str, Any]),
+    config: dict[str, Any] = tanjun.inject(type=dict[str, Any]),
 ) -> None:
     """Handler for the Report to Moderators message command."""
 
@@ -128,8 +128,8 @@ async def CommandReport(
 
         return
 
-    imageUrl: Optional[str] = None
-    fields: List[Dict[str, Any]] = [
+    imageUrl: str | None = None
+    fields: list[dict[str, Any]] = [
         {"name": "Channel", "value": f"<#{message.channel_id}>"},
         {"name": "Sent", "value": Timestamps.Relative(message.created_at)},
         {"name": "Reported", "value": Timestamps.Relative(ctx.created_at)},
@@ -214,12 +214,12 @@ async def CommandPurge(
     ctx: SlashContext,
     channel: InteractionChannel,
     amount: int,
-    member: Optional[Member],
+    member: Member | None,
 ) -> None:
     """Handler for the /purge command."""
 
-    messages: List[int] = []
-    users: List[int] = []
+    messages: list[int] = []
+    users: list[int] = []
     last: datetime = datetime.now()
 
     try:
@@ -305,7 +305,7 @@ async def CommandParseUsers(
 ) -> None:
     """Handler for the /parse users command."""
 
-    results: List[int] = []
+    results: list[int] = []
 
     # Minimum and maximum length of Discord snowflakes
     # https://discord.com/developers/docs/reference#snowflakes
