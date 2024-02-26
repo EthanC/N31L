@@ -101,7 +101,7 @@ class Utility:
         results: List[int] = []
 
         try:
-            for entry in re.findall("\d+", input):
+            for entry in re.findall("\\d+", input):
                 if minLen is not None:
                     if len(entry) < minLen:
                         continue
