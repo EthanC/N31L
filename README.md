@@ -28,7 +28,6 @@ Rename `config_example.json` to `config.json`, then provide the configurable var
 Modify the following `docker-compose.yml` example file, then run `docker compose up`.
 
 ```yml
-version: "3"
 services:
   n31l:
     container_name: n31l
