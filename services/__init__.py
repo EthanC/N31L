@@ -18,12 +18,15 @@ from .animals import (
 )
 from .food import (
     Burger,
+    Chicken,
     Dessert,
     HotDog,
     Pasta,
     Pizza,
+    Rice,
     Salad,
     Sandwich,
+    Steak,
     Sushi,
     Taco,
 )
