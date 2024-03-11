@@ -47,21 +47,19 @@ async def CommandFood(ctx: SlashContext, type: str | None) -> None:
         if type == "Burger":
             result = await Burger.RedditBurgers()
         elif type == "Dessert":
-            source = random.randint(1, 7)
+            source = random.randint(1, 6)
 
             if source == 1:
                 result = await Dessert.RedditCake()
             elif source == 2:
                 result = await Dessert.RedditCookies()
             elif source == 3:
-                result = await Dessert.RedditCupcakes()
-            elif source == 4:
                 result = await Dessert.RedditDessert()
-            elif source == 5:
+            elif source == 4:
                 result = await Dessert.RedditDessertPorn()
-            elif source == 6:
+            elif source == 5:
                 result = await Dessert.RedditIcecreamery()
-            elif source == 7:
+            elif source == 6:
                 result = await Dessert.RedditPie()
         elif type == "Hot Dog":
             result = await HotDog.RedditHotDogs()
@@ -72,14 +70,12 @@ async def CommandFood(ctx: SlashContext, type: str | None) -> None:
         elif type == "Salad":
             result = await Salad.RedditSalads()
         elif type == "Sandwich":
-            source = random.randint(1, 3)
+            source = random.randint(1, 2)
 
             if source == 1:
                 result = await Sandwich.RedditEatSandwiches()
             if source == 2:
                 result = await Sandwich.RedditGrilledCheese()
-            elif source == 3:
-                result = await Sandwich.RedditSandwiches()
         elif type == "Sushi":
             result = await Sushi.RedditSushi()
         elif type == "Taco":

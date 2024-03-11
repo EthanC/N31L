@@ -25,11 +25,6 @@ class Dessert:
 
         return await Reddit.GetRandomImage("Cookies")
 
-    async def RedditCupcakes() -> Embed | None:
-        """Fetch a random dessert image from r/cupcakes."""
-
-        return await Reddit.GetRandomImage("cupcakes")
-
     async def RedditDessert() -> Embed | None:
         """Fetch a random dessert image from r/dessert."""
 
@@ -99,11 +94,6 @@ class Sandwich:
         """Fetch a random sandwich image from r/grilledcheese."""
 
         return await Reddit.GetRandomImage("grilledcheese")
-
-    async def RedditSandwiches() -> Embed | None:
-        """Fetch a random sandwich image from r/sandwiches."""
-
-        return await Reddit.GetRandomImage("sandwiches")
 
 
 class Sushi:
