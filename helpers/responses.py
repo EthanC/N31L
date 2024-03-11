@@ -71,7 +71,7 @@ class Responses:
     def Log(emoji: str, message: str, timestamp: datetime | None = None) -> str:
         """Build a reusable log message."""
 
-        if timestamp is None:
+        if not timestamp:
             timestamp = datetime.now()
 
         return f"[{Timestamps.LongTime(timestamp)}] :{emoji}: {message}"
@@ -101,16 +101,16 @@ class Responses:
             timestamp=timestamp,
         )
 
-        if author is not None:
+        if author:
             result.set_author(name=author, url=authorUrl, icon=authorIcon)
 
-        if thumbnail is not None:
+        if thumbnail:
             result.set_thumbnail(thumbnail)
 
-        if image is not None:
+        if image:
             result.set_image(image)
 
-        if footer is not None:
+        if footer:
             result.set_footer(footer, icon=footerIcon)
 
         for field in fields:
@@ -145,16 +145,16 @@ class Responses:
             timestamp=timestamp,
         )
 
-        if author is not None:
+        if author:
             result.set_author(name=author, url=authorUrl, icon=authorIcon)
 
-        if thumbnail is not None:
+        if thumbnail:
             result.set_thumbnail(thumbnail)
 
-        if image is not None:
+        if image:
             result.set_image(image)
 
-        if footer is not None:
+        if footer:
             result.set_footer(footer, icon=footerIcon)
 
         for field in fields:
@@ -195,16 +195,16 @@ class Responses:
             timestamp=timestamp,
         )
 
-        if author is not None:
+        if author:
             result.set_author(name=author, url=authorUrl, icon=authorIcon)
 
-        if thumbnail is not None:
+        if thumbnail:
             result.set_thumbnail(thumbnail)
 
-        if image is not None:
+        if image:
             result.set_image(image)
 
-        if footer is not None:
+        if footer:
             result.set_footer(f"{footer} ({ref})", icon=footerIcon)
         else:
             result.set_footer(ref, icon=footerIcon)

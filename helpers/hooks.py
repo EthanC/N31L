@@ -39,8 +39,8 @@ class SlashHooks:
 
         command: str = "/"
 
-        if (groupB := ctx.command.parent) is not None:
-            if (groupA := ctx.command.parent.parent) is not None:
+        if groupB := ctx.command.parent:
+            if groupA := ctx.command.parent.parent:
                 command += f"{groupA.name} "
 
             command += f"{groupB.name} "
@@ -58,8 +58,8 @@ class SlashHooks:
 
         command: str = "/"
 
-        if (groupB := ctx.command.parent) is not None:
-            if (groupA := ctx.command.parent.parent) is not None:
+        if groupB := ctx.command.parent:
+            if groupA := ctx.command.parent.parent:
                 command += f"{groupA.name} "
 
             command += f"{groupB.name} "

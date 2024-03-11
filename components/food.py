@@ -52,14 +52,14 @@ foodTypes: list[str] = [
 async def CommandFood(ctx: SlashContext, type: str | None) -> None:
     """Handler for the /food command."""
 
-    if type is None:
+    if not type:
         type = random.choice(foodTypes)
 
     result: Embed | None = None
     source: int = 1
     retries: int = 0
 
-    while result is None:
+    while not result:
         if type == "Burger":
             source = random.randint(1, 4)
 

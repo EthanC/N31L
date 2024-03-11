@@ -65,7 +65,7 @@ async def CommandRaidCollect(
     try:
         welcomes = (await ctx.fetch_guild()).system_channel_id
 
-        if welcomes is None:
+        if not welcomes:
             raise ValueError("system messages channel is not set")
     except Exception as e:
         logger.opt(exception=e).error(
@@ -86,12 +86,12 @@ async def CommandRaidCollect(
 
     # If both newest_join and oldest_user are set, we can disregard
     # multiple other arguments.
-    if (newest_join is not None) and (oldest_join is not None):
+    if (newest_join) and (oldest_join):
         amount = None
         max_joined = None
 
     # If newest_join is set, we do not begin collecting immediately.
-    if newest_join is not None:
+    if newest_join:
         collect = False
 
     try:
@@ -104,13 +104,13 @@ async def CommandRaidCollect(
 
                 userId: int = int(m.author.id)
 
-                if max_created is not None:
+                if max_created:
                     accountAge: int = Utility.Elapsed(start, m.author.created_at)
 
                     if accountAge > max_created:
                         continue
 
-                if max_joined is not None:
+                if max_joined:
                     joinAge: int = Utility.Elapsed(start, m.created_at)
 
                     if joinAge > max_joined:
@@ -118,26 +118,28 @@ async def CommandRaidCollect(
 
                         break
 
-                if newest_join is not None:
+                if newest_join:
                     if userId == int(newest_join.id):
                         collect = True
 
                 if (userId not in users) and (collect):
                     users.append(userId)
 
-                if oldest_join is not None:
+                if oldest_join:
                     if userId == int(oldest_join.id):
                         active = False
 
                         break
 
-                if amount is not None:
+                if amount:
                     if len(users) >= amount:
                         active = False
 
                         break
     except Exception as e:
-        logger.opt(exception=e).error(f"Failed to collect {amount:,} recently-joined users in {Responses.ExpandGuild(ctx.get_guild(), False)}")
+        logger.opt(exception=e).error(
+            f"Failed to collect {amount:,} recently-joined users in {Responses.ExpandGuild(ctx.get_guild(), False)}"
+        )
 
         if len(users) == 0:
             await ctx.respond(

@@ -24,7 +24,7 @@ async def EventValidateRoles(
 
     if not ctx.is_human:
         return
-    elif ctx.message.member is None:
+    elif not ctx.message.member:
         return
 
     invalidated: list[int] = []

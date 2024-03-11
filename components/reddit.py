@@ -46,7 +46,7 @@ async def CommandRedditQueue(ctx: SlashContext, community: str | None) -> None:
 
     client: Reddit | None = await Reddit.CreateClient()
 
-    if client is None:
+    if not client:
         await ctx.respond(
             embed=Responses.Fail(
                 description="Failed to authenticate with Reddit, an unknown error occurred."
@@ -55,7 +55,7 @@ async def CommandRedditQueue(ctx: SlashContext, community: str | None) -> None:
 
         return
 
-    if community is None:
+    if not community:
         results: list[dict[str, Any]] = []
 
         for entry in communities:
@@ -63,7 +63,7 @@ async def CommandRedditQueue(ctx: SlashContext, community: str | None) -> None:
                 client, communities[entry]
             )
 
-            if subreddit is None:
+            if not subreddit:
                 continue
 
             mod: int = await Reddit.CountModqueue(client, subreddit)
@@ -103,7 +103,7 @@ async def CommandRedditQueue(ctx: SlashContext, community: str | None) -> None:
 
     subreddit: Subreddit = await Reddit.GetSubreddit(client, community)
 
-    if subreddit is None:
+    if not subreddit:
         await Reddit.DestroyClient(client)
 
         await ctx.respond(

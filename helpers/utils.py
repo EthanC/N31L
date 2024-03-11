@@ -14,7 +14,9 @@ from .responses import Responses
 class Utility:
     """Utilitarian functions designed for N31L."""
 
-    async def GET(url: str, headers: dict[str, str] | None = None) -> str | dict[str, Any] | None:
+    async def GET(
+        url: str, headers: dict[str, str] | None = None
+    ) -> str | dict[str, Any] | None:
         """Perform an HTTP GET request and return its response."""
 
         logger.debug(f"GET {url}")
@@ -86,7 +88,7 @@ class Utility:
             logger.opt(exception=e).debug("Failed to cleanly trim string")
             logger.trace(result)
 
-        if end is not None:
+        if end:
             result += end
 
         return result
@@ -100,11 +102,11 @@ class Utility:
 
         try:
             for entry in re.findall("\\d+", input):
-                if minLen is not None:
+                if minLen:
                     if len(entry) < minLen:
                         continue
 
-                if maxLen is not None:
+                if maxLen:
                     if len(entry) > maxLen:
                         continue
 
@@ -117,7 +119,9 @@ class Utility:
 
         return results
 
-    async def UserHasRole(userId: int, roleIds: int | list[int], serverId: int, bot: GatewayBot) -> bool:
+    async def UserHasRole(
+        userId: int, roleIds: int | list[int], serverId: int, bot: GatewayBot
+    ) -> bool:
         """
         Return a boolean value indicating whether or not a server
         member has a specified role.
@@ -153,7 +157,7 @@ class Utility:
             )
 
         return False
-    
+
     async def IsValidUser(userId: int, client: Client) -> bool:
         """
         Determine if the provided integer is a valid
@@ -161,7 +165,9 @@ class Utility:
         """
 
         try:
-            logger.debug(f"Validated {userId} as user {(await client.rest.fetch_user(userId)).username}")
+            logger.debug(
+                f"Validated {userId} as user {(await client.rest.fetch_user(userId)).username}"
+            )
         except Exception as e:
             logger.opt(exception=e).debug(f"Invalidated potential user ID {userId}")
 

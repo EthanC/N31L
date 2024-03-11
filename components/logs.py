@@ -31,7 +31,7 @@ async def EventDirectMessage(
     content: str | None = None
 
     if hasattr(ctx.message, "content"):
-        if ctx.message.content is not None:
+        if ctx.message.content:
             content = f">>> {Utility.Trim(ctx.message.content, 4000)}"
 
     payload: dict[str, Any] = {
@@ -47,7 +47,7 @@ async def EventDirectMessage(
                 "author": {
                     "name": Responses.ExpandUser(ctx.author, False, False),
                     "icon_url": str(ctx.author.default_avatar_url)
-                    if (avatar := ctx.author.avatar_url) is None
+                    if not (avatar := ctx.author.avatar_url)
                     else str(avatar),
                 },
                 "fields": [],
@@ -88,7 +88,7 @@ async def EventKeyword(
         return
     elif ctx.message.channel_id in config["logging"]["kwIgnore"]:
         return
-    elif ctx.message.content is None:
+    elif not ctx.message.content:
         return
 
     words: list[str] = [word.lower() for word in ctx.message.content.split()]
@@ -117,7 +117,7 @@ async def EventKeyword(
                 "author": {
                     "name": Responses.ExpandUser(ctx.author, False, False),
                     "icon_url": str(ctx.author.default_avatar_url)
-                    if (avatar := ctx.author.avatar_url) is None
+                    if not (avatar := ctx.author.avatar_url)
                     else str(avatar),
                 },
                 "fields": [
@@ -170,7 +170,7 @@ async def EventMention(
         return
     elif ctx.author.id == config["users"]["owner"]:
         return
-    elif ctx.message.content is None:
+    elif not ctx.message.content:
         return
 
     found: list[str] = []
@@ -198,7 +198,7 @@ async def EventMention(
                 "author": {
                     "name": Responses.ExpandUser(ctx.author, False, False),
                     "icon_url": str(ctx.author.default_avatar_url)
-                    if (avatar := ctx.author.avatar_url) is None
+                    if not (avatar := ctx.author.avatar_url)
                     else str(avatar),
                 },
                 "fields": [
@@ -254,7 +254,7 @@ async def EventMirror(
         return
     elif not hasattr(ctx.message, "content"):
         return
-    elif ctx.message.content is None:
+    elif not ctx.message.content:
         return
 
     content: str = ctx.message.content.lower()
@@ -272,16 +272,16 @@ async def EventMirror(
 
         data: str | None = await Utility.GET(url)
 
-        if data is None:
+        if not data:
             return
-        
+
         found: list[str] = []
 
         for line in data.splitlines():
             for find in Utility.FindNumbers(line, 17, 19):
                 if await Utility.IsValidUser(find, client):
                     found.append(f"`{find}`")
-        
+
         # Ensure there are no duplicate users
         found: list[str] = list(set(found))
 

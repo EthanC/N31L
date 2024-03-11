@@ -116,19 +116,19 @@ async def CommandProfile(ctx: SlashContext, user: InteractionMember | UserImpl) 
     accent: str | None = None
 
     if hasattr(user, "nickname"):
-        if (nickname := user.nickname) is not None:
+        if nickname := user.nickname:
             fields.append({"name": "Nickname", "value": nickname})
 
     if hasattr(user, "created_at"):
-        if (created := user.created_at) is not None:
+        if created := user.created_at:
             fields.append({"name": "Created", "value": Timestamps.Relative(created)})
 
     if hasattr(user, "joined_at"):
-        if (joined := user.joined_at) is not None:
+        if joined := user.joined_at:
             fields.append({"name": "Joined", "value": Timestamps.Relative(joined)})
 
     if hasattr(user, "premium_since"):
-        if (booster := user.premium_since) is not None:
+        if booster := user.premium_since:
             fields.append(
                 {
                     "name": "Nitro Booster",
@@ -137,7 +137,7 @@ async def CommandProfile(ctx: SlashContext, user: InteractionMember | UserImpl) 
             )
 
     if hasattr(user, "communication_disabled_until"):
-        if (timeout := user.communication_disabled_until()) is not None:
+        if timeout := user.communication_disabled_until():
             fields.append(
                 {"name": "Timed Out", "value": f"Until {Timestamps.Relative(timeout)}"}
             )
@@ -155,11 +155,11 @@ async def CommandProfile(ctx: SlashContext, user: InteractionMember | UserImpl) 
             fields.append({"name": "Deafened", "value": "Yes"})
 
     if hasattr(user, "guild_avatar_url"):
-        if (url := user.guild_avatar_url) is not None:
+        if url := user.guild_avatar_url:
             altAvatar = url
 
     if hasattr(user, "accent_color"):
-        if (color := user.accent_color) is not None:
+        if color := user.accent_color:
             accent = str(color).replace("#", "")
 
     result: Embed = Responses.Success(
@@ -168,11 +168,11 @@ async def CommandProfile(ctx: SlashContext, user: InteractionMember | UserImpl) 
         author=Responses.ExpandUser(user, False, False),
         authorIcon=altAvatar,
         thumbnail=user.default_avatar_url
-        if (avatar := user.avatar_url) is None
+        if not (avatar := user.avatar_url)
         else avatar,
         image=None if not hasattr(user, "user") else user.user.banner_url,
         footer=user.id,
-        timestamp=None if created is None else created.astimezone(),
+        timestamp=None if not created else created.astimezone(),
     )
 
     await ctx.respond(embed=result)
@@ -195,7 +195,7 @@ async def CommandReboot(
         "value": Timestamps.Relative(state.botStart),
     }
 
-    if delay is not None:
+    if delay:
         await ctx.respond(
             embed=Responses.Success(
                 description=f"N31L will reboot {Timestamps.Relative((datetime.now().timestamp() + delay))}...",
@@ -243,21 +243,21 @@ async def CommandServer(ctx: SlashContext) -> None:
     fields: list[dict[str, Any]] = []
 
     if hasattr(server, "created_at"):
-        if (created := server.created_at) is not None:
+        if created := server.created_at:
             fields.append({"name": "Created", "value": Timestamps.Relative(created)})
 
     if creator := creators.get(server.id):
         fields.append({"name": "Creator", "value": f"<@{creator}>"})
 
     if hasattr(server, "owner_id"):
-        if (owner := server.owner_id) is not None:
+        if owner := server.owner_id:
             fields.append({"name": "Owner", "value": f"<@{owner}>"})
 
     await ctx.respond(
         embed=Responses.Success(
             title=server.name,
             url=None
-            if (vanity := server.vanity_url_code) is None
+            if not (vanity := server.vanity_url_code)
             else f"https://discord.gg/{vanity}",
             description=server.description,
             fields=fields,
@@ -357,7 +357,7 @@ async def CommandSendDirectMessage(
 ) -> None:
     """Handler for the /send direct_message slash command."""
 
-    if (content is None) and (attachment is None):
+    if (not content) and (not attachment):
         await ctx.respond(
             embed=Responses.Fail(
                 description=f"Failed to send direct message to {Responses.ExpandUser(user, False)}, you must supply message content or an attachment."
@@ -370,7 +370,7 @@ async def CommandSendDirectMessage(
         dm: DMChannel = await ctx.rest.create_dm_channel(user.id)
 
         await ctx.rest.create_message(
-            dm.id, content, attachments=[] if attachment is None else [attachment]
+            dm.id, content, attachments=[] if not attachment else [attachment]
         )
     except Exception as e:
         logger.opt(exception=e).error(
@@ -421,7 +421,7 @@ async def CommandSendMessage(
 ) -> None:
     """Handler for the /send message slash command."""
 
-    if (content is None) and (attachment is None):
+    if (not content) and (not attachment):
         await ctx.respond(
             embed=Responses.Fail(
                 description=f"Failed to send message to {Responses.ExpandChannel(channel)}, you must supply message content or an attachment."
@@ -432,7 +432,7 @@ async def CommandSendMessage(
 
     try:
         await ctx.rest.create_message(
-            channel.id, content, attachments=[] if attachment is None else [attachment]
+            channel.id, content, attachments=[] if not attachment else [attachment]
         )
     except Exception as e:
         logger.opt(exception=e).error(
@@ -517,11 +517,11 @@ async def CommandSetActivity(
 async def CommandSetAvatar(ctx: SlashContext, image: Attachment | None) -> None:
     """Handler for the /set avatar slash command."""
 
-    url: str | None = None if image is None else image.url
+    url: str | None = None if not image else image.url
 
     try:
-        if image is not None:
-            if (image.width is None) or (image.height is None):
+        if image:
+            if (not image.width) or (not image.height):
                 logger.error(
                     f"Failed to set avatar to {url}, provided attachment is not a valid image ({image.width}x{image.height})"
                 )

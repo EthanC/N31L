@@ -135,9 +135,9 @@ async def CommandReport(
         {"name": "Reported", "value": Timestamps.Relative(ctx.created_at)},
     ]
 
-    if (attachments := message.attachments) is not None:
+    if attachments := message.attachments:
         for attachment in attachments:
-            if imageUrl is None:
+            if not imageUrl:
                 if attachment.media_type.startswith("image/"):
                     imageUrl = attachment.url
 
@@ -150,9 +150,9 @@ async def CommandReport(
                 }
             )
 
-    if (stickers := message.stickers) is not None:
+    if stickers := message.stickers:
         for sticker in stickers:
-            if imageUrl is None:
+            if not imageUrl:
                 if sticker.format_type != StickerFormatType.LOTTIE:
                     imageUrl = sticker.image_url
 
@@ -167,18 +167,16 @@ async def CommandReport(
         embed=Responses.Warning(
             title="Message Reported",
             url=f"https://discord.com/channels/{ctx.guild_id}/{message.channel_id}/{message.id}",
-            description=None
-            if (content := message.content) is None
-            else f">>> {content}",
+            description=None if not (content := message.content) else f">>> {content}",
             fields=fields,
             author=Responses.ExpandUser(message.author, False),
             authorIcon=message.author.default_avatar_url
-            if (avatar := message.author.avatar_url) is None
+            if not (avatar := message.author.avatar_url)
             else avatar,
             image=imageUrl,
             footer=f"Reported by {Responses.ExpandUser(ctx.author, False)}",
             footerIcon=ctx.author.default_avatar_url
-            if (avatar := ctx.author.avatar_url) is None
+            if not (avatar := ctx.author.avatar_url)
             else avatar,
         ),
     )
@@ -232,7 +230,7 @@ async def CommandPurge(
                 elif (messageId := m.id) in messages:
                     continue
 
-                if member is not None:
+                if member:
                     if m.author.id != member.id:
                         continue
 
@@ -315,13 +313,13 @@ async def CommandParseUsers(
     try:
         target: Message = await ctx.rest.fetch_message(channel.id, int(message_id))
 
-        if target is None:
+        if not target:
             raise ValueError("target message is null")
 
         if target.type == MessageType.GUILD_MEMBER_JOIN:
             results.append(target.author.id)
 
-        if (content := target.content) is not None:
+        if content := target.content:
             for find in Utility.FindNumbers(content, sMin, sMax):
                 if find in results:
                     continue
@@ -329,29 +327,29 @@ async def CommandParseUsers(
                 results.append(find)
 
         for embed in target.embeds:
-            if embed.author is not None:
-                if (name := embed.author.name) is not None:
+            if embed.author:
+                if name := embed.author.name:
                     for find in Utility.FindNumbers(name, sMin, sMax):
                         if find in results:
                             continue
 
                         results.append(find)
 
-            if (title := embed.title) is not None:
+            if title := embed.title:
                 for find in Utility.FindNumbers(title, sMin, sMax):
                     if find in results:
                         continue
 
                     results.append(find)
 
-            if (desc := embed.description) is not None:
+            if desc := embed.description:
                 for find in Utility.FindNumbers(desc, sMin, sMax):
                     if find in results:
                         continue
 
                     results.append(find)
 
-            if (fields := embed.fields) is not None:
+            if fields := embed.fields:
                 for field in fields:
                     for find in Utility.FindNumbers(field.name, sMin, sMax):
                         if find in results:
@@ -365,8 +363,8 @@ async def CommandParseUsers(
 
                         results.append(find)
 
-            if embed.footer is not None:
-                if (footer := embed.footer.text) is not None:
+            if embed.footer:
+                if footer := embed.footer.text:
                     for find in Utility.FindNumbers(footer, sMin, sMax):
                         if find in results:
                             continue

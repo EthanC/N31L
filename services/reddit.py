@@ -103,7 +103,7 @@ class Reddit:
 
         client: Reddit | None = await Reddit.CreateClient()
 
-        if client is None:
+        if not client:
             return
 
         subreddit: Subreddit | None = None
@@ -128,7 +128,7 @@ class Reddit:
 
                 attempts += 1
 
-                if post is None:
+                if not post:
                     logger.warning(
                         f"Reddit community r/{community} does not support submission randomization"
                     )
@@ -161,7 +161,7 @@ class Reddit:
 
         await Reddit.DestroyClient(client)
 
-        if post is None:
+        if not post:
             return
 
         return Responses.Success(

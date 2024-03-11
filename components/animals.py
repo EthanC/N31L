@@ -61,14 +61,14 @@ animalTypes: list[str] = [
 async def CommandAnimal(ctx: SlashContext, type: str | None) -> None:
     """Handler for the /animal command."""
 
-    if type is None:
+    if not type:
         type = random.choice(animalTypes)
 
     result: Embed | None = None
     source: int = 1
     retries: int = 0
 
-    while result is None:
+    while not result:
         if type == "Axolotl":
             if source == 1:
                 result = await Axolotl.RedditAxolotls()

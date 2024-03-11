@@ -28,7 +28,7 @@ class Bird:
             "https://random-d.uk/api/v2/random"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -43,7 +43,7 @@ class Bird:
             "https://some-random-api.com/animal/bird"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -72,7 +72,7 @@ class Bunny:
             "https://api.bunnies.io/v2/loop/random/?media=gif"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -102,7 +102,7 @@ class Cat:
             headers={"x-api-key": environ.get("CAT_API_KEY")},
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -121,24 +121,24 @@ class Cat:
                 wiki = breed["wikipedia_url"]
 
                 if len((altNames := breed.get("alt_names", []))) > 0:
-                    if name is None:
+                    if not name:
                         name = altNames
                     else:
                         name = f"{name} ({altNames})"
 
-                if (desc := breed["description"]) is not None:
+                if desc := breed["description"]:
                     if len(desc) >= 120:
                         info = f"{desc[0:120]}..."
                     else:
                         info = desc
 
-                if (origin := breed["origin"]) is not None:
-                    if (country := breed["country_code"]) is not None:
+                if origin := breed["origin"]:
+                    if country := breed["country_code"]:
                         origin = f":flag_{country.lower()}: {origin}"
 
                     facts.append({"name": "Origin", "value": origin})
 
-                if (temperament := breed["temperament"]) is not None:
+                if temperament := breed["temperament"]:
                     facts.append({"name": "Temperaments", "value": temperament})
 
             if len((categories := cat.get("categories", []))) > 0:
@@ -154,7 +154,7 @@ class Cat:
                 description=info,
                 fields=facts,
                 image=cat["url"],
-                footer=None if tags is None else ", ".join(tags),
+                footer=None if not tags else ", ".join(tags),
             )
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from TheCatAPI")
@@ -166,14 +166,14 @@ class Cat:
             "https://cataas.com/cat?json=true"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
             return Responses.Success(
                 color=None,
                 image="https://cataas.com/cat/" + data["_id"],
-                footer=None if (tags := data.get("tags")) is None else ", ".join(tags),
+                footer=None if not (tags := data.get("tags")) else ", ".join(tags),
             )
         except Exception as e:
             logger.opt(exception=e).error("Failed to fetch from CATAAS")
@@ -185,7 +185,7 @@ class Cat:
             "https://some-random-api.com/animal/cat"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -254,7 +254,7 @@ class Dog:
             headers={"x-api-key": environ.get("DOG_API_KEY")},
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -268,7 +268,7 @@ class Dog:
 
                 name = breed["name"]
 
-                if (temperament := breed["temperament"]) is not None:
+                if temperament := breed["temperament"]:
                     facts.append({"name": "Temperaments", "value": temperament})
 
             return Responses.Success(
@@ -284,7 +284,7 @@ class Dog:
             "https://dog.ceo/api/breeds/image/random"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -303,11 +303,9 @@ class Dog:
     async def RandomDog() -> Embed | None:
         """Fetch a random dog image from RandomDog."""
 
-        data: dict[str, Any] | None = await Utility.GET(
-            "https://random.dog/woof.json"
-        )
+        data: dict[str, Any] | None = await Utility.GET("https://random.dog/woof.json")
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -322,7 +320,7 @@ class Dog:
             "https://shibe.online/api/shibes"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -337,7 +335,7 @@ class Dog:
             "https://some-random-api.com/animal/dog"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -377,11 +375,9 @@ class Fox:
     async def RandomFox() -> Embed | None:
         """Fetch a random fox image from RandomFox."""
 
-        data: dict[str, Any] | None = await Utility.GET(
-            "https://randomfox.ca/floof/"
-        )
+        data: dict[str, Any] | None = await Utility.GET("https://randomfox.ca/floof/")
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -396,7 +392,7 @@ class Fox:
             "https://some-random-api.com/animal/fox"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -420,7 +416,7 @@ class Kangaroo:
             "https://some-random-api.com/animal/kangaroo"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -439,7 +435,7 @@ class Koala:
             "https://some-random-api.com/animal/koala"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -463,7 +459,7 @@ class Lizard:
             "https://nekos.life/api/v2/img/lizard"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -496,7 +492,7 @@ class Panda:
             "https://some-random-api.com/animal/panda"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -515,7 +511,7 @@ class Raccoon:
             "https://some-random-api.com/animal/raccoon"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
@@ -553,7 +549,7 @@ class RedPanda:
             "https://some-random-api.com/animal/red_panda"
         )
 
-        if data is None:
+        if not data:
             return
 
         try:
