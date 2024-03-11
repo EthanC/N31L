@@ -611,13 +611,13 @@ dev = ["Sphinx (==7.2.5)", "colorama (==0.4.5)", "colorama (==0.4.6)", "exceptio
 
 [[package]]
 name = "loguru-discord"
-version = "1.1.1"
+version = "1.2.2"
 description = "Lightweight, easy-to-use Discord sink for Loguru."
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "loguru_discord-1.1.1-py3-none-any.whl", hash = "sha256:87fbf4ff2177c579399862bb1290a7cf810b5dbd3f477dcdfd6fc4bc418dbaa4"},
-    {file = "loguru_discord-1.1.1.tar.gz", hash = "sha256:d19373b5e64c38cde28cc93d715e08686d0d199480696445f18a0dbf7de9a1fe"},
+    {file = "loguru_discord-1.2.2-py3-none-any.whl", hash = "sha256:a6676ce1580facc0b1816d9c9bf8fdab217f536cf24db0acea50e18f3fa81b95"},
+    {file = "loguru_discord-1.2.2.tar.gz", hash = "sha256:d4a03297922e22952d518c93bea4c798aa17a21d51251c3a8817ae0092c014a9"},
 ]
 
 [package.dependencies]
@@ -1048,4 +1048,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<3.13"
-content-hash = "26b65e3580bc89b8f3762ec055882613e4839f8c36459033204bb32384ae8872"
+content-hash = "b250c0a21e668ffc395ab1f3d54ef20d3dd24ff56cb627f0d789e336bf1e1a84"
