@@ -55,6 +55,13 @@ class Responses:
     def ExpandChannel(channel: GuildChannel, format: bool = True) -> str:
         """Build a reusable string for the provided channel."""
 
+        if type(channel) == GuildThreadChannel:
+            logger.debug(
+                f"GuildThreadChannel {channel} passed to ExpandChannel(), switching to ExpandThread()"
+            )
+
+            return Responses.ExpandThread(channel, format)
+
         if format:
             return f"`#{channel.name}` (`{channel.id}`)"
 
