@@ -39,6 +39,9 @@ send: SlashCommandGroup = component.with_slash_command(
 set: SlashCommandGroup = component.with_slash_command(
     tanjun.slash_command_group("set", "Manage the state of N31L.")
 )
+emoji: SlashCommandGroup = component.with_slash_command(
+    tanjun.slash_command_group("emoji", "Manage server custom emoji.")
+)
 
 
 @component.with_slash_command()
@@ -618,4 +621,80 @@ async def CommandSetUsername(ctx: SlashContext, username: str) -> None:
 
     await ctx.respond(
         embed=Responses.Success(description=f"Set username to `{username}`.")
+    )
+
+
+@emoji.with_command
+@tanjun.with_owner_check()
+@tanjun.with_own_permission_check(Permissions.CREATE_GUILD_EXPRESSIONS)
+@tanjun.with_own_permission_check(Permissions.MANAGE_GUILD_EXPRESSIONS)
+@tanjun.with_str_slash_option(
+    "name",
+    "Enter a name for the custom emoji (image filename is default).",
+    min_length=2,
+    default=None,
+)
+@tanjun.with_attachment_slash_option("image", "Choose an image for the custom emoji.")
+@tanjun.as_slash_command("upload", "Upload a custom emoji to this server.")
+async def CommandEmojiUpload(
+    ctx: SlashContext, image: Attachment, name: str | None
+) -> None:
+    """Handler for the /emoji upload slash command."""
+
+    await ctx.defer(ephemeral=True)
+
+    try:
+        if not name:
+            name = image.filename.rsplit(".")[0]
+
+        await ctx.rest.create_emoji(
+            await ctx.fetch_guild(),
+            name,
+            image.url,
+            reason=f"Uploaded by {Responses.ExpandUser(ctx.author, False)}",
+        )
+    except Exception as e:
+        logger.opt(exception=e).error(f"Failed to upload custom emoji :{name}:")
+
+        await ctx.respond(
+            embed=Responses.Fail(
+                description=f"Failed to upload custom emoji `:{name}:`."
+            )
+        )
+
+        return
+
+    await ctx.respond(
+        embed=Responses.Success(description=f"Uploaded custom emoji `:{name}:`.")
+    )
+
+
+@emoji.with_command
+@tanjun.with_owner_check()
+@tanjun.with_own_permission_check(Permissions.CREATE_GUILD_EXPRESSIONS)
+@tanjun.with_own_permission_check(Permissions.MANAGE_GUILD_EXPRESSIONS)
+@tanjun.with_str_slash_option("id", "Enter the ID of the custom emoji.")
+@tanjun.as_slash_command("delete", "Delete a custom emoji on this server.")
+async def CommandEmojiDelete(ctx: SlashContext, id: str) -> None:
+    """Handler for the /emoji delete slash command."""
+
+    await ctx.defer(ephemeral=True)
+
+    try:
+        await ctx.rest.delete_emoji(
+            await ctx.fetch_guild(),
+            int(id),
+            reason=f"Deleted by {Responses.ExpandUser(ctx.author, False)}",
+        )
+    except Exception as e:
+        logger.opt(exception=e).error(f"Failed to delete custom emoji {id}")
+
+        await ctx.respond(
+            embed=Responses.Fail(description=f"Failed to delete custom emoji `{id}`.")
+        )
+
+        return
+
+    await ctx.respond(
+        embed=Responses.Success(description=f"Deleted custom emoji `:{id}:`.")
     )
