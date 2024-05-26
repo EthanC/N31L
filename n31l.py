@@ -1,148 +1,103 @@
-import json
 import logging
 import os
-from datetime import datetime
 from os import environ
 from sys import exit, stdout
-from typing import Any
 
 import dotenv
-import tanjun
-from hikari import GatewayBot, GatewayConnectionError
-from hikari.intents import Intents
-from hikari.presences import Activity, ActivityType, Status
+from arc import GatewayClient
+from hikari import Activity, ActivityType, GatewayBot, Intents, Permissions, Status
 from loguru import logger
-from loguru_discord import DiscordSink
-from tanjun import Client
+from loguru_discord import DiscordSink  # type: ignore
 
-from components import Admin, Animals, Food, Logs, Messages, Raid, Reddit, Roles
-from helpers import Intercept, MenuHooks, SlashHooks
-from models import State
+from core.config import Config
+from core.hooks import HookStart, HookStop
+from core.intercept import Intercept
 
+logger.info("N31L")
+logger.info("https://github.com/EthanC/N31L")
 
-def Initialize() -> None:
-    """Initialize N31L and begin primary functionality."""
+if dotenv.load_dotenv():
+    logger.success("Loaded environment variables")
 
-    logger.info("N31L")
-    logger.info("https://github.com/EthanC/N31L")
+if level := environ.get("LOG_LEVEL"):
+    logger.remove()
+    logger.add(stdout, level=level)
 
-    if dotenv.load_dotenv():
-        logger.success("Loaded environment variables")
-        logger.trace(environ)
+    logger.success(f"Set console logging level to {level}")
 
-    config: dict[str, Any] = LoadConfig()
-    state: State = State(botStart=datetime.now())
+# Reroute standard logging to Loguru
+logging.basicConfig(handlers=[Intercept()], level=0, force=True)
 
-    # Reroute standard logging to Loguru
-    logging.basicConfig(handlers=[Intercept()], level=0, force=True)
+logger.add("error.log", level="ERROR", rotation=environ.get("LOG_FILE_SIZE", "100 MB"))
 
-    if level := environ.get("LOG_LEVEL"):
-        logger.remove()
-        logger.add(stdout, level=level)
-
-        logger.success(f"Set console logging level to {level}")
-
-    if url := environ.get("LOG_DISCORD_WEBHOOK_URL"):
-        logger.add(
-            DiscordSink(url, suppress=[GatewayConnectionError]),
-            level=environ.get("LOG_DISCORD_WEBHOOK_LEVEL"),
-            backtrace=False,
-        )
-
-        logger.success("Enabled logging to Discord webhook")
-        logger.trace(url)
-
-    if not environ.get("DISCORD_TOKEN"):
-        logger.critical("Failed to create bot instance, DISCORD_TOKEN is not set")
-
-        return
-
-    bot: GatewayBot = GatewayBot(
-        environ.get("DISCORD_TOKEN"),
-        allow_color=False,
-        banner=None,
-        intents=(
-            Intents.GUILDS
-            | Intents.GUILD_MESSAGES
-            | Intents.GUILD_MEMBERS
-            | Intents.DM_MESSAGES
-            | Intents.MESSAGE_CONTENT
-        ),
+if url := environ.get("LOG_DISCORD_WEBHOOK_URL"):
+    logger.add(
+        DiscordSink(url),
+        level=environ["LOG_DISCORD_WEBHOOK_LEVEL"],
+        backtrace=False,
     )
 
-    if not environ.get("DISCORD_SERVER_ID"):
-        logger.critical("Failed to register bot commands, DISCORD_SERVER_ID is not set")
+    logger.success("Enabled logging to Discord webhook")
 
-        return
+# Replace default asyncio event loop with libuv on UNIX
+# https://github.com/hikari-py/hikari#uvloop
+if os.name != "nt":
+    try:
+        import uvloop  # type: ignore
 
-    client: Client = tanjun.Client.from_gateway_bot(
-        bot, declare_global_commands=int(environ.get("DISCORD_SERVER_ID"))
-    )
+        uvloop.install()
 
-    client.set_type_dependency(dict[str, Any], config)
-    client.set_type_dependency(State, state)
-    client.set_type_dependency(GatewayBot, bot)
-    client.set_type_dependency(Client, client)
+        logger.success("Installed libuv event loop")
+    except Exception as e:
+        logger.opt(exception=e).debug("Defaulted to asyncio event loop")
 
-    client.set_slash_hooks(
-        (
-            tanjun.SlashHooks()
-            .add_pre_execution(SlashHooks.PreExecution)
-            .add_post_execution(SlashHooks.PostExecution)
-        )
-    )
-    client.set_menu_hooks(
-        tanjun.AnyHooks()
-        .add_pre_execution(MenuHooks.PreExecution)
-        .add_post_execution(MenuHooks.PostExecution)
-    )
+if not environ.get("DISCORD_TOKEN"):
+    logger.critical("Failed to initialize bot, DISCORD_TOKEN is not set")
 
-    client.add_component(Admin)
-    client.add_component(Animals)
-    client.add_component(Food)
-    client.add_component(Logs)
-    client.add_component(Messages)
-    client.add_component(Raid)
-    client.add_component(Reddit)
-    client.add_component(Roles)
+    exit(1)
 
+if not (cfg := Config()):
+    logger.critical("Failed to initialize bot, config is not initialized")
+
+    exit(1)
+
+isDebug: bool = True if (level and level == "DEBUG" or "TRACE") else False
+
+bot: GatewayBot = GatewayBot(
+    environ["DISCORD_TOKEN"],
+    allow_color=False,
+    banner=None,
+    suppress_optimization_warning=isDebug,
+    intents=(
+        Intents.GUILDS
+        | Intents.GUILD_MESSAGES
+        | Intents.GUILD_MEMBERS
+        | Intents.DM_MESSAGES
+        | Intents.MESSAGE_CONTENT
+    ),
+)
+client: GatewayClient = GatewayClient(
+    bot,
+    default_permissions=(
+        Permissions.SEND_MESSAGES | Permissions.USE_APPLICATION_COMMANDS
+    ),
+    is_dm_enabled=False,
+)
+
+client.set_type_dependency(GatewayClient, client)
+client.set_type_dependency(GatewayBot, bot)
+client.set_type_dependency(Config, cfg)
+
+client.load_extensions_from("extensions")
+
+client.add_startup_hook(HookStart)
+client.add_shutdown_hook(HookStop)
+
+try:
     bot.run(
-        asyncio_debug=environ.get("DEBUG", False),
-        activity=Activity(name="Call of Duty server", type=ActivityType.WATCHING),
+        activity=Activity(name="Call of Duty Server", type=ActivityType.WATCHING),
+        check_for_updates=False,
         status=Status.DO_NOT_DISTURB,
     )
-
-
-def LoadConfig() -> dict[str, Any]:
-    """Load the configuration values specified in config.json"""
-
-    try:
-        with open("config.json", "r") as file:
-            config: dict[str, Any] = json.loads(file.read())
-    except Exception as e:
-        logger.opt(exception=e).critical("Failed to load configuration")
-
-        exit(1)
-
-    logger.success("Loaded configuration")
-
-    return config
-
-
-if __name__ == "__main__":
-    try:
-        # Replace default asyncio event loop with libuv on UNIX
-        # https://github.com/hikari-py/hikari#uvloop
-        if os.name != "nt":
-            try:
-                import uvloop  # type: ignore
-
-                uvloop.install()
-
-                logger.success("Installed libuv event loop")
-            except Exception as e:
-                logger.opt(exception=e).debug("Defaulted to asyncio event loop")
-
-        Initialize()
-    except KeyboardInterrupt:
-        exit()
+except Exception as e:
+    logger.opt(exception=e).critical("Fatal error occurred during runtime")
