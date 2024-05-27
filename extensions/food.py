@@ -19,6 +19,7 @@ from core.reddit import GetRandomImage
 plugin: GatewayPlugin = GatewayPlugin("food")
 foodTypes: list[str] = [
     "Burger",
+    "Cheese",
     "Chicken",
     "Dessert",
     "Hot Dog",
@@ -76,6 +77,20 @@ async def CommandFood(
                         result = await GetRandomImage("cheeseburgers")
                     case 4:
                         result = await Foodish("burger")
+                    case _:
+                        logger.warning(
+                            f"Recieved unknown source {source} for food type {type}"
+                        )
+            case "Cheese":
+                source = random.randint(1, 3)
+
+                match source:
+                    case 1:
+                        result = await GetRandomImage("Cheese")
+                    case 2:
+                        result = await GetRandomImage("cheesemaking")
+                    case 3:
+                        result = await GetRandomImage("grilledcheese")
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for food type {type}"
