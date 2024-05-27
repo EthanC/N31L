@@ -23,6 +23,25 @@ def Elapsed(a: datetime | int | float, b: datetime | int | float) -> int:
     return int(a - b)
 
 
+def Trim(input: str, length: int, end: str | None = "...") -> str:
+    """Trim a string using the provided parameters."""
+
+    if len(input) <= length:
+        return input
+
+    result: str = input[:length]
+
+    try:
+        result = result.rsplit(" ", 1)[0]
+    except Exception as e:
+        logger.opt(exception=e).debug("Failed to cleanly trim string")
+
+    if end:
+        result += end
+
+    return result
+
+
 def FindNumbers(
     input: str, minLen: int | None = None, maxLen: int | None = None
 ) -> list[int]:
@@ -118,7 +137,7 @@ async def UserHasRole(
 
 async def GET(
     url: str, headers: dict[str, str] | None = None
-) -> str | dict[str, Any] | None:
+) -> dict[str, Any] | list[Any] | str | None:
     """Perform an HTTP GET request and return its response."""
 
     logger.debug(f"GET {url}")
