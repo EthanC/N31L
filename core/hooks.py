@@ -1,7 +1,15 @@
 from arc import GatewayClient, GatewayContext, NotOwnerError, SlashCommand
 from loguru import logger
 
-from core.formatters import Colors, ExpandUser, RandomString, Response
+from core.config import Config
+from core.formatters import (
+    Colors,
+    ExpandChannel,
+    ExpandUser,
+    Log,
+    RandomString,
+    Response,
+)
 from extensions.threads import TaskArchiveThreads
 
 
@@ -17,8 +25,10 @@ async def HookStop(client: GatewayClient) -> None:
     TaskArchiveThreads.cancel()
 
 
-def HookLog(ctx: GatewayContext) -> None:
+async def HookLog(ctx: GatewayContext) -> None:
     """Handle command pre-execution."""
+
+    cfg: Config = ctx.client.get_type_dependency(Config)
 
     command: str = ctx.command.name
     user: str = ExpandUser(ctx.user, format=False)
@@ -38,6 +48,19 @@ def HookLog(ctx: GatewayContext) -> None:
         location += f" {ctx.channel_id}"
 
     logger.info(f"Command {command} used by {user} in {location}")
+
+    if isinstance(ctx.command, SlashCommand):
+        command = ctx.command.make_mention()
+    else:
+        command = f"`{ctx.command.name}`"
+
+    await ctx.client.rest.create_message(
+        cfg.channels["user"],
+        Log(
+            "robot",
+            f"{ExpandUser(ctx.author)} used command {command} in {ExpandChannel(ctx.get_channel())}",
+        ),
+    )
 
 
 async def HookError(ctx: GatewayContext, error: Exception) -> None:
