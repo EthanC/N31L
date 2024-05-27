@@ -100,16 +100,14 @@ async def CommandAnimal(
                             f"Recieved unknown source {source} for animal type {type}"
                         )
             case "Bird":
-                source = random.randint(1, 4)
+                source = random.randint(1, 3)
 
                 match source:
                     case 1:
                         result = await GetRandomImage("Birbs")
                     case 2:
-                        result = await GetRandomImage("birdpics")
-                    case 3:
                         result = await SomeRandomAPI("bird")
-                    case 4:
+                    case 3:
                         result = await RandomDuk()
                     case _:
                         logger.warning(
