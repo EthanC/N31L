@@ -65,14 +65,14 @@ async def EventMirror(event: GuildMessageCreateEvent) -> None:
         if not url.startswith("https://api.zeppelin.gg/archives/"):
             continue
 
-        data: str | dict[str, Any] | None = await GET(url)
+        data: dict[str, Any] | list[Any] | str | None = await GET(url)
 
         if not data:
             logger.debug(f"Skipping URL {url}, data is null")
 
             continue
-        elif isinstance(data, dict):
-            logger.debug(f"Skipping URL {url}, recieved JSON expected string")
+        elif not isinstance(data, str):
+            logger.debug(f"Skipping URL {url}, expected string response")
 
             continue
 
