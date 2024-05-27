@@ -1,15 +1,13 @@
 from datetime import datetime
 
 import arc
-from arc import (
-    GatewayClient,
-    GatewayPlugin,
-)
+from arc import GatewayClient, GatewayContext, GatewayPlugin
 from hikari import GuildThreadChannel
 from loguru import logger
 
 from core.config import Config
 from core.formatters import ExpandGuild, ExpandThread, Log
+from core.hooks import HookError
 from core.utils import Elapsed, UserHasRole
 
 plugin: GatewayPlugin = GatewayPlugin("threads")
@@ -89,3 +87,10 @@ async def TaskArchiveThreads(client: GatewayClient) -> None:
         )
 
     logger.info("Completed recurring task to archive threads")
+
+
+@plugin.set_error_handler
+async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
+    """Handler for errors originating from this plugin."""
+
+    await HookError(ctx, error)

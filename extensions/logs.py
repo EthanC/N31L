@@ -113,6 +113,6 @@ async def EventMirror(event: GuildMessageCreateEvent) -> None:
 
 @plugin.set_error_handler
 async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
-    """Handler for errors originating from the messages plugin."""
+    """Handler for errors originating from this plugin."""
 
     await HookError(ctx, error)
