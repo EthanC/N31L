@@ -133,7 +133,8 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
             embed=Response(
                 color=Colors.DiscordYellow.value,
                 description=f"No User IDs found in the parsed [message]({msg.make_link(msg.guild_id)}).",
-            )
+            ),
+            flags=MessageFlag.EPHEMERAL,
         )
 
         return

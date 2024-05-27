@@ -1,5 +1,4 @@
 from arc import GatewayClient, GatewayContext, NotOwnerError, SlashCommand
-from hikari import MessageFlag
 from loguru import logger
 
 from core.formatters import Colors, ExpandUser, RandomString, Response
@@ -55,7 +54,6 @@ async def HookError(ctx: GatewayContext, error: Exception) -> None:
                 color=Colors.DiscordRed.value,
                 description=f"You don't have permission to use the {command} command.",
             ),
-            flags=MessageFlag.EPHEMERAL,
         )
 
         return
@@ -63,7 +61,7 @@ async def HookError(ctx: GatewayContext, error: Exception) -> None:
     code: str = RandomString(16)
 
     logger.opt(exception=error).error(
-        f"An unhandled {type(error).__qualname__} exception occurred ({code})"
+        f"An unhandled {type(error).__qualname__} exception occurred in command {command} ({code})"
     )
 
     await ctx.respond(
@@ -74,5 +72,4 @@ async def HookError(ctx: GatewayContext, error: Exception) -> None:
             footer=code,
             footerIcon="https://i.imgur.com/IwCRM6v.png",
         ),
-        flags=MessageFlag.EPHEMERAL,
     )
