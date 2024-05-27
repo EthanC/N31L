@@ -8,9 +8,17 @@ from loguru import logger
 from urlextract import URLExtract  # type: ignore
 
 from core.config import Config
-from core.formatters import Log
+from core.formatters import (
+    Colors,
+    ExpandChannel,
+    ExpandGuild,
+    ExpandUser,
+    GetAvatar,
+    Log,
+    Response,
+)
 from core.hooks import HookError
-from core.utils import GET, FindNumbers, IsValidUser
+from core.utils import GET, FindNumbers, IsValidUser, Trim
 
 plugin: GatewayPlugin = GatewayPlugin("logs")
 
@@ -26,6 +34,82 @@ def ExtensionLoader(client: GatewayClient) -> None:
         client.add_plugin(plugin)
     except Exception as e:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
+
+
+@plugin.listen()
+async def EventKeyword(event: GuildMessageCreateEvent) -> None:
+    """Handler for notifying of keyword mentions."""
+
+    cfg: Config = plugin.client.get_type_dependency(Config)
+
+    if not event.is_human:
+        logger.trace("Ignored message creation event, author is not a human")
+
+        return
+    elif event.author.is_system:
+        logger.trace("Ignored message creation event, author is system")
+
+        return
+    elif not event.content:
+        logger.trace("Ignored message creation event, content is null")
+
+        return
+    elif event.channel_id in cfg.logsIgnoreChannels:
+        logger.trace("Ignored message creation event, channel is ignored")
+
+        return
+
+    words: list[str] = [word.lower() for word in event.content.split()]
+    found: list[str] = []
+
+    for keyword in cfg.logsKeywords:
+        if keyword in words:
+            found.append(keyword)
+
+    if len(found) == 0:
+        logger.trace("Ignored message creation event, no keywords found")
+
+        return
+
+    content: str = event.content
+
+    for keyword in found:
+        content = content.replace(keyword, f"**{keyword}**")
+
+    logger.trace(content)
+
+    fields: list[dict[str, str | bool]] = [
+        {"name": "Channel", "value": ExpandChannel(event.get_channel(), showId=False)}
+    ]
+
+    for attachment in event.message.attachments:
+        fields.append(
+            {
+                "name": "Attachment",
+                "value": f"[`{attachment.filename}`]({attachment.url})",
+            }
+        )
+
+    logger.trace(fields)
+
+    await plugin.client.rest.create_message(
+        cfg.channels["production"],
+        embed=Response(
+            title=("Keyword" if len(found) == 1 else "Keywords") + " Mention",
+            url=event.message.make_link(event.guild_id),
+            color=Colors.N31LGreen.value,
+            description=f">>> {Trim(content, 4000)}",
+            fields=fields,
+            author=ExpandUser(event.author, False, False),
+            authorIcon=GetAvatar(event.author),
+            footer=str(event.author_id),
+            timestamp=event.message.timestamp,
+        ),
+    )
+
+    logger.success(
+        f"Notified of keyword ({found}) mention by {ExpandUser(event.author, False)} in {ExpandGuild(event.get_guild(), False)} {ExpandChannel(event.get_channel(), False)}"
+    )
 
 
 @plugin.listen()

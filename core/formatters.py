@@ -11,6 +11,7 @@ from hikari import (
     PartialChannel,
     Role,
     Snowflake,
+    TextableGuildChannel,
     User,
 )
 from loguru import logger
@@ -27,6 +28,7 @@ class Colors(Enum):
     DiscordGreen = "#57F287"
     DiscordBlurple = "#5865F2"
     DiscordYellow = "#FEE75C"
+    N31LGreen = "#00FF00"
 
 
 def ExpandGuild(guild: Guild | None, format: bool = True) -> str:
@@ -44,25 +46,49 @@ def ExpandGuild(guild: Guild | None, format: bool = True) -> str:
 
 
 def ExpandChannel(
-    channel: GuildChannel | PartialChannel | GuildThreadChannel, format: bool = True
+    channel: GuildChannel
+    | PartialChannel
+    | TextableGuildChannel
+    | GuildThreadChannel
+    | None,
+    format: bool = True,
+    showId: bool = True,
 ) -> str:
     """Build a reusable string for the provided Discord channel."""
 
-    if isinstance(channel, GuildThreadChannel):
-        logger.debug(
-            f"GuildThreadChannel {channel} passed to ExpandChannel(), switching to ExpandThread()"
-        )
+    if not channel:
+        logger.debug("Failed to expand null channel")
 
+        return "Unknown Channel"
+
+    if isinstance(channel, GuildThreadChannel):
         return ExpandThread(channel, format)
 
+    result: str = ""
+
     if format:
-        return f"`#{channel.name}` (`{channel.id}`)"
+        result += f"`#{channel.name}`"
 
-    return f"#{channel.name} ({channel.id})"
+        if showId:
+            result += f" (`{channel.id}`)"
+
+        return result
+
+    result += f"#{channel.name}"
+
+    if showId:
+        result += f" ({channel.id})"
+
+    return result
 
 
-def ExpandThread(thread: GuildThreadChannel, format: bool = True) -> str:
+def ExpandThread(thread: GuildThreadChannel | None, format: bool = True) -> str:
     """Build a reusable string for the provided Discord thread."""
+
+    if not thread:
+        logger.debug("Failed to expand null thread")
+
+        return "Unknown Thread"
 
     if format:
         return f"`{thread.name}` (`{thread.id}`)"
@@ -70,8 +96,13 @@ def ExpandThread(thread: GuildThreadChannel, format: bool = True) -> str:
     return f"{thread.name} ({thread.id})"
 
 
-def ExpandRole(role: Role, format: bool = True) -> str:
+def ExpandRole(role: Role | None, format: bool = True) -> str:
     """Build a reusable string for the provided Discord role."""
+
+    if not role:
+        logger.debug("Failed to expand null role")
+
+        return "Unknown Role"
 
     if format:
         return f"`{role.name}` (`{role.id}`)"
@@ -79,8 +110,13 @@ def ExpandRole(role: Role, format: bool = True) -> str:
     return f"{role.name} ({role.id})"
 
 
-def ExpandUser(user: User, format: bool = True, showId: bool = True) -> str:
+def ExpandUser(user: User | None, format: bool = True, showId: bool = True) -> str:
     """Build a reusable string for the provided Discord user."""
+
+    if not user:
+        logger.debug("Failed to expand null user")
+
+        return "Unknown User"
 
     result: str = ""
 

@@ -1,21 +1,22 @@
 {
-    "logging": {
+    "logs": {
         "keywords": ["notify", "for", "these", "words"],
-        "keywordsIgnore": [1234567890, 9876543210],
+        "ignoreChannels": [1234567890, 9876543210],
         "mentions": [1234567890, 98766543210]
     },
     "channels": {
         "moderators": 1234567890,
         "moderation": 1234567890,
         "user": 1234567890,
-        "threads": 1234567890
+        "threads": 1234567890,
+        "production": 1234567890
     },
     "roles": {
         "require": [1234567890, 9876543210],
         "allow": [1324657980, 2315648970]
     },
     "forums": {
-        "server": 136986169563938816,
+        "server": 1234567890,
         "lifetime": 86400,
         "immune": [1234567890, 9876543210],
         "channels": [1234567890, 9876543210]

@@ -25,6 +25,10 @@ class Config:
 
         self.channels: dict[str, int] = self.values["channels"]
 
+        self.logsKeywords: list[str] = self.values["logs"]["keywords"]
+        self.logsIgnoreChannels: list[int] = self.values["logs"]["ignoreChannels"]
+        self.logsMentions: list[int] = self.values["logs"]["mentions"]
+
         self.forumsServer: int = self.values["forums"]["server"]
         self.forumsLifetime: int = self.values["forums"]["lifetime"]
         self.forumsImmune: list[int] = self.values["forums"]["immune"]
