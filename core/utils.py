@@ -1,8 +1,11 @@
 import re
 from datetime import datetime
+from typing import Any
 
+import httpx
 from arc import GatewayClient
 from hikari import Guild, Member, NotFoundError
+from httpx import Response
 from loguru import logger
 
 from core.formatters import ExpandGuild, ExpandUser
@@ -111,3 +114,30 @@ async def UserHasRole(
         )
 
     return False
+
+
+async def GET(
+    url: str, headers: dict[str, str] | None = None
+) -> str | dict[str, Any] | None:
+    """Perform an HTTP GET request and return its response."""
+
+    logger.debug(f"GET {url}")
+
+    try:
+        async with httpx.AsyncClient() as http:
+            res: Response = await http.get(url, headers=headers, follow_redirects=True)
+
+        res.raise_for_status()
+
+        logger.trace(res.text)
+    except Exception as e:
+        logger.opt(exception=e).error(f"Failed to GET {url}")
+
+        return
+
+    try:
+        return res.json()
+    except Exception as e:
+        logger.opt(exception=e).debug("Failed to parse response as JSON")
+
+    return res.text

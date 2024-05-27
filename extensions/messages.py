@@ -42,10 +42,10 @@ def ExtensionLoader(client: GatewayClient) -> None:
 @arc.message_command(
     "Delete Message", is_dm_enabled=True, autodefer=AutodeferMode.EPHEMERAL
 )
-async def CommandDelete(
-    ctx: GatewayContext, msg: Message, bot: GatewayBot = arc.inject()
-) -> None:
+async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
     """Handler for the Delete Message context menu command."""
+
+    bot: GatewayBot = ctx.client.get_type_dependency(GatewayBot)
 
     if not (n31l := bot.get_me()):
         raise ValueError("Bot user is null")
@@ -159,10 +159,10 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
 @plugin.include
 @arc.with_hook(HookLog)
 @arc.message_command("Report Message", autodefer=AutodeferMode.EPHEMERAL)
-async def CommandReport(
-    ctx: GatewayContext, msg: Message, cfg: Config = arc.inject()
-) -> None:
+async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
     """Handler for the Report Message context menu command."""
+
+    cfg: Config = ctx.client.get_type_dependency(Config)
 
     if msg.author.is_system:
         logger.debug("Report Message command ignored, reported system message")
