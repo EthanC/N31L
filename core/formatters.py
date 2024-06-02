@@ -77,7 +77,7 @@ def ExpandCommand(
     if format:
         result = f"`{result}`"
 
-    logger.debug(f"Expanded command {ctx.command} to {result}")
+    logger.debug(f"Expanded command {ctx.command.name} to {result}")
 
     return result
 
