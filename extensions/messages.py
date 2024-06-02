@@ -5,7 +5,7 @@ from arc import (
     GatewayContext,
     GatewayPlugin,
 )
-from hikari import GatewayBot, Message, MessageFlag, MessageType
+from hikari import GatewayBot, Message, MessageFlag, MessageType, Permissions
 from loguru import logger
 
 from core.config import Config
@@ -75,6 +75,7 @@ async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
 
 
 @plugin.include
+@arc.with_hook(arc.has_permissions(Permissions.MANAGE_MESSAGES))
 @arc.with_hook(HookLog)
 @arc.message_command("Parse Message", autodefer=AutodeferMode.EPHEMERAL)
 async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
