@@ -1,6 +1,7 @@
 from arc import (
     GatewayClient,
     GatewayContext,
+    InvokerMissingPermissionsError,
     NotOwnerError,
 )
 from loguru import logger
@@ -57,7 +58,7 @@ async def HookError(ctx: GatewayContext, error: Exception) -> None:
 
     command: str = ExpandCommand(ctx, mention=True)
 
-    if isinstance(error, NotOwnerError):
+    if isinstance(error, (NotOwnerError, InvokerMissingPermissionsError)):
         await ctx.respond(
             embed=Response(
                 color=Colors.DiscordRed.value,
