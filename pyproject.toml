@@ -11,14 +11,14 @@ python = ">=3.12,<3.13"
 python-dotenv = "^1.0.1"
 loguru = "^0.7.2"
 loguru-discord = "^1.2.2"
-hikari-arc = "^1.3.2"
+hikari-arc = "^1.3.3"
 httpx = "^0.27.0"
 asyncpraw = "^7.7.1"
 urlextract = "^1.9.0"
 uvloop = {version = "^0.19.0", platform = "linux"}
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.4.5"
+ruff = "^0.4.7"
 asyncpraw-stubs = "^0.0.3"
 
 [build-system]
