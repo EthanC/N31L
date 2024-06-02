@@ -142,3 +142,71 @@ async def GetRandomImage(community: str) -> Embed | None:
         url=f"https://reddit.com{post.permalink}",  # type: ignore
         image=post.url,  # type: ignore
     )
+
+
+async def CountModqueue(client: Reddit, community: str) -> int:
+    """
+    Return the number of items in the moderation queue for the
+    specified Reddit community.
+    """
+
+    total: int = 0
+
+    subreddit = await client.subreddit(community, fetch=True)  # type: ignore
+
+    if not subreddit:
+        logger.error(
+            f"Failed to fetch modqueue count for Reddit community r/{community}, subreddit is null"
+        )
+
+        return total
+
+    try:
+        async for _ in subreddit.mod.modqueue(limit=None):  # type: ignore
+            total += 1
+    except Exception as e:
+        logger.opt(exception=e).error(
+            f"Failed to count moderation queue in Reddit community r/{community}"
+        )
+
+        return total
+
+    logger.success(
+        f"Fetched moderation queue count ({total:,}) for Reddit community r/{community}"
+    )
+
+    return total
+
+
+async def CountUnmoderated(client: Reddit, community: str) -> int:
+    """
+    Return the number of items in the unmoderated queue for the
+    specified Reddit community.
+    """
+
+    total: int = 0
+
+    subreddit = await client.subreddit(community, fetch=True)  # type: ignore
+
+    if not subreddit:
+        logger.error(
+            f"Failed to fetch unmoderated count for Reddit community r/{community}, subreddit is null"
+        )
+
+        return total
+
+    try:
+        async for _ in subreddit.mod.unmoderated(limit=None):  # type: ignore
+            total += 1
+    except Exception as e:
+        logger.opt(exception=e).error(
+            f"Failed to count unmoderated queue in Reddit community r/{community}"
+        )
+
+        return total
+
+    logger.success(
+        f"Fetched unmoderated queue count ({total:,}) for Reddit community r/{community}"
+    )
+
+    return total
