@@ -129,7 +129,7 @@ async def EventMirror(event: GuildMessageCreateEvent) -> None:
     cfg: Config = plugin.client.get_type_dependency(Config)
 
     if not (n31l := bot.get_me()):
-        raise ValueError("Bot user is null")
+        raise RuntimeError("Bot user is null")
 
     if event.channel_id != cfg.channels["moderation"]:
         logger.trace("Ignored message creation event, channel is not desired")

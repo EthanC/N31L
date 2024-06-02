@@ -48,7 +48,7 @@ async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
     bot: GatewayBot = ctx.client.get_type_dependency(GatewayBot)
 
     if not (n31l := bot.get_me()):
-        raise ValueError("Bot user is null")
+        raise RuntimeError("Bot user is null")
 
     if msg.author.id != n31l.id:
         logger.debug("Delete Message command ignored, message author is not N31L")

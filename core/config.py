@@ -17,7 +17,7 @@ class Config:
                 self.values = json.loads(file.read())
 
             if not self.values:
-                raise ValueError("config values are null")
+                raise RuntimeError("config values are null")
         except Exception as e:
             logger.opt(exception=e).error("Failed to load configuration")
 
