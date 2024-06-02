@@ -3,6 +3,12 @@ import string
 from datetime import datetime
 from enum import Enum
 
+from arc import (
+    GatewayContext,
+    SlashCommand,
+    SlashSubCommand,
+    SlashSubGroup,
+)
 from hikari import (
     CommandInteractionOption,
     Embed,
@@ -11,7 +17,6 @@ from hikari import (
     GuildThreadChannel,
     PartialChannel,
     Role,
-    Snowflake,
     TextableGuildChannel,
     User,
 )
@@ -32,18 +37,112 @@ class Colors(Enum):
     N31LGreen = "#00FF00"
 
 
-def ExpandGuild(guild: Guild | None, format: bool = True) -> str:
-    """Build a reusable string for the provided Discord guild."""
+def ExpandCommand(
+    ctx: GatewayContext,
+    *,
+    mention: bool = False,
+    options: bool = True,
+    format: bool = True,
+) -> str:
+    """Build a modular command string for the provided context."""
 
-    if not guild:
-        logger.debug("Failed to expand null guild")
+    if (not hasattr(ctx, "command")) or (not ctx.command):
+        logger.debug("Failed to expand null command")
+
+        return "Unknown Command"
+
+    if mention:
+        if isinstance(ctx.command, (SlashCommand, SlashSubCommand)):
+            return ctx.command.make_mention()
+        else:
+            logger.warning(
+                f"Attempted to mention command of invalid type {type(ctx.command)}"
+            )
+
+    result: str = ctx.command.name
+
+    if isinstance(ctx.command, SlashSubCommand):
+        if isinstance(ctx.command.parent, SlashSubGroup):
+            result = f"/{ctx.command.parent.parent.name} {ctx.command.parent.name} {ctx.command.name}"
+        else:
+            result = f"/{ctx.command.parent.name} {ctx.command.name}"
+    elif isinstance(ctx.command, SlashCommand):
+        result = f"/{ctx.command.name}"
+
+    if options:
+        if (hasattr(ctx, "_options")) and (ctx._options):  # type: ignore
+            for option in ctx._options:  # type: ignore
+                result += f" {option.name}:{option.value}"
+
+    if format:
+        result = f"`{result}`"
+
+    logger.debug(f"Expanded command {ctx.command} to {result}")
+
+    return result
+
+
+def ExpandUser(
+    user: User | None,
+    *,
+    mention: bool = False,
+    format: bool = True,
+    showId: bool = True,
+) -> str:
+    """Build a reusable string for the provided Discord user."""
+
+    if not user:
+        logger.debug("Failed to expand null user")
+
+        return "Unknown User"
+
+    if mention:
+        return user.mention
+
+    result: str = ""
+
+    if format:
+        result += f"`{user.username}`"
+    else:
+        result += user.username
+
+    if showId:
+        if format:
+            result += f" (`{user.id}`)"
+        else:
+            result += f" ({user.id})"
+
+    logger.debug(f"Expanded user {user} to {result}")
+
+    return result
+
+
+def ExpandServer(
+    server: Guild | None, *, format: bool = True, showId: bool = True
+) -> str:
+    """Build a modular string for the provided server."""
+
+    if not server:
+        logger.debug("Failed to expand null server")
 
         return "Unknown Server"
 
-    if format:
-        return f"`{guild.name}` (`{guild.id}`)"
+    result: str = ""
 
-    return f"{guild.name} ({guild.id})"
+    if format:
+        result += f"`{server.name}`"
+    else:
+        result += server.name
+
+    if showId:
+        if format:
+            result += f" (`{server.id}`)"
+        else:
+            result += f" ({server.id})"
+
+    logger.debug(f"Expanded server {server} to {result}")
+
+    return result
 
 
 def ExpandChannel(
@@ -52,6 +151,8 @@ def ExpandChannel(
     | TextableGuildChannel
     | GuildThreadChannel
     | None,
+    *,
+    mention: bool = False,
     format: bool = True,
     showId: bool = True,
 ) -> str:
@@ -63,27 +164,37 @@ def ExpandChannel(
         return "Unknown Channel"
 
     if isinstance(channel, GuildThreadChannel):
-        return ExpandThread(channel, format)
+        return ExpandThread(channel, mention=mention, format=format, showId=showId)
+
+    if mention:
+        return channel.mention
 
     result: str = ""
 
-    if format:
-        result += f"`#{channel.name}`"
-
-        if showId:
-            result += f" (`{channel.id}`)"
-
-        return result
-
-    result += f"#{channel.name}"
+    if channel.name:
+        if format:
+            result += f"`{channel.name}`"
+        else:
+            result += channel.name
 
     if showId:
-        result += f" ({channel.id})"
+        if format:
+            result += f" (`{channel.id}`)"
+        else:
+            result += f" ({channel.id})"
+
+    logger.debug(f"Expanded channel {channel} to {result}")
 
     return result
 
 
-def ExpandThread(thread: GuildThreadChannel | None, format: bool = True) -> str:
+def ExpandThread(
+    thread: GuildThreadChannel | None,
+    *,
+    mention: bool = False,
+    format: bool = True,
+    showId: bool = True,
+) -> str:
     """Build a reusable string for the provided Discord thread."""
 
     if not thread:
@@ -91,13 +202,35 @@ def ExpandThread(thread: GuildThreadChannel | None, format: bool = True) -> str:
 
         return "Unknown Thread"
 
-    if format:
-        return f"`{thread.name}` (`{thread.id}`)"
+    if mention:
+        return thread.mention
 
-    return f"{thread.name} ({thread.id})"
+    result: str = ""
+
+    if thread.name:
+        if format:
+            result += f"`{thread.name}`"
+        else:
+            result += thread.name
+
+    if showId:
+        if format:
+            result += f" (`{thread.id}`)"
+        else:
+            result += f" ({thread.id})"
+
+    logger.debug(f"Expanded thread {thread} to {result}")
+
+    return result
 
 
-def ExpandRole(role: Role | None, format: bool = True) -> str:
+def ExpandRole(
+    role: Role | None,
+    *,
+    mention: bool = False,
+    format: bool = True,
+    showId: bool = True,
+) -> str:
     """Build a reusable string for the provided Discord role."""
 
     if not role:
@@ -105,41 +238,23 @@ def ExpandRole(role: Role | None, format: bool = True) -> str:
 
         return "Unknown Role"
 
-    if format:
-        return f"`{role.name}` (`{role.id}`)"
-
-    return f"{role.name} ({role.id})"
-
-
-def ExpandUser(user: User | None, format: bool = True, showId: bool = True) -> str:
-    """Build a reusable string for the provided Discord user."""
-
-    if not user:
-        logger.debug("Failed to expand null user")
-
-        return "Unknown User"
+    if mention:
+        return role.mention
 
     result: str = ""
 
-    username: str = user.username
-    userId: Snowflake = user.id
-
-    if hasattr(user, "discriminator"):
-        if (discrim := int(user.discriminator)) != 0:
-            username += f"#{discrim}"
-
     if format:
-        result += f"`{username}`"
+        result += f"`{role.name}`"
     else:
-        result += username
+        result += role.name
 
     if showId:
         if format:
-            result += f" (`{userId}`)"
+            result += f" (`{role.id}`)"
         else:
-            result += f" ({userId})"
+            result += f" ({role.id})"
 
-    logger.debug(f"Expanded user {user} to {result}")
+    logger.debug(f"Expanded role {role} to {result}")
 
     return result
 

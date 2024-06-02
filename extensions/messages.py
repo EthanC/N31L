@@ -12,7 +12,7 @@ from core.config import Config
 from core.formatters import (
     Colors,
     ExpandChannel,
-    ExpandGuild,
+    ExpandServer,
     ExpandUser,
     GetAvatar,
     Response,
@@ -153,7 +153,7 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
         await ctx.respond(str(result), flags=MessageFlag.EPHEMERAL)
 
     logger.success(
-        f"Parsed {len(results):,} {descriptor} ({results}) from message {msg.id} in {ExpandGuild(ctx.get_guild(), format=False)} {ExpandChannel(await msg.fetch_channel(), format=False)}"
+        f"Parsed {len(results):,} {descriptor} ({results}) from message {msg.id} in {ExpandServer(ctx.get_guild(), format=False)} {ExpandChannel(await msg.fetch_channel(), format=False)}"
     )
 
 

@@ -8,7 +8,7 @@ from hikari import Guild, Member, NotFoundError
 from httpx import Response
 from loguru import logger
 
-from core.formatters import ExpandGuild, ExpandUser
+from core.formatters import ExpandServer, ExpandUser
 
 
 def Elapsed(a: datetime | int | float, b: datetime | int | float) -> int:
@@ -123,13 +123,13 @@ async def UserHasRole(
         for role in user.role_ids:
             if (current := int(role)) in roleIds:
                 logger.debug(
-                    f"{ExpandUser(user.user, format=False)} has role {current} in server {ExpandGuild(server, format=False)}"
+                    f"{ExpandUser(user.user, format=False)} has role {current} in server {ExpandServer(server, format=False)}"
                 )
 
                 return True
 
         logger.debug(
-            f"{ExpandUser(user.user, format=False)} does not have role(s) {roleIds} in server {ExpandGuild(server, format=False)}"
+            f"{ExpandUser(user.user, format=False)} does not have role(s) {roleIds} in server {ExpandServer(server, format=False)}"
         )
 
     return False

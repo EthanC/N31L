@@ -11,7 +11,7 @@ from core.config import Config
 from core.formatters import (
     Colors,
     ExpandChannel,
-    ExpandGuild,
+    ExpandServer,
     ExpandUser,
     GetAvatar,
     Log,
@@ -100,7 +100,7 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
             color=Colors.N31LGreen.value,
             description=f">>> {Trim(content, 4000)}",
             fields=fields,
-            author=ExpandUser(event.author, False, False),
+            author=ExpandUser(event.author, format=False, showId=False),
             authorIcon=GetAvatar(event.author),
             footer=str(event.author_id),
             timestamp=event.message.timestamp,
@@ -108,7 +108,7 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
     )
 
     logger.success(
-        f"Notified of keyword ({found}) mention by {ExpandUser(event.author, False)} in {ExpandGuild(event.get_guild(), False)} {ExpandChannel(event.get_channel(), False)}"
+        f"Notified of keyword ({found}) mention by {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)} {ExpandChannel(event.get_channel(), format=False)}"
     )
 
 

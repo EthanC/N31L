@@ -2,9 +2,6 @@ from arc import (
     GatewayClient,
     GatewayContext,
     NotOwnerError,
-    SlashCommand,
-    SlashSubCommand,
-    SlashSubGroup,
 )
 from loguru import logger
 
@@ -12,9 +9,9 @@ from core.config import Config
 from core.formatters import (
     Colors,
     ExpandChannel,
-    ExpandGuild,
+    ExpandCommand,
+    ExpandServer,
     ExpandUser,
-    FormatOptions,
     Log,
     RandomString,
     Response,
@@ -39,39 +36,26 @@ async def HookLog(ctx: GatewayContext) -> None:
 
     cfg: Config = ctx.client.get_type_dependency(Config)
 
-    command: str = ctx.command.name
+    command: str = ExpandCommand(ctx, format=False)
     user: str = ExpandUser(ctx.user, format=False)
-    location: str = f"{ExpandGuild(ctx.get_guild(), False)} {ExpandChannel(ctx.get_channel(), False)}"
+    server: str = ExpandServer(ctx.get_guild(), format=False)
+    channel: str = ExpandChannel(ctx.get_channel(), format=False)
 
-    if isinstance(ctx.command, SlashSubCommand):
-        if isinstance(ctx.command.parent, SlashSubGroup):
-            command = f"/{ctx.command.parent.parent.name} {ctx.command.parent.name} {ctx.command.name}"
-        else:
-            command = f"/{ctx.command.parent.name} {ctx.command.name}"
-    elif isinstance(ctx.command, SlashCommand):
-        command = f"/{ctx.command.name}"
+    logger.info(f"Command {command} used by {user} in {server} {channel}")
 
-    if hasattr(ctx, "_options") and ctx._options:  # type: ignore
-        command += f" {FormatOptions(ctx._options)}"  # type: ignore
-
-    logger.info(f"Command {command} used by {user} in {location}")
+    user: str = ExpandUser(ctx.user)
+    channel: str = ExpandChannel(ctx.get_channel())
 
     await ctx.client.rest.create_message(
         cfg.channels["user"],
-        Log(
-            "robot",
-            f"{ExpandUser(ctx.author)} used command `{command}` in {ExpandChannel(ctx.get_channel())}",
-        ),
+        Log("robot", f"{user} used command `{command}` in {channel}"),
     )
 
 
 async def HookError(ctx: GatewayContext, error: Exception) -> None:
     """Handle uncaught command exceptions."""
 
-    command: str = f"`{ctx.command.name}`"
-
-    if isinstance(ctx.command, SlashCommand):
-        command = ctx.command.make_mention()
+    command: str = ExpandCommand(ctx, mention=True)
 
     if isinstance(error, NotOwnerError):
         await ctx.respond(
@@ -86,15 +70,15 @@ async def HookError(ctx: GatewayContext, error: Exception) -> None:
     code: str = RandomString(16)
 
     logger.opt(exception=error).error(
-        f"An unhandled {type(error).__qualname__} exception occurred in command {command} ({code})"
+        f"An unhandled {type(error).__qualname__} occurred in command {ExpandCommand(ctx, format=False)} [{code}]"
     )
 
     await ctx.respond(
         embed=Response(
-            title="An unknown error occurred",
             color=Colors.DiscordRed.value,
             description=f"Try to use the {command} command again later.",
+            author="Error",
+            authorIcon="https://i.imgur.com/IwCRM6v.png",
             footer=code,
-            footerIcon="https://i.imgur.com/IwCRM6v.png",
         ),
     )

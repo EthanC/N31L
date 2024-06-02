@@ -6,7 +6,7 @@ from hikari import GuildThreadChannel
 from loguru import logger
 
 from core.config import Config
-from core.formatters import ExpandGuild, ExpandThread, Log
+from core.formatters import ExpandServer, ExpandThread, Log
 from core.utils import Elapsed, UserHasRole
 
 plugin: GatewayPlugin = GatewayPlugin("threads")
@@ -68,7 +68,7 @@ async def TaskArchiveThreads(client: GatewayClient) -> None:
             )
         except Exception as e:
             logger.opt(exception=e).error(
-                f"Failed to archive thread {title} in {ExpandGuild(thread.get_guild(), format=False)}"
+                f"Failed to archive thread {title} in {ExpandServer(thread.get_guild(), format=False)}"
             )
 
             continue
