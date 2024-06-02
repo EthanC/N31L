@@ -55,7 +55,7 @@ def ExpandCommand(
         if isinstance(ctx.command, (SlashCommand, SlashSubCommand)):
             return ctx.command.make_mention()
         else:
-            logger.warning(
+            logger.debug(
                 f"Attempted to mention command of invalid type {type(ctx.command)}"
             )
 
