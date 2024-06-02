@@ -89,7 +89,7 @@ def ExpandUser(
     format: bool = True,
     showId: bool = True,
 ) -> str:
-    """Build a reusable string for the provided Discord user."""
+    """Build a modular string for the provided user."""
 
     if not user:
         logger.debug("Failed to expand null user")
@@ -156,7 +156,7 @@ def ExpandChannel(
     format: bool = True,
     showId: bool = True,
 ) -> str:
-    """Build a reusable string for the provided Discord channel."""
+    """Build a modular string for the provided channel."""
 
     if not channel:
         logger.debug("Failed to expand null channel")
@@ -195,7 +195,7 @@ def ExpandThread(
     format: bool = True,
     showId: bool = True,
 ) -> str:
-    """Build a reusable string for the provided Discord thread."""
+    """Build a modular string for the provided thread."""
 
     if not thread:
         logger.debug("Failed to expand null thread")
@@ -231,7 +231,7 @@ def ExpandRole(
     format: bool = True,
     showId: bool = True,
 ) -> str:
-    """Build a reusable string for the provided Discord role."""
+    """Build a modular string for the provided role."""
 
     if not role:
         logger.debug("Failed to expand null role")
