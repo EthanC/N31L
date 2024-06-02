@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 from hikari import (
+    CommandInteractionOption,
     Embed,
     Guild,
     GuildChannel,
@@ -245,3 +246,25 @@ def LongTime(timestamp: int | float | datetime) -> str:
         timestamp = int(timestamp.timestamp())
 
     return f"<t:{timestamp}:T>"
+
+
+def FormatOptions(options: list[CommandInteractionOption]) -> str:
+    """Return name:value sequence for list of command options."""
+
+    result: str = ""
+
+    logger.trace(options)
+
+    for option in options:
+        logger.trace(option)
+
+        try:
+            result += f"{option.name}:{option.value} "
+        except Exception as e:
+            logger.opt(exception=e).warning(
+                f"Failed to parse commnad option {option.name} of type {type(option.value)}"
+            )
+
+    logger.debug(f"Formatted options {options} to sequence {result}")
+
+    return result.rstrip()

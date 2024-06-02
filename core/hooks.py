@@ -1,11 +1,20 @@
-from arc import GatewayClient, GatewayContext, NotOwnerError, SlashCommand
+from arc import (
+    GatewayClient,
+    GatewayContext,
+    NotOwnerError,
+    SlashCommand,
+    SlashSubCommand,
+    SlashSubGroup,
+)
 from loguru import logger
 
 from core.config import Config
 from core.formatters import (
     Colors,
     ExpandChannel,
+    ExpandGuild,
     ExpandUser,
+    FormatOptions,
     Log,
     RandomString,
     Response,
@@ -32,33 +41,26 @@ async def HookLog(ctx: GatewayContext) -> None:
 
     command: str = ctx.command.name
     user: str = ExpandUser(ctx.user, format=False)
-    location: str = "Unknown"
+    location: str = f"{ExpandGuild(ctx.get_guild(), False)} {ExpandChannel(ctx.get_channel(), False)}"
 
-    if isinstance(ctx.command, SlashCommand):
+    if isinstance(ctx.command, SlashSubCommand):
+        if isinstance(ctx.command.parent, SlashSubGroup):
+            command = f"/{ctx.command.parent.parent.name} {ctx.command.parent.name} {ctx.command.name}"
+        else:
+            command = f"/{ctx.command.parent.name} {ctx.command.name}"
+    elif isinstance(ctx.command, SlashCommand):
         command = f"/{ctx.command.name}"
 
-    if guild := ctx.get_guild():
-        location = f"{guild.name} ({ctx.guild_id})"
-    else:
-        location = f"{ctx.guild_id}"
-
-    if channel := ctx.get_channel():
-        location += f" #{channel.name} ({ctx.channel_id})"
-    else:
-        location += f" {ctx.channel_id}"
+    if hasattr(ctx, "_options") and ctx._options:  # type: ignore
+        command += f" {FormatOptions(ctx._options)}"  # type: ignore
 
     logger.info(f"Command {command} used by {user} in {location}")
-
-    if isinstance(ctx.command, SlashCommand):
-        command = ctx.command.make_mention()
-    else:
-        command = f"`{ctx.command.name}`"
 
     await ctx.client.rest.create_message(
         cfg.channels["user"],
         Log(
             "robot",
-            f"{ExpandUser(ctx.author)} used command {command} in {ExpandChannel(ctx.get_channel())}",
+            f"{ExpandUser(ctx.author)} used command `{command}` in {ExpandChannel(ctx.get_channel())}",
         ),
     )
 
