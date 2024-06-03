@@ -5,7 +5,7 @@ from arc import (
     GatewayContext,
     GatewayPlugin,
 )
-from hikari import GatewayBot, Message, MessageFlag, MessageType, Permissions
+from hikari import Message, MessageFlag, MessageType, Permissions
 from loguru import logger
 
 from core.config import Config
@@ -34,44 +34,6 @@ def ExtensionLoader(client: GatewayClient) -> None:
         client.add_plugin(plugin)
     except Exception as e:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
-
-
-@plugin.include
-@arc.with_hook(arc.owner_only)
-@arc.with_hook(HookLog)
-@arc.message_command(
-    "Delete Message", is_dm_enabled=True, autodefer=AutodeferMode.EPHEMERAL
-)
-async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
-    """Handler for the Delete Message context menu command."""
-
-    bot: GatewayBot = ctx.client.get_type_dependency(GatewayBot)
-
-    if not (n31l := bot.get_me()):
-        raise RuntimeError("Bot user is null")
-
-    if msg.author.id != n31l.id:
-        logger.debug("Delete Message command ignored, message author is not N31L")
-
-        await ctx.respond(
-            embed=Response(
-                color=Colors.DiscordRed.value,
-                description=f"Message author is not {n31l.mention}.",
-            ),
-            flags=MessageFlag.EPHEMERAL,
-        )
-
-        return
-
-    await msg.delete()
-
-    await ctx.respond(
-        embed=Response(
-            color=Colors.DiscordGreen.value,
-            description=f"Deleted message from {msg.author.mention}.",
-        ),
-        flags=MessageFlag.EPHEMERAL,
-    )
 
 
 @plugin.include
@@ -131,11 +93,11 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
 
     if len(results) == 0:
         await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordYellow.value,
                 description=f"No User IDs found in the parsed [message]({msg.make_link(msg.guild_id)}).",
             ),
-            flags=MessageFlag.EPHEMERAL,
         )
 
         return
@@ -143,11 +105,11 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
     descriptor: str = "User IDs" if len(results) > 1 else "User ID"
 
     await ctx.respond(
+        flags=MessageFlag.EPHEMERAL,
         embed=Response(
             color=Colors.DiscordGreen.value,
             description=f"Found {len(results):,} {descriptor} in the parsed [message]({msg.make_link(msg.guild_id)})...",
         ),
-        flags=MessageFlag.EPHEMERAL,
     )
 
     for result in results:
@@ -170,11 +132,11 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
         logger.debug("Report Message command ignored, reported system message")
 
         await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
                 description="You cannot report system messages.",
             ),
-            flags=MessageFlag.EPHEMERAL,
         )
 
         return
@@ -182,11 +144,11 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
         logger.debug("Report Message command ignored, reported welcome message")
 
         await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
                 description="You cannot report welcome messages.",
             ),
-            flags=MessageFlag.EPHEMERAL,
         )
 
         return
@@ -194,11 +156,11 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
         logger.debug("Report Message command ignored, reported own message")
 
         await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
                 description=f"You cannot report your own [message]({msg.make_link(msg.guild_id)}).",
             ),
-            flags=MessageFlag.EPHEMERAL,
         )
 
         return
@@ -218,12 +180,12 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
     )
 
     await ctx.respond(
+        flags=MessageFlag.EPHEMERAL,
         embed=Response(
             color=Colors.DiscordGreen.value,
             description=f"Reported [message]({msg.make_link(msg.guild_id)}) to the Moderators.",
             footer="Abuse of this feature will result in your removal from the server.",
         ),
-        flags=MessageFlag.EPHEMERAL,
     )
 
 
