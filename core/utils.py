@@ -111,7 +111,7 @@ async def UserHasRole(
     try:
         user = await client.rest.fetch_member(serverId, userId)
     except NotFoundError as e:
-        logger.opt(exception=e).debug(
+        logger.opt(exception=e).trace(
             f"Failed to locate member {userId} in server {serverId}"
         )
     except Exception as e:
