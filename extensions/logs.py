@@ -2,7 +2,7 @@ from typing import Any
 
 import arc
 from arc import GatewayClient, GatewayContext, GatewayPlugin
-from hikari import GatewayBot, GuildMessageCreateEvent
+from hikari import DMMessageCreateEvent, GatewayBot, GuildMessageCreateEvent
 from hikari.files import Bytes
 from loguru import logger
 from urlextract import URLExtract  # type: ignore
@@ -34,6 +34,58 @@ def ExtensionLoader(client: GatewayClient) -> None:
         client.add_plugin(plugin)
     except Exception as e:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
+
+
+@plugin.listen()
+async def EventDirectMessage(event: DMMessageCreateEvent) -> None:
+    """Handler for notifying of direct messages."""
+
+    bot: GatewayBot = plugin.client.get_type_dependency(GatewayBot)
+
+    if not (n31l := bot.get_me()):
+        raise RuntimeError("Bot user is null")
+
+    if event.author_id == n31l.id:
+        logger.debug("Direct Message command ignored, message author is N31L")
+
+        return
+
+    cfg: Config = plugin.client.get_type_dependency(Config)
+
+    fields: list[dict[str, str | bool]] = []
+
+    for attachment in event.message.attachments:
+        fields.append(
+            {
+                "name": "Attachment",
+                "value": f"[`{attachment.filename}`]({attachment.url})",
+            }
+        )
+
+    for sticker in event.message.stickers:
+        fields.append(
+            {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+        )
+
+    logger.trace(fields)
+
+    await plugin.client.rest.create_message(
+        cfg.channels["production"],
+        embed=Response(
+            title="Direct Message",
+            color=Colors.N31LGreen.value,
+            description=f">>> {Trim(event.content, 4000)}" if event.content else None,
+            fields=fields,
+            author=ExpandUser(event.author, format=False, showId=False),
+            authorIcon=GetAvatar(event.author),
+            footer=str(event.author_id),
+            timestamp=event.message.timestamp,
+        ),
+    )
+
+    logger.success(
+        f"Notified of direct message from {ExpandUser(event.author, format=False)}"
+    )
 
 
 @plugin.listen()
