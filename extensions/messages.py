@@ -16,6 +16,7 @@ from core.formatters import (
     ExpandUser,
     GetAvatar,
     Response,
+    TimeRelative,
 )
 from core.hooks import HookError, HookLog
 from core.utils import FindNumbers, IsValidUser
@@ -135,7 +136,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
-                description="You cannot report system messages.",
+                description=f"You cannot report a [system message]({msg.make_link(msg.guild_id)}).",
             ),
         )
 
@@ -147,7 +148,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
-                description="You cannot report welcome messages.",
+                description=f"You cannot report a [welcome message]({msg.make_link(msg.guild_id)}).",
             ),
         )
 
@@ -165,6 +166,33 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
 
         return
 
+    fields: list[dict[str, str | bool]] = [
+        {"name": "Sent", "value": TimeRelative(msg.created_at)},
+        {"name": "Reported", "value": TimeRelative(ctx.interaction.created_at)},
+    ]
+
+    for attachment in msg.attachments:
+        fields.append(
+            {
+                "name": "Attachment",
+                "value": f"[`{attachment.filename}`]({attachment.url})",
+            }
+        )
+
+    for embed in msg.embeds:
+        if embed.image:
+            fields.append({"name": "Embed", "value": f"[Image]({embed.image.url})"})
+
+        if embed.thumbnail:
+            fields.append(
+                {"name": "Embed", "value": f"[Thumbnail]({embed.thumbnail.url})"}
+            )
+
+    for sticker in msg.stickers:
+        fields.append(
+            {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+        )
+
     await ctx.client.rest.create_message(
         cfg.channels["moderators"],
         embed=Response(
@@ -172,6 +200,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             url=msg.make_link(msg.guild_id),
             color=Colors.DiscordYellow.value,
             description=None if not (content := msg.content) else f">>> {content}",
+            fields=fields,
             author=ExpandUser(msg.author, format=False),
             authorIcon=GetAvatar(msg.author),
             footer=f"Reported by {ExpandUser(ctx.author, format=False)}",
