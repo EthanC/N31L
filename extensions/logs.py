@@ -160,7 +160,56 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
     )
 
     logger.success(
-        f"Notified of keyword ({found}) mention by {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)} {ExpandChannel(event.get_channel(), format=False)}"
+        f"Notified of keyword(s) ({found}) mention by {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)} {ExpandChannel(event.get_channel(), format=False)}"
+    )
+
+
+@plugin.listen()
+async def EventMention(event: GuildMessageCreateEvent) -> None:
+    """Handler for notifying of user mentions."""
+
+    if not event.is_human:
+        logger.trace("Ignored message creation event, author is not human")
+
+        return
+    elif not event.content:
+        logger.trace("Ignored message creation event, content is null")
+
+        return
+    elif not event.message.user_mentions_ids:
+        logger.trace("Ignored message creation event, no user mentions")
+
+        return
+
+    cfg: Config = plugin.client.get_type_dependency(Config)
+
+    found: list[int] = []
+
+    for userId in cfg.logsMentions:
+        if userId in event.message.user_mentions_ids:
+            found.append(userId)
+
+    if len(found) == 0:
+        logger.trace("Ignored message creation event, no relevant user mentions")
+
+        return
+
+    await plugin.client.rest.create_message(
+        cfg.channels["production"],
+        embed=Response(
+            title=("User" if len(found) == 1 else "Users") + " Mentioned",
+            url=event.message.make_link(event.guild_id),
+            color=Colors.N31LGreen.value,
+            description=f">>> {Trim(event.content, 4000)}",
+            author=ExpandUser(event.author, format=False, showId=False),
+            authorIcon=GetAvatar(event.author),
+            footer=str(event.author_id),
+            timestamp=event.message.timestamp,
+        ),
+    )
+
+    logger.success(
+        f"Notified of mention(s) ({found}) by {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)} {ExpandChannel(event.get_channel(), format=False)}"
     )
 
 
