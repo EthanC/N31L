@@ -5,7 +5,7 @@
 N31L is a utilitarian Discord bot for the [Call of Duty server](https://discord.gg/CallofDuty).
 
 <p align="center">
-    <img src="https://i.imgur.com/e5IW91q.png" draggable="false">
+    <img src="https://i.imgur.com/geOC3Sz.png" draggable="false">
 </p>
 
 ## Features
