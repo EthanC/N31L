@@ -182,7 +182,6 @@ async def EventMention(event: GuildMessageCreateEvent) -> None:
         return
 
     cfg: Config = plugin.client.get_type_dependency(Config)
-
     found: list[int] = []
 
     for userId in cfg.logsMentions:
