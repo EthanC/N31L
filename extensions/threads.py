@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 import arc
@@ -84,5 +85,8 @@ async def TaskArchiveThreads(client: GatewayClient) -> None:
         logger.success(
             f"Archived thread {title} due to maximum lifetime of {lifetime:,}s exceeded"
         )
+        logger.trace("Sleeping 0.25s to avoid ratelimits...")
+
+        await asyncio.sleep(0.25)
 
     logger.info("Completed recurring task to archive threads")
