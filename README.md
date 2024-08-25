@@ -25,7 +25,7 @@ Notice: N31L is purpose-built, this means that its functionality is intended onl
 
 Rename `config_example.json` to `config.json`, then provide the configurable variables.
 
-Modify the following `docker-compose.yml` example file, then run `docker compose up`.
+Modify the following `compose.yaml` example file, then run `docker compose up`.
 
 ```yml
 services:
