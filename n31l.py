@@ -7,7 +7,7 @@ import dotenv
 from arc import GatewayClient
 from hikari import Activity, ActivityType, GatewayBot, Intents, Permissions, Status
 from loguru import logger
-from loguru_discord import DiscordSink  # type: ignore
+from loguru_discord import DiscordSink
 
 from core.config import Config
 from core.hooks import HookStart, HookStop
