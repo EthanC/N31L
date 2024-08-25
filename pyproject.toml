@@ -1,29 +1,28 @@
-[tool.poetry]
+[project]
 name = "n31l"
-version = "2.0.0"
+version = "2.1.0"
 description = "N31L is a utilitarian bot for the Call of Duty server."
-authors = ["EthanC <16727756+EthanC@users.noreply.github.com>"]
-license = "MIT"
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = ">=3.12,<3.13"
-python-dotenv = "^1.0.1"
-loguru = "^0.7.2"
-loguru-discord = "^1.3.1"
-hikari-arc = "^1.3.4"
-httpx = "^0.27.0"
-asyncpraw = "^7.7.1"
-urlextract = "^1.9.0"
-uvloop = {version = "^0.19.0", platform = "linux"}
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.5.1"
-asyncpraw-stubs = "^0.0.3"
+requires-python = ">=3.12"
+dependencies = [
+    "python-dotenv>=1.0.1",
+    "loguru>=0.7.2",
+    "loguru-discord>=1.3.1",
+    "hikari-arc>=1.3.4",
+    "httpx>=0.27.0",
+    "asyncpraw>=7.7.1",
+    "urlextract>=1.9.0",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.6.2",
+    "asyncpraw-stubs>=0.0.3",
+]
 
 [tool.ruff.lint]
 select = ["I"]

@@ -1,6 +1,6 @@
 # N31L
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EthanC/N31L/ci.yml?branch=main) ![Docker Pulls](https://img.shields.io/docker/pulls/ethanchrisp/n31l?label=Docker%20Pulls) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/ethanchrisp/n31l/latest?label=Docker%20Image%20Size)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EthanC/N31L/ci.yaml?branch=main) ![Docker Pulls](https://img.shields.io/docker/pulls/ethanchrisp/n31l?label=Docker%20Pulls) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/ethanchrisp/n31l/latest?label=Docker%20Image%20Size)
 
 N31L is a utilitarian Discord bot for the [Call of Duty server](https://discord.gg/CallofDuty).
 
@@ -53,7 +53,7 @@ services:
 
 N31L is built for [Python 3.12](https://www.python.org/) or greater.
 
-1. Install required dependencies using [Poetry](https://python-poetry.org/): `poetry install --no-root`
+1. Install required dependencies using [uv](https://github.com/astral-sh/uv): `uv sync`
 2. Rename `.env.example` to `.env`, then provide the environment variables.
 3. Rename `config_example.json` to `config.json`, then provide the configurable variables.
 4. Start N31L: `python -OO n31l.py`
