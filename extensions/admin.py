@@ -12,7 +12,7 @@ from arc import (
 from hikari import Attachment, GatewayBot, Message, MessageFlag
 from loguru import logger
 
-from core.formatters import Colors, ExpandUser, Response
+from core.formatters import Colors, ExpandChannel, ExpandUser, Response
 from core.hooks import HookError, HookLog
 
 plugin: GatewayPlugin = GatewayPlugin("admin")
@@ -40,6 +40,104 @@ def ExtensionLoader(client: GatewayClient) -> None:
 @plugin.include
 @arc.with_hook(arc.owner_only)
 @arc.with_hook(HookLog)
+@arc.slash_command(
+    "edit",
+    "Edit a message sent by N31L.",
+    is_dm_enabled=True,
+    autodefer=AutodeferMode.EPHEMERAL,
+)
+async def CommandEdit(
+    ctx: GatewayContext,
+    channelId: Option[
+        str, StrParams("Enter the ID of the channel.", name="channel_id")
+    ],
+    messageId: Option[
+        str, StrParams("Enter the ID of the message.", name="message_id")
+    ],
+    content: Option[
+        str | None, StrParams("Enter text to replace the message content with.")
+    ] = None,
+    file: Option[
+        Attachment | None,
+        AttachmentParams("Choose a text file containing markdown content."),
+    ] = None,
+) -> None:
+    """Handler for the /edit command."""
+
+    if (not content) and (not file):
+        logger.debug(
+            "Edit Message command ignored, no message content or file provided"
+        )
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value,
+                description=f"No message content provided.",
+            ),
+        )
+
+        return
+
+    bot: GatewayBot = ctx.client.get_type_dependency(GatewayBot)
+
+    if not (n31l := bot.get_me()):
+        raise RuntimeError("Bot user is null")
+
+    msg: Message = await ctx.client.rest.fetch_message(int(channelId), int(messageId))
+
+    if not msg:
+        logger.debug(
+            f"Failed to fetch message {messageId} in channel {ExpandChannel(channelId, format=False)}"
+        )
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value, description="Failed to fetch message."
+            ),
+        )
+
+        return
+
+    if msg.author.id != n31l.id:
+        logger.debug("Edit Message command ignored, message author is not N31L")
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value,
+                description=f"Message author is not {n31l.mention}.",
+            ),
+        )
+
+        return
+
+    before: str = "[Empty]"
+    after: str = "[Empty]"
+
+    if content:
+        after = content
+    elif file:
+        after = (await file.read()).decode("UTF-8")
+
+    if msg.content:
+        before = msg.content
+
+    await msg.edit(after)
+
+    await ctx.respond(
+        flags=MessageFlag.EPHEMERAL,
+        embed=Response(
+            color=Colors.DiscordGreen.value,
+            description=f"Edited {msg.author.mention}'s message {msg.make_link(msg.guild_id)}.\n\n**Before:**\n```md\n{before}\n```\n**After:**\n```md\n{after}\n```",
+        ),
+    )
+
+
+@plugin.include
+@arc.with_hook(arc.owner_only)
+@arc.with_hook(HookLog)
 @arc.message_command(
     "Delete Message", is_dm_enabled=True, autodefer=AutodeferMode.EPHEMERAL
 )
@@ -58,7 +156,7 @@ async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
             flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
-                description=f"Message author is not {n31l.mention}.",
+                description=f"Message {msg.make_link(msg.guild_id)} author is not {n31l.mention}.",
             ),
         )
 

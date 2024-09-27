@@ -4,6 +4,8 @@ from arc import (
     GatewayClient,
     GatewayContext,
     GatewayPlugin,
+    Option,
+    StrParams,
 )
 from hikari import Message, MessageFlag, MessageType, Permissions
 from loguru import logger
@@ -12,6 +14,7 @@ from core.config import Config
 from core.formatters import (
     Colors,
     ExpandChannel,
+    ExpandCommand,
     ExpandServer,
     ExpandUser,
     GetAvatar,
@@ -35,6 +38,68 @@ def ExtensionLoader(client: GatewayClient) -> None:
         client.add_plugin(plugin)
     except Exception as e:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
+
+
+@plugin.include
+@arc.with_hook(HookLog)
+@arc.slash_command(
+    "raw",
+    "Return the raw markdown content of a provided message.",
+    is_dm_enabled=True,
+    autodefer=AutodeferMode.EPHEMERAL,
+)
+async def CommandRawSlash(
+    ctx: GatewayContext,
+    channelId: Option[
+        str, StrParams("Enter the ID of the channel.", name="channel_id")
+    ],
+    messageId: Option[
+        str, StrParams("Enter the ID of the message.", name="message_id")
+    ],
+) -> None:
+    """Handler for the /raw slash command."""
+
+    msg: Message = await ctx.client.rest.fetch_message(int(channelId), int(messageId))
+
+    if not msg:
+        logger.debug(
+            f"Failed to fetch message {messageId} in channel {ExpandChannel(channelId, format=False)}"
+        )
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value, description="Failed to fetch message."
+            ),
+        )
+
+        return
+
+    if not msg.content:
+        logger.debug(
+            f"Command {ExpandCommand(ctx, format=False)} ignored, message content is null"
+        )
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value,
+                description=f"{msg.author.mention}'s message {msg.make_link(msg.guild_id)} has no content.",
+            ),
+        )
+
+        return
+
+    await ctx.respond(
+        flags=MessageFlag.EPHEMERAL,
+        embed=Response(
+            author=ExpandUser(msg.author, format=False),
+            authorIcon=GetAvatar(msg.author),
+            color=Colors.DiscordGreen.value,
+            description=f"{msg.make_link(msg.guild_id)}\n```md\n{msg.content}\n```",
+            timestamp=msg.timestamp,
+        ),
+    )
 
 
 @plugin.include
@@ -118,6 +183,37 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
 
     logger.success(
         f"Parsed {len(results):,} {descriptor} ({results}) from message {msg.id} in {ExpandServer(ctx.get_guild(), format=False)} {ExpandChannel(await msg.fetch_channel(), format=False)}"
+    )
+
+
+@plugin.include
+@arc.with_hook(HookLog)
+@arc.message_command("Raw Message", autodefer=AutodeferMode.EPHEMERAL)
+async def CommandRaw(ctx: GatewayContext, msg: Message) -> None:
+    """Handler for the Raw Message context menu command."""
+
+    if not msg.content:
+        logger.debug("Raw Message command ignored, message content is null")
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value,
+                description=f"{msg.author.mention}'s message {msg.make_link(msg.guild_id)} has no content.",
+            ),
+        )
+
+        return
+
+    await ctx.respond(
+        flags=MessageFlag.EPHEMERAL,
+        embed=Response(
+            author=ExpandUser(msg.author, format=False),
+            authorIcon=GetAvatar(msg.author),
+            color=Colors.DiscordGreen.value,
+            description=f"{msg.make_link(msg.guild_id)}\n```md\n{msg.content}\n```",
+            timestamp=msg.timestamp,
+        ),
     )
 
 
