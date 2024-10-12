@@ -88,7 +88,7 @@ async def CommandEdit(
 
     if not msg:
         logger.debug(
-            f"Failed to fetch message {messageId} in channel {ExpandChannel(channelId, format=False)}"
+            f"Failed to fetch message {messageId} in channel {await ExpandChannel(channelId, format=False)}"
         )
 
         await ctx.respond(
@@ -201,7 +201,7 @@ async def CommandEmojiUpload(
         ctx.guild_id,
         name,
         image.url,
-        reason=f"Emoji uploaded by {ExpandUser(ctx.author, format=False)}.",
+        reason=f"Emoji uploaded by {await ExpandUser(ctx.author, format=False)}.",
     )
 
     await ctx.respond(
@@ -231,7 +231,7 @@ async def CommandEmojiDelete(
     await ctx.client.rest.delete_emoji(
         ctx.guild_id,
         int(emojiId),
-        reason=f"Emoji deleted by {ExpandUser(ctx.author, format=False)}.",
+        reason=f"Emoji deleted by {await ExpandUser(ctx.author, format=False)}.",
     )
 
     await ctx.respond(
@@ -273,7 +273,7 @@ async def CommandStickerUpload(
         name,
         related,
         image.url,
-        reason=f"Sticker uploaded by {ExpandUser(ctx.author, format=False)}.",
+        reason=f"Sticker uploaded by {await ExpandUser(ctx.author, format=False)}.",
     )
 
     await ctx.respond(
@@ -303,7 +303,7 @@ async def CommandStickerDelete(
     await ctx.client.rest.delete_sticker(
         ctx.guild_id,
         int(stickerId),
-        reason=f"Sticker deleted by {ExpandUser(ctx.author, format=False)}.",
+        reason=f"Sticker deleted by {await ExpandUser(ctx.author, format=False)}.",
     )
 
     await ctx.respond(

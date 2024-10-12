@@ -102,7 +102,7 @@ async def EventDirectMessage(event: DMMessageCreateEvent) -> None:
     )
 
     logger.success(
-        f"Notified of direct message from {ExpandUser(event.author, format=False)}"
+        f"Notified of direct message from {await ExpandUser(event.author, format=False)}"
     )
 
 
@@ -196,7 +196,7 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
     )
 
     logger.success(
-        f"Notified of keyword(s) ({", ".join(found)}) mention by {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)} {ExpandChannel(event.get_channel(), format=False)}"
+        f"Notified of keyword(s) ({", ".join(found)}) mention by {await ExpandUser(event.author, format=False)} in {await ExpandServer(event.get_guild(), format=False)} {await ExpandChannel(event.get_channel(), format=False)}"
     )
 
 
@@ -276,7 +276,7 @@ async def EventMention(event: GuildMessageCreateEvent) -> None:
     )
 
     logger.success(
-        f"Notified of mention(s) ({found}) by {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)} {ExpandChannel(event.get_channel(), format=False)}"
+        f"Notified of mention(s) ({found}) by {await ExpandUser(event.author, format=False)} in {await ExpandServer(event.get_guild(), format=False)} {await ExpandChannel(event.get_channel(), format=False)}"
     )
 
 
@@ -389,7 +389,7 @@ async def EventContext(event: InteractionCreateEvent) -> None:
     await interaction.edit_initial_response(embeds=results)
 
     logger.success(
-        f"Fetched context requested by {ExpandUser(interaction.user, format=False)} in {ExpandServer(interaction.get_guild(), format=False)} {ExpandChannel(interaction.get_channel(), format=False)}"
+        f"Fetched context requested by {await ExpandUser(interaction.user, format=False)} in {await ExpandServer(interaction.get_guild(), format=False)} {await ExpandChannel(interaction.get_channel(), format=False)}"
     )
 
 
@@ -451,7 +451,7 @@ async def EventDump(event: InteractionCreateEvent) -> None:
     for message in context:
         logger.trace(message)
 
-        result += f"{ExpandUser(message.author, format=False)}"
+        result += f"{await ExpandUser(message.author, format=False)}"
         result += f" at {message.timestamp}"
 
         if content := message.content:

@@ -63,12 +63,12 @@ async def EventValidateRoles(event: GuildMessageCreateEvent) -> None:
                 cfg.channels["user"],
                 Log(
                     "shirt",
-                    f"Removed role (`{match}`) from {ExpandUser(event.author)} with reason: *Member exceeds limit (1) of allowed roles.*",
+                    f"Removed role (`{match}`) from {await ExpandUser(event.author)} with reason: *Member exceeds limit (1) of allowed roles.*",
                 ),
             )
 
             logger.success(
-                f"Invalidated role {match} for {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)}"
+                f"Invalidated role {match} for {await ExpandUser(event.author, format=False)} in {await ExpandServer(event.get_guild(), format=False)}"
             )
 
     # Refetch equipped roles before continuing validation
@@ -104,12 +104,12 @@ async def EventValidateRoles(event: GuildMessageCreateEvent) -> None:
             cfg.channels["user"],
             Log(
                 "shirt",
-                f"Removed role (`{role}`) from {ExpandUser(event.author)} with reason: *Requirements not met.*",
+                f"Removed role (`{role}`) from {await ExpandUser(event.author)} with reason: *Requirements not met.*",
             ),
         )
 
         logger.success(
-            f"Invalidated role ({role}) for {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)}"
+            f"Invalidated role ({role}) for {await ExpandUser(event.author, format=False)} in {await ExpandServer(event.get_guild(), format=False)}"
         )
 
 

@@ -69,7 +69,7 @@ async def TaskArchiveThreads(client: GatewayClient) -> None:
             )
         except Exception as e:
             logger.opt(exception=e).error(
-                f"Failed to archive thread {title} in {ExpandServer(thread.get_guild(), format=False)}"
+                f"Failed to archive thread {title} in {await ExpandServer(thread.get_guild(), format=False)}"
             )
 
             continue

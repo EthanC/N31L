@@ -63,7 +63,7 @@ async def CommandRawSlash(
 
     if not msg:
         logger.debug(
-            f"Failed to fetch message {messageId} in channel {ExpandChannel(channelId, format=False)}"
+            f"Failed to fetch message {messageId} in channel {await ExpandChannel(channelId, format=False)}"
         )
 
         await ctx.respond(
@@ -182,7 +182,7 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
         await ctx.respond(str(result), flags=MessageFlag.EPHEMERAL)
 
     logger.success(
-        f"Parsed {len(results):,} {descriptor} ({results}) from message {msg.id} in {ExpandServer(ctx.get_guild(), format=False)} {ExpandChannel(await msg.fetch_channel(), format=False)}"
+        f"Parsed {len(results):,} {descriptor} ({results}) from message {msg.id} in {await ExpandServer(ctx.get_guild(), format=False)} {await ExpandChannel(await msg.fetch_channel(), format=False)}"
     )
 
 
@@ -299,7 +299,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             fields=fields,
             author=await ExpandUser(msg.author, format=False),
             authorIcon=GetUserAvatar(msg.author),
-            footer=f"Reported by {ExpandUser(ctx.author, format=False)}",
+            footer=f"Reported by {await ExpandUser(ctx.author, format=False)}",
             footerIcon=GetUserAvatar(ctx.author),
         ),
     )
