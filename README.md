@@ -51,7 +51,7 @@ services:
 
 ### Standalone
 
-N31L is built for [Python 3.12](https://www.python.org/) or greater.
+N31L is built for [Python 3.13](https://www.python.org/) or greater.
 
 1. Install required dependencies using [uv](https://github.com/astral-sh/uv): `uv sync`
 2. Rename `.env.example` to `.env`, then provide the environment variables.
