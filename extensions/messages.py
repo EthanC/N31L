@@ -17,7 +17,7 @@ from core.formatters import (
     ExpandCommand,
     ExpandServer,
     ExpandUser,
-    GetAvatar,
+    GetUserAvatar,
     Response,
     TimeRelative,
 )
@@ -93,8 +93,8 @@ async def CommandRawSlash(
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
         embed=Response(
-            author=ExpandUser(msg.author, format=False),
-            authorIcon=GetAvatar(msg.author),
+            author=await ExpandUser(msg.author, format=False),
+            authorIcon=GetUserAvatar(msg.author),
             color=Colors.DiscordGreen.value,
             description=f"{msg.make_link(msg.guild_id)}\n```md\n{msg.content}\n```",
             timestamp=msg.timestamp,
@@ -162,7 +162,7 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
             flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordYellow.value,
-                description=f"No User IDs found in the parsed [message]({msg.make_link(msg.guild_id)}).",
+                description=f"No User IDs found in the parsed message {msg.make_link(msg.guild_id)}.",
             ),
         )
 
@@ -174,7 +174,7 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
         flags=MessageFlag.EPHEMERAL,
         embed=Response(
             color=Colors.DiscordGreen.value,
-            description=f"Found {len(results):,} {descriptor} in the parsed [message]({msg.make_link(msg.guild_id)})...",
+            description=f"Found {len(results):,} {descriptor} in the parsed message {msg.make_link(msg.guild_id)}...",
         ),
     )
 
@@ -208,8 +208,8 @@ async def CommandRaw(ctx: GatewayContext, msg: Message) -> None:
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
         embed=Response(
-            author=ExpandUser(msg.author, format=False),
-            authorIcon=GetAvatar(msg.author),
+            author=await ExpandUser(msg.author, format=False),
+            authorIcon=GetUserAvatar(msg.author),
             color=Colors.DiscordGreen.value,
             description=f"{msg.make_link(msg.guild_id)}\n```md\n{msg.content}\n```",
             timestamp=msg.timestamp,
@@ -232,7 +232,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
-                description=f"You cannot report a [system message]({msg.make_link(msg.guild_id)}).",
+                description=f"You cannot report a system message {msg.make_link(msg.guild_id)}.",
             ),
         )
 
@@ -244,7 +244,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
-                description=f"You cannot report a [welcome message]({msg.make_link(msg.guild_id)}).",
+                description=f"You cannot report a welcome message {msg.make_link(msg.guild_id)}.",
             ),
         )
 
@@ -256,7 +256,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
-                description=f"You cannot report your own [message]({msg.make_link(msg.guild_id)}).",
+                description=f"You cannot report your own message {msg.make_link(msg.guild_id)}.",
             ),
         )
 
@@ -297,10 +297,10 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             color=Colors.DiscordYellow.value,
             description=None if not (content := msg.content) else f">>> {content}",
             fields=fields,
-            author=ExpandUser(msg.author, format=False),
-            authorIcon=GetAvatar(msg.author),
+            author=await ExpandUser(msg.author, format=False),
+            authorIcon=GetUserAvatar(msg.author),
             footer=f"Reported by {ExpandUser(ctx.author, format=False)}",
-            footerIcon=GetAvatar(ctx.author),
+            footerIcon=GetUserAvatar(ctx.author),
         ),
     )
 
@@ -308,7 +308,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
         flags=MessageFlag.EPHEMERAL,
         embed=Response(
             color=Colors.DiscordGreen.value,
-            description=f"Reported [message]({msg.make_link(msg.guild_id)}) to the Moderators.",
+            description=f"Reported message {msg.make_link(msg.guild_id)} to the Moderators.",
             footer="Abuse of this feature will result in your removal from the server.",
         ),
     )

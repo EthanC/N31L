@@ -5,7 +5,7 @@ from hikari import Embed
 from loguru import logger
 
 from core.formatters import Response
-from core.utils import GET, Trim
+from core.utils import GET
 
 
 async def BunniesIO() -> Embed | None:
@@ -226,7 +226,7 @@ async def TheCatAPI() -> Embed | None:
                     name = f"{name} ({altNames})"
 
             if desc := breed["description"]:
-                info = Trim(desc, 120)
+                info = desc
 
             if origin := breed["origin"]:
                 if country := breed["country_code"]:

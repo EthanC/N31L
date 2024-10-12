@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 from arc import (
+    GatewayClient,
     GatewayContext,
     SlashCommand,
     SlashSubCommand,
@@ -12,12 +13,15 @@ from arc import (
 from hikari import (
     CommandInteractionOption,
     Embed,
+    GatewayGuild,
     Guild,
     GuildChannel,
     GuildThreadChannel,
     PartialChannel,
+    PartialGuild,
     PartialInteraction,
     Role,
+    Snowflake,
     TextableGuildChannel,
     User,
 )
@@ -48,7 +52,7 @@ def ExpandCommand(
     """Build a modular command string for the provided context."""
 
     if (not hasattr(ctx, "command")) or (not ctx.command):
-        logger.debug("Failed to expand null command")
+        logger.debug("Command is null")
 
         return "Unknown Command"
 
@@ -83,17 +87,24 @@ def ExpandCommand(
     return result
 
 
-def ExpandUser(
-    user: User | None,
+async def ExpandUser(
+    user: User | Snowflake | None,
     *,
     mention: bool = False,
     format: bool = True,
     showId: bool = True,
+    client: GatewayClient | None = None,
 ) -> str:
     """Build a modular string for the provided user."""
 
+    if isinstance(user, Snowflake):
+        if client:
+            user = await client.rest.fetch_user(user)
+        else:
+            user = None
+
     if not user:
-        logger.debug("Failed to expand null user")
+        logger.debug("User is null")
 
         return "Unknown User"
 
@@ -118,13 +129,23 @@ def ExpandUser(
     return result
 
 
-def ExpandServer(
-    server: Guild | None, *, format: bool = True, showId: bool = True
+async def ExpandServer(
+    server: Guild | PartialGuild | Snowflake | None,
+    *,
+    format: bool = True,
+    showId: bool = True,
+    client: GatewayClient | None = None,
 ) -> str:
     """Build a modular string for the provided server."""
 
+    if isinstance(server, Snowflake):
+        if client:
+            server = await client.rest.fetch_guild(server)
+        else:
+            server = None
+
     if not server:
-        logger.debug("Failed to expand null server")
+        logger.debug("Server is null")
 
         return "Unknown Server"
 
@@ -146,21 +167,29 @@ def ExpandServer(
     return result
 
 
-def ExpandChannel(
+async def ExpandChannel(
     channel: GuildChannel
     | PartialChannel
     | TextableGuildChannel
     | GuildThreadChannel
+    | Snowflake
     | None,
     *,
     mention: bool = False,
     format: bool = True,
     showId: bool = True,
+    client: GatewayClient | None = None,
 ) -> str:
     """Build a modular string for the provided channel."""
 
+    if isinstance(channel, Snowflake):
+        if client:
+            channel = await client.rest.fetch_channel(channel)
+        else:
+            channel = None
+
     if not channel:
-        logger.debug("Failed to expand null channel")
+        logger.debug("Channel is null")
 
         return "Unknown Channel"
 
@@ -174,9 +203,9 @@ def ExpandChannel(
 
     if channel.name:
         if format:
-            result += f"`{channel.name}`"
+            result += f"`#{channel.name}`"
         else:
-            result += channel.name
+            result += f"\\#{channel.name}"
 
     if showId:
         if format:
@@ -199,7 +228,7 @@ def ExpandThread(
     """Build a modular string for the provided thread."""
 
     if not thread:
-        logger.debug("Failed to expand null thread")
+        logger.debug("Thread is null")
 
         return "Unknown Thread"
 
@@ -235,7 +264,7 @@ def ExpandRole(
     """Build a modular string for the provided role."""
 
     if not role:
-        logger.debug("Failed to expand null role")
+        logger.debug("Role is null")
 
         return "Unknown Role"
 
@@ -266,7 +295,7 @@ def ExpandInteraction(
     """Build a modular string for the provided interaction."""
 
     if not interaction:
-        logger.debug("Failed to expand null interaction")
+        logger.debug("Interaction is null")
 
         return "Unknown Interaction"
 
@@ -289,13 +318,48 @@ def ExpandInteraction(
     return result.lstrip()
 
 
-def GetAvatar(user: User) -> str | None:
+def GetUserAvatar(user: User) -> str | None:
     """Return a URL for the provided Discord user's avatar."""
 
     if user.avatar_url:
         return str(user.avatar_url)
     elif user.default_avatar_url:
         return str(user.default_avatar_url)
+
+
+async def GetServerIcon(
+    server: PartialGuild
+    | Guild
+    | GatewayGuild
+    | GuildChannel
+    | TextableGuildChannel
+    | GuildThreadChannel
+    | Snowflake
+    | None,
+    *,
+    client: GatewayClient | None = None,
+) -> str | None:
+    """Return a URL for the provided Discord server's icon."""
+
+    if isinstance(server, GuildChannel):
+        server = server.get_guild()
+    elif isinstance(server, TextableGuildChannel):
+        server = server.get_guild()
+    elif isinstance(server, GuildThreadChannel):
+        server = server.get_guild()
+    elif isinstance(server, Snowflake):
+        if client:
+            server = await client.rest.fetch_guild(server)
+        else:
+            server = None
+
+    if not server:
+        logger.debug("Guild is null")
+
+        return
+
+    if url := server.make_icon_url():
+        return str(url)
 
 
 def RandomString(length: int) -> str:
@@ -322,18 +386,24 @@ def Response(
     footerIcon: str | None = None,
     timestamp: datetime | None = None,
 ) -> Embed:
-    """Build a generic response Embed object."""
+    """
+    Build a generic response Embed object.
+
+    All provided string values will be trimmed according to the embed
+    limits defined in the Discord API documentation.
+    https://discord.com/developers/docs/resources/message#embed-object-embed-limits
+    """
 
     result: Embed = Embed(
-        title=title,
-        description=description,
+        title=Trim(title, 256),
+        description=Trim(description, 4096),
         url=url,
         color=color,
         timestamp=timestamp,
     )
 
     if author:
-        result.set_author(name=author, url=authorUrl, icon=authorIcon)
+        result.set_author(name=Trim(author, 256), url=authorUrl, icon=authorIcon)
 
     if thumbnail:
         result.set_thumbnail(thumbnail)
@@ -342,14 +412,38 @@ def Response(
         result.set_image(image)
 
     if footer:
-        result.set_footer(footer, icon=footerIcon)
+        result.set_footer(Trim(footer, 2048), icon=footerIcon)
 
     for field in fields:
-        result.add_field(
-            str(field["name"]),
-            str(field["value"]),
-            inline=bool(field.get("inline", True)),
-        )
+        name: str | bool | None = field["name"]
+        value: str | bool | None = field["value"]
+
+        if not isinstance(name, str):
+            logger.warning(
+                f"Invalid value provided for field name: {name} ({type(name)})"
+            )
+
+            continue
+        elif not isinstance(value, str):
+            logger.warning(
+                f"Invalid value provided for field value: {value} ({type(value)})"
+            )
+
+            continue
+        if not (name := Trim(name, 256)):
+            logger.warning(
+                f"Invalid value provided for field name: {name} ({type(name)})"
+            )
+
+            continue
+        elif not (value := Trim(value, 1024)):
+            logger.warning(
+                f"Invalid value provided for field value: {value} ({type(value)})"
+            )
+
+            continue
+
+        result.add_field(name, value, inline=bool(field.get("inline", True)))
 
     return result
 
@@ -413,3 +507,41 @@ def FormatOptions(options: list[CommandInteractionOption]) -> str:
     logger.debug(f"Formatted options {options} to sequence {result}")
 
     return result.rstrip()
+
+def Trim(
+    input: str | None,
+    length: int,
+    *,
+    prefix: str | None = None,
+    suffix: str | None = "...",
+) -> str | None:
+    """Trim a string using the provided parameters."""
+
+    if not input:
+        return
+
+    # Account for length of prefix
+    if prefix:
+        length -= len(prefix)
+
+    # Account for length of suffix
+    if suffix:
+        length -= len(suffix)
+
+    if len(input) <= length:
+        return input
+
+    result: str = input[:length]
+
+    try:
+        result = result.rsplit(" ", 1)[0]
+    except Exception as e:
+        logger.opt(exception=e).debug("Failed to cleanly trim string")
+
+    if prefix:
+        result = prefix + result
+
+    if suffix:
+        result += suffix
+
+    return result

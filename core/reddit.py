@@ -9,7 +9,6 @@ from hikari import Embed
 from loguru import logger
 
 from core.formatters import Response
-from core.utils import Trim
 
 
 async def CreateClient() -> Reddit | None:
@@ -138,7 +137,7 @@ async def GetRandomImage(community: str) -> Embed | None:
         return
 
     return Response(
-        title=Trim(post.title, 128),  # type: ignore
+        title=post.title,  # type: ignore
         url=f"https://reddit.com{post.permalink}",  # type: ignore
         image=post.url,  # type: ignore
     )

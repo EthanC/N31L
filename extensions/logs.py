@@ -28,12 +28,13 @@ from core.formatters import (
     ExpandInteraction,
     ExpandServer,
     ExpandUser,
-    GetAvatar,
+    GetServerIcon,
+    GetUserAvatar,
     Log,
     Response,
 )
 from core.hooks import HookError
-from core.utils import GET, FindNumbers, IsValidUser, Trim
+from core.utils import GET, FindNumbers, IsValidUser
 
 plugin: GatewayPlugin = GatewayPlugin("logs")
 
@@ -91,10 +92,10 @@ async def EventDirectMessage(event: DMMessageCreateEvent) -> None:
         embed=Response(
             title="Direct Message",
             color=Colors.N31LGreen.value,
-            description=f">>> {Trim(event.content, 4000)}" if event.content else None,
+            description=f">>> {event.content}" if event.content else None,
             fields=fields,
-            author=ExpandUser(event.author, format=False, showId=False),
-            authorIcon=GetAvatar(event.author),
+            author=await ExpandUser(event.author, format=False, showId=False),
+            authorIcon=GetUserAvatar(event.author),
             footer=str(event.author_id),
             timestamp=event.message.timestamp,
         ),
@@ -148,7 +149,10 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
     logger.trace(content)
 
     fields: list[dict[str, str | bool]] = [
-        {"name": "Channel", "value": ExpandChannel(event.get_channel(), showId=False)}
+        {
+            "name": "Channel",
+            "value": await ExpandChannel(event.get_channel(), showId=False),
+        }
     ]
 
     if attachments := event.message.attachments:
@@ -180,11 +184,12 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
             title=("Keyword" if len(found) == 1 else "Keywords") + " Mention",
             url=event.message.make_link(event.guild_id),
             color=Colors.N31LGreen.value,
-            description=f">>> {Trim(content, 4000)}",
+            description=f">>> {content}",
             fields=fields,
-            author=ExpandUser(event.author, format=False, showId=False),
-            authorIcon=GetAvatar(event.author),
+            author=await ExpandUser(event.author, format=False, showId=False),
+            authorIcon=GetUserAvatar(event.author),
             footer=str(event.author_id),
+            footerIcon=await GetServerIcon(event.get_guild()),
             timestamp=event.message.timestamp,
         ),
         component=actions,
@@ -225,7 +230,10 @@ async def EventMention(event: GuildMessageCreateEvent) -> None:
         return
 
     fields: list[dict[str, str | bool]] = [
-        {"name": "Channel", "value": ExpandChannel(event.get_channel(), showId=False)}
+        {
+            "name": "Channel",
+            "value": await ExpandChannel(event.get_channel(), showId=False),
+        }
     ]
 
     if attachments := event.message.attachments:
@@ -257,10 +265,11 @@ async def EventMention(event: GuildMessageCreateEvent) -> None:
             title=("User" if len(found) == 1 else "Users") + " Mentioned",
             url=event.message.make_link(event.guild_id),
             color=Colors.N31LGreen.value,
-            description=f">>> {Trim(event.content, 4000)}",
-            author=ExpandUser(event.author, format=False, showId=False),
-            authorIcon=GetAvatar(event.author),
+            description=f">>> {event.content}",
+            author=await ExpandUser(event.author, format=False, showId=False),
+            authorIcon=GetUserAvatar(event.author),
             footer=str(event.author_id),
+            footerIcon=await GetServerIcon(event.get_guild()),
             timestamp=event.message.timestamp,
         ),
         component=actions,
@@ -355,14 +364,23 @@ async def EventContext(event: InteractionCreateEvent) -> None:
         results.append(
             Response(
                 color=Colors.DiscordBlurple.value,
-                description=None if not message.content else f">>> {message.content}",
+                description=f">>> {message.content}" if message.content else None,
                 fields=fields,
-                author=ExpandUser(message.author, format=False),
-                authorIcon=GetAvatar(message.author),
+                author=await ExpandUser(message.author, format=False),
+                authorIcon=GetUserAvatar(message.author),
                 footer=str(message.id),
+                footerIcon=await GetServerIcon(message.guild_id, client=plugin.client),
                 timestamp=message.created_at
                 if not message.edited_timestamp
                 else message.edited_timestamp,
+            )
+        )
+
+    if len(results) < 1:
+        results.append(
+            Response(
+                description=f"No context found {btnId} message.",
+                color=Colors.DiscordYellow.value,
             )
         )
 
@@ -454,6 +472,16 @@ async def EventDump(event: InteractionCreateEvent) -> None:
         result += "\n\n"
 
     logger.trace(result)
+
+    if result == "":
+        await interaction.edit_initial_response(
+            embed=Response(
+                description="No context found for message.",
+                color=Colors.DiscordYellow.value,
+            )
+        )
+
+        return
 
     await interaction.edit_initial_response(
         attachment=Bytes(result, f"dump_{targetId}.txt")

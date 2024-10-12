@@ -23,25 +23,6 @@ def Elapsed(a: datetime | int | float, b: datetime | int | float) -> int:
     return int(a - b)
 
 
-def Trim(input: str, length: int, end: str | None = "...") -> str:
-    """Trim a string using the provided parameters."""
-
-    if len(input) <= length:
-        return input
-
-    result: str = input[:length]
-
-    try:
-        result = result.rsplit(" ", 1)[0]
-    except Exception as e:
-        logger.opt(exception=e).debug("Failed to cleanly trim string")
-
-    if end:
-        result += end
-
-    return result
-
-
 def FindNumbers(
     input: str, minLen: int | None = None, maxLen: int | None = None
 ) -> list[int]:
@@ -123,13 +104,13 @@ async def UserHasRole(
         for role in user.role_ids:
             if (current := int(role)) in roleIds:
                 logger.debug(
-                    f"{ExpandUser(user.user, format=False)} has role {current} in server {ExpandServer(server, format=False)}"
+                    f"{await ExpandUser(user.user, format=False)} has role {current} in server {await ExpandServer(server, format=False)}"
                 )
 
                 return True
 
         logger.debug(
-            f"{ExpandUser(user.user, format=False)} does not have role(s) {roleIds} in server {ExpandServer(server, format=False)}"
+            f"{await ExpandUser(user.user, format=False)} does not have role(s) {roleIds} in server {await ExpandServer(server, format=False)}"
         )
 
     return False
