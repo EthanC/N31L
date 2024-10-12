@@ -16,6 +16,7 @@ from hikari import (
     GuildChannel,
     GuildThreadChannel,
     PartialChannel,
+    PartialInteraction,
     Role,
     TextableGuildChannel,
     User,
@@ -257,6 +258,35 @@ def ExpandRole(
     logger.debug(f"Expanded role {role} to {result}")
 
     return result
+
+
+def ExpandInteraction(
+    interaction: PartialInteraction | None, *, format: bool = True, showId: bool = True
+) -> str:
+    """Build a modular string for the provided interaction."""
+
+    if not interaction:
+        logger.debug("Failed to expand null interaction")
+
+        return "Unknown Interaction"
+
+    result: str = ""
+
+    if showId:
+        if format:
+            result += f"`{interaction.id}`"
+        else:
+            result += f"{interaction.id}"
+
+    if format:
+        result += f" `{interaction.type}` (`{type(interaction)}`)"
+    else:
+        result += f" {interaction.type} ({type(interaction)})"
+
+    logger.debug(f"Expanded interaction {interaction} to {result}")
+
+    # lstrip() to remove leading whitespace if showId is False
+    return result.lstrip()
 
 
 def GetAvatar(user: User) -> str | None:

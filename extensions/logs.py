@@ -2,7 +2,21 @@ from typing import Any
 
 import arc
 from arc import GatewayClient, GatewayContext, GatewayPlugin
-from hikari import DMMessageCreateEvent, GatewayBot, GuildMessageCreateEvent
+from hikari import (
+    ButtonStyle,
+    ComponentInteraction,
+    DMMessageCreateEvent,
+    Embed,
+    GatewayBot,
+    GuildMessageCreateEvent,
+    InteractionCreateEvent,
+    InteractionType,
+    LazyIterator,
+    Message,
+    MessageFlag,
+    PartialInteraction,
+    ResponseType,
+)
 from hikari.files import Bytes
 from loguru import logger
 from urlextract import URLExtract  # type: ignore
@@ -11,6 +25,7 @@ from core.config import Config
 from core.formatters import (
     Colors,
     ExpandChannel,
+    ExpandInteraction,
     ExpandServer,
     ExpandUser,
     GetAvatar,
@@ -54,18 +69,20 @@ async def EventDirectMessage(event: DMMessageCreateEvent) -> None:
 
     fields: list[dict[str, str | bool]] = []
 
-    for attachment in event.message.attachments:
-        fields.append(
-            {
-                "name": "Attachment",
-                "value": f"[`{attachment.filename}`]({attachment.url})",
-            }
-        )
+    if attachments := event.message.attachments:
+        for attachment in attachments:
+            fields.append(
+                {
+                    "name": "Attachment",
+                    "value": f"[`{attachment.filename}`]({attachment.url})",
+                }
+            )
 
-    for sticker in event.message.stickers:
-        fields.append(
-            {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
-        )
+    if stickers := event.message.stickers:
+        for sticker in stickers:
+            fields.append(
+                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+            )
 
     logger.trace(fields)
 
@@ -134,15 +151,28 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
         {"name": "Channel", "value": ExpandChannel(event.get_channel(), showId=False)}
     ]
 
-    for attachment in event.message.attachments:
-        fields.append(
-            {
-                "name": "Attachment",
-                "value": f"[`{attachment.filename}`]({attachment.url})",
-            }
-        )
+    if attachments := event.message.attachments:
+        for attachment in attachments:
+            fields.append(
+                {
+                    "name": "Attachment",
+                    "value": f"[`{attachment.filename}`]({attachment.url})",
+                }
+            )
+
+    if stickers := event.message.stickers:
+        for sticker in stickers:
+            fields.append(
+                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+            )
 
     logger.trace(fields)
+
+    actions = plugin.client.rest.build_message_action_row()
+
+    actions.add_interactive_button(ButtonStyle.SECONDARY, "before", label="Context")
+    actions.add_interactive_button(ButtonStyle.SECONDARY, "after", label="Aftermath")
+    actions.add_interactive_button(ButtonStyle.SECONDARY, "dump", label="Dump")
 
     await plugin.client.rest.create_message(
         cfg.channels["production"],
@@ -157,10 +187,11 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
             footer=str(event.author_id),
             timestamp=event.message.timestamp,
         ),
+        component=actions,
     )
 
     logger.success(
-        f"Notified of keyword(s) ({found}) mention by {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)} {ExpandChannel(event.get_channel(), format=False)}"
+        f"Notified of keyword(s) ({", ".join(found)}) mention by {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)} {ExpandChannel(event.get_channel(), format=False)}"
     )
 
 
@@ -193,6 +224,33 @@ async def EventMention(event: GuildMessageCreateEvent) -> None:
 
         return
 
+    fields: list[dict[str, str | bool]] = [
+        {"name": "Channel", "value": ExpandChannel(event.get_channel(), showId=False)}
+    ]
+
+    if attachments := event.message.attachments:
+        for attachment in attachments:
+            fields.append(
+                {
+                    "name": "Attachment",
+                    "value": f"[`{attachment.filename}`]({attachment.url})",
+                }
+            )
+
+    if stickers := event.message.stickers:
+        for sticker in stickers:
+            fields.append(
+                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+            )
+
+    logger.trace(fields)
+
+    actions = plugin.client.rest.build_message_action_row()
+
+    actions.add_interactive_button(ButtonStyle.SECONDARY, "before", label="Context")
+    actions.add_interactive_button(ButtonStyle.SECONDARY, "after", label="Aftermath")
+    actions.add_interactive_button(ButtonStyle.SECONDARY, "dump", label="Dump")
+
     await plugin.client.rest.create_message(
         cfg.channels["production"],
         embed=Response(
@@ -205,10 +263,200 @@ async def EventMention(event: GuildMessageCreateEvent) -> None:
             footer=str(event.author_id),
             timestamp=event.message.timestamp,
         ),
+        component=actions,
     )
 
     logger.success(
         f"Notified of mention(s) ({found}) by {ExpandUser(event.author, format=False)} in {ExpandServer(event.get_guild(), format=False)} {ExpandChannel(event.get_channel(), format=False)}"
+    )
+
+
+@plugin.listen()
+async def EventContext(event: InteractionCreateEvent) -> None:
+    """Handler for the Context and Aftermath button commands."""
+
+    interaction: PartialInteraction = event.interaction
+    displayName: str = ExpandInteraction(interaction, format=False)
+
+    if not interaction.type == InteractionType.MESSAGE_COMPONENT:
+        logger.trace(f"Ignored {displayName}, expected MESSAGE_COMPONENT")
+
+        return
+    elif not isinstance(interaction, ComponentInteraction):
+        logger.trace(f"Ignored {displayName}, expected ComponentInteraction")
+
+        return
+    elif not hasattr(interaction, "custom_id"):
+        logger.trace(f"Ignored {displayName}, expected custom_id")
+
+        return
+    elif not (btnId := interaction.custom_id):
+        logger.trace(f"Ignored {displayName}, custom_id is null")
+
+        return
+    elif (btnId != "before") and (btnId != "after"):
+        logger.trace(f"Ignored {displayName}, expected custom_id before or after")
+
+        return
+
+    await interaction.create_initial_response(
+        ResponseType.DEFERRED_MESSAGE_CREATE, flags=MessageFlag.EPHEMERAL
+    )
+
+    target: str = str(interaction.message.embeds[0].url)
+    targetId: int = int(target.split("/")[-1])
+    targetChnl: int = int(target.split("/")[-2])
+
+    context: LazyIterator[Message] | None = None
+
+    if btnId == "before":
+        context = event.app.rest.fetch_messages(targetChnl, before=targetId)
+    elif btnId == "after":
+        context = event.app.rest.fetch_messages(targetChnl, after=targetId)
+
+    if not context:
+        raise RuntimeError("context is null")
+
+    # Discord limitation is 10 embeds
+    # https://discord.com/developers/docs/resources/message#create-message-jsonform-params
+    context = context.limit(10)
+
+    # Reverse iterator to maintain chronological order
+    if btnId == "before":
+        context = context.reversed()
+
+    logger.trace(context)
+
+    results: list[Embed] = []
+
+    for message in await context:
+        logger.trace(message)
+
+        fields: list[dict[str, str | bool]] = []
+
+        if attachments := message.attachments:
+            for attachment in attachments:
+                fields.append(
+                    {
+                        "name": "Attachment",
+                        "value": f"[`{attachment.filename}`]({attachment.url})",
+                    }
+                )
+
+        if stickers := message.stickers:
+            for sticker in stickers:
+                fields.append(
+                    {
+                        "name": "Sticker",
+                        "value": f"[{sticker.name}]({sticker.image_url})",
+                    }
+                )
+
+        results.append(
+            Response(
+                color=Colors.DiscordBlurple.value,
+                description=None if not message.content else f">>> {message.content}",
+                fields=fields,
+                author=ExpandUser(message.author, format=False),
+                authorIcon=GetAvatar(message.author),
+                footer=str(message.id),
+                timestamp=message.created_at
+                if not message.edited_timestamp
+                else message.edited_timestamp,
+            )
+        )
+
+    logger.trace(results)
+
+    await interaction.edit_initial_response(embeds=results)
+
+    logger.success(
+        f"Fetched context requested by {ExpandUser(interaction.user, format=False)} in {ExpandServer(interaction.get_guild(), format=False)} {ExpandChannel(interaction.get_channel(), format=False)}"
+    )
+
+
+@plugin.listen()
+async def EventDump(event: InteractionCreateEvent) -> None:
+    """Handler for the Dump button command."""
+
+    interaction: PartialInteraction = event.interaction
+    displayName: str = ExpandInteraction(interaction, format=False)
+
+    if not interaction.type == InteractionType.MESSAGE_COMPONENT:
+        logger.trace(f"Ignored {displayName}, expected MESSAGE_COMPONENT")
+
+        return
+    elif not isinstance(interaction, ComponentInteraction):
+        logger.trace(f"Ignored {displayName}, expected ComponentInteraction")
+
+        return
+    elif not hasattr(interaction, "custom_id"):
+        logger.trace(f"Ignored {displayName}, expected custom_id")
+
+        return
+    elif not (btnId := interaction.custom_id):
+        logger.trace(f"Ignored {displayName}, custom_id is null")
+
+        return
+    elif btnId != "dump":
+        logger.trace(f"Ignored {displayName}, expected custom_id dump")
+
+        return
+
+    await interaction.create_initial_response(
+        ResponseType.DEFERRED_MESSAGE_CREATE, flags=MessageFlag.EPHEMERAL
+    )
+
+    target: str = str(interaction.message.embeds[0].url)
+    targetId: int = int(target.split("/")[-1])
+    targetChnl: int = int(target.split("/")[-2])
+
+    context: list[Message] = []
+    before: LazyIterator[Message] = event.app.rest.fetch_messages(
+        targetChnl, before=targetId
+    ).limit(100)
+    after: LazyIterator[Message] = event.app.rest.fetch_messages(
+        targetChnl, after=targetId
+    ).limit(100)
+
+    # Reverse iterator to maintain chronological order
+    for message in await before.reversed():
+        context.append(message)
+
+    for message in await after:
+        context.append(message)
+
+    logger.trace(context)
+
+    result: str = ""
+
+    for message in context:
+        logger.trace(message)
+
+        result += f"{ExpandUser(message.author, format=False)}"
+        result += f" at {message.timestamp}"
+
+        if content := message.content:
+            result += f"\n{content}"
+
+        if attachments := message.attachments:
+            for attachment in attachments:
+                result += f"\n{attachment.url}"
+
+        if stickers := message.stickers:
+            for sticker in stickers:
+                result += f"\n{sticker.image_url}"
+
+        if embeds := message.embeds:
+            for embed in embeds:
+                result += f"\n{embed}"
+
+        result += "\n\n"
+
+    logger.trace(result)
+
+    await interaction.edit_initial_response(
+        attachment=Bytes(result, f"dump_{targetId}.txt")
     )
 
 
