@@ -338,43 +338,48 @@ async def EventContext(event: InteractionCreateEvent) -> None:
 
     results: list[Embed] = []
 
-    for message in await context:
-        logger.trace(message)
+    try:
+        for message in await context:
+            logger.trace(message)
 
-        fields: list[dict[str, str | bool]] = []
+            fields: list[dict[str, str | bool]] = []
 
-        if attachments := message.attachments:
-            for attachment in attachments:
-                fields.append(
-                    {
-                        "name": "Attachment",
-                        "value": f"[`{attachment.filename}`]({attachment.url})",
-                    }
+            if attachments := message.attachments:
+                for attachment in attachments:
+                    fields.append(
+                        {
+                            "name": "Attachment",
+                            "value": f"[`{attachment.filename}`]({attachment.url})",
+                        }
+                    )
+
+            if stickers := message.stickers:
+                for sticker in stickers:
+                    fields.append(
+                        {
+                            "name": "Sticker",
+                            "value": f"[{sticker.name}]({sticker.image_url})",
+                        }
+                    )
+
+            results.append(
+                Response(
+                    color=Colors.DiscordBlurple.value,
+                    description=f">>> {message.content}" if message.content else None,
+                    fields=fields,
+                    author=await ExpandUser(message.author, format=False),
+                    authorIcon=GetUserAvatar(message.author),
+                    footer=str(message.id),
+                    footerIcon=await GetServerIcon(
+                        message.guild_id, client=plugin.client
+                    ),
+                    timestamp=message.created_at
+                    if not message.edited_timestamp
+                    else message.edited_timestamp,
                 )
-
-        if stickers := message.stickers:
-            for sticker in stickers:
-                fields.append(
-                    {
-                        "name": "Sticker",
-                        "value": f"[{sticker.name}]({sticker.image_url})",
-                    }
-                )
-
-        results.append(
-            Response(
-                color=Colors.DiscordBlurple.value,
-                description=f">>> {message.content}" if message.content else None,
-                fields=fields,
-                author=await ExpandUser(message.author, format=False),
-                authorIcon=GetUserAvatar(message.author),
-                footer=str(message.id),
-                footerIcon=await GetServerIcon(message.guild_id, client=plugin.client),
-                timestamp=message.created_at
-                if not message.edited_timestamp
-                else message.edited_timestamp,
             )
-        )
+    except Exception as e:
+        logger.opt(exception=e).error("Failed to fetch message(s) in context")
 
     if len(results) < 1:
         results.append(
@@ -437,12 +442,18 @@ async def EventDump(event: InteractionCreateEvent) -> None:
         targetChnl, after=targetId
     ).limit(100)
 
-    # Reverse iterator to maintain chronological order
-    for message in await before.reversed():
-        context.append(message)
+    try:
+        # Reverse iterator to maintain chronological order
+        for message in await before.reversed():
+            context.append(message)
+    except Exception as e:
+        logger.opt(exception=e).error("Failed to fetch message(s) in context")
 
-    for message in await after:
-        context.append(message)
+    try:
+        for message in await after:
+            context.append(message)
+    except Exception as e:
+        logger.opt(exception=e).error("Failed to fetch message(s) in context")
 
     logger.trace(context)
 
