@@ -8,12 +8,24 @@ from arc import (
     Option,
     SlashGroup,
     StrParams,
+    UserParams,
 )
-from hikari import Attachment, GatewayBot, Message, MessageFlag
+from hikari import (
+    Attachment,
+    Bytes,
+    GatewayBot,
+    GatewayGuild,
+    Member,
+    Message,
+    MessageFlag,
+    User,
+)
 from loguru import logger
 
-from core.formatters import Colors, ExpandChannel, ExpandUser, Response
+from core.config import Config
+from core.formatters import Colors, ExpandChannel, ExpandServer, ExpandUser, Response
 from core.hooks import HookError, HookLog
+from core.sounds import IW7N31LDeath, T6FBIKick
 
 plugin: GatewayPlugin = GatewayPlugin("admin")
 emoji: SlashGroup[GatewayClient] = plugin.include_slash_group(
@@ -21,6 +33,9 @@ emoji: SlashGroup[GatewayClient] = plugin.include_slash_group(
 )
 sticker: SlashGroup[GatewayClient] = plugin.include_slash_group(
     "sticker", "Commands to manage server stickers."
+)
+vip: SlashGroup[GatewayClient] = plugin.include_slash_group(
+    "vip", "Commands to manage server VIPs."
 )
 
 
@@ -320,3 +335,71 @@ async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
     """Handler for errors originating from this plugin."""
 
     await HookError(ctx, error)
+
+
+@vip.include
+@arc.with_hook(arc.owner_only)
+@arc.with_hook(HookLog)
+@arc.slash_subcommand("add", "Add a user to the server VIP list.")
+async def CommandVIPAdd(
+    ctx: GatewayContext,
+    user: Option[User, UserParams("Choose a user to add to the server VIP list.")],
+) -> None:
+    """Handler for the /vip add command."""
+
+    server: GatewayGuild | None = ctx.get_guild()
+
+    if not server:
+        raise RuntimeError(
+            f"guild {await ExpandServer(ctx.guild_id, format=False)} is null"
+        )
+
+    member: Member | None = server.get_member(user.id)
+
+    if not member:
+        raise RuntimeError(
+            f"member {await ExpandUser(user, format=False)} in guild {await ExpandServer(ctx.guild_id, format=False)} is null"
+        )
+
+    cfg: Config = plugin.client.get_type_dependency(Config)
+
+    await member.add_role(
+        cfg.rolesVIP,
+        reason=f"Requested by {await ExpandUser(ctx.author, format=False)}",
+    )
+
+    await ctx.respond(attachment=Bytes(IW7N31LDeath(), "add.mp3"))
+
+
+@vip.include
+@arc.with_hook(arc.owner_only)
+@arc.with_hook(HookLog)
+@arc.slash_subcommand("remove", "Remove a user from the server VIP list.")
+async def CommandVIPRemove(
+    ctx: GatewayContext,
+    user: Option[User, UserParams("Choose a user to remove from the server VIP list.")],
+) -> None:
+    """Handler for the /vip remove command."""
+
+    server: GatewayGuild | None = ctx.get_guild()
+
+    if not server:
+        raise RuntimeError(
+            f"guild {await ExpandServer(ctx.guild_id, format=False)} is null"
+        )
+
+    member: Member | None = server.get_member(user.id)
+
+    if not member:
+        raise RuntimeError(
+            f"member {await ExpandUser(user, format=False)} in guild {await ExpandServer(ctx.guild_id, format=False)} is null"
+        )
+
+    cfg: Config = plugin.client.get_type_dependency(Config)
+
+    await member.remove_role(
+        cfg.rolesVIP,
+        reason=f"Requested by {await ExpandUser(ctx.author, format=False)}",
+    )
+
+    await ctx.respond(attachment=Bytes(T6FBIKick(), "kick.mp3"))

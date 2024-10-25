@@ -31,6 +31,7 @@ class Config:
 
         self.rolesRequire: list[int] = self.values["roles"]["require"]
         self.rolesAllow: list[int] = self.values["roles"]["allow"]
+        self.rolesVIP: int = self.values["roles"]["vip"]
 
         self.forumsServer: int = self.values["forums"]["server"]
         self.forumsLifetime: int = self.values["forums"]["lifetime"]
