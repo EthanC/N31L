@@ -294,7 +294,7 @@ async def CommandEdit(
 
 
 @plugin.include
-@arc.with_hook(arc.owner_only)
+@arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
 @arc.with_hook(HookLog)
 @arc.message_command(
     "Delete Message", is_dm_enabled=True, autodefer=AutodeferMode.EPHEMERAL
