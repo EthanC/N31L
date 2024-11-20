@@ -160,7 +160,7 @@ async def CommandSend(
 
 
 @plugin.include
-@arc.with_hook(arc.owner_only)
+@arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
 @arc.with_hook(HookLog)
 @arc.slash_command(
     "edit",
