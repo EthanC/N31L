@@ -11,6 +11,7 @@ from arc import (
     UserParams,
 )
 from hikari import (
+    UNDEFINED,
     Attachment,
     Bytes,
     GatewayBot,
@@ -18,12 +19,21 @@ from hikari import (
     Member,
     Message,
     MessageFlag,
+    Permissions,
     User,
 )
+from hikari.files import Bytes
 from loguru import logger
 
 from core.config import Config
-from core.formatters import Colors, ExpandChannel, ExpandServer, ExpandUser, Response
+from core.formatters import (
+    Colors,
+    EmbedsFromJSON,
+    ExpandChannel,
+    ExpandServer,
+    ExpandUser,
+    Response,
+)
 from core.hooks import HookError, HookLog
 from core.sounds import IW7N31LDeath, T6FBIKick
 
@@ -53,12 +63,108 @@ def ExtensionLoader(client: GatewayClient) -> None:
 
 
 @plugin.include
+@arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
+@arc.with_hook(HookLog)
+@arc.slash_command(
+    "send",
+    "Send a message from N31L.",
+    autodefer=AutodeferMode.EPHEMERAL,
+)
+async def CommandSend(
+    ctx: GatewayContext,
+    channelId: Option[
+        str, StrParams("Enter the ID of the channel.", name="channel_id")
+    ],
+    content: Option[str | None, StrParams("Enter the message content.")] = None,
+    markdown: Option[
+        Attachment | None,
+        AttachmentParams(
+            "Choose a file containing markdown content (content will be overriden.)"
+        ),
+    ] = None,
+    embeds: Option[
+        Attachment | None,
+        AttachmentParams(
+            "Choose a JSON file containing embed data (glitchii.github.io/embedbuilder)."
+        ),
+    ] = None,
+    file: Option[
+        Attachment | None,
+        AttachmentParams("Choose a file to attach.", name="attachment"),
+    ] = None,
+    reply: Option[
+        str | None,
+        StrParams("Enter the Message ID to reply to.", name="reply_message_id"),
+    ] = None,
+) -> None:
+    """Handler for the /send command."""
+
+    if (not content) and (not markdown) and (not embeds) and (not file):
+        logger.debug("Send Message command ignored, no message provided")
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value,
+                description="No message provided.",
+            ),
+        )
+
+        return
+    elif (markdown) and (not markdown.filename.endswith(".md")):
+        logger.debug("Send Message command ignored, invalid markdown provided")
+        logger.trace(f"{markdown=}")
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value,
+                description="Provided markdown file is not valid.",
+            ),
+        )
+
+        return
+    elif (embeds) and (not embeds.filename.endswith(".json")):
+        logger.debug("Send Message command ignored, invalid embeds JSON provided")
+        logger.trace(f"{embeds=}")
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value,
+                description="Provided embeds file is not valid JSON. Use the [Embed Builder](https://glitchii.github.io/embedbuilder/).",
+            ),
+        )
+
+        return
+
+    if markdown:
+        # Provided markdown file overrides provided content
+        content = (await markdown.read()).decode("UTF-8")
+
+    result: Message = await ctx.client.rest.create_message(
+        int(channelId),
+        content,
+        attachment=file if file else UNDEFINED,
+        embeds=await EmbedsFromJSON(embeds) if embeds else UNDEFINED,
+        reply=int(reply) if reply else UNDEFINED,
+    )
+
+    await ctx.respond(
+        flags=MessageFlag.EPHEMERAL,
+        embed=Response(
+            color=Colors.DiscordGreen.value,
+            description=f"Sent message {result.make_link(result.guild_id)}.",
+        ),
+    )
+
+
+@plugin.include
 @arc.with_hook(arc.owner_only)
 @arc.with_hook(HookLog)
 @arc.slash_command(
     "edit",
     "Edit a message sent by N31L.",
-    is_dm_enabled=True,
     autodefer=AutodeferMode.EPHEMERAL,
 )
 async def CommandEdit(
@@ -72,23 +178,59 @@ async def CommandEdit(
     content: Option[
         str | None, StrParams("Enter text to replace the message content with.")
     ] = None,
+    markdown: Option[
+        Attachment | None,
+        AttachmentParams(
+            "Choose a file containing markdown to replace the message content with (content will be overriden.)"
+        ),
+    ] = None,
+    embeds: Option[
+        Attachment | None,
+        AttachmentParams(
+            "Choose a JSON file containing embeds to replace the embeds with (glitchii.github.io/embedbuilder)."
+        ),
+    ] = None,
     file: Option[
         Attachment | None,
-        AttachmentParams("Choose a text file containing markdown content."),
+        AttachmentParams("Choose a file to attach to the message.", name="attachment"),
     ] = None,
 ) -> None:
     """Handler for the /edit command."""
 
-    if (not content) and (not file):
-        logger.debug(
-            "Edit Message command ignored, no message content or file provided"
-        )
+    if (not content) and (not markdown) and (not embeds) and (not file):
+        logger.debug("Edit Message command ignored, no message provided")
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
             embed=Response(
                 color=Colors.DiscordRed.value,
-                description=f"No message content provided.",
+                description="No message provided.",
+            ),
+        )
+
+        return
+    elif (markdown) and (not markdown.filename.endswith(".md")):
+        logger.debug("Send Message command ignored, invalid markdown provided")
+        logger.trace(f"{markdown=}")
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value,
+                description="Provided markdown file is not valid.",
+            ),
+        )
+
+        return
+    elif (embeds) and (not embeds.filename.endswith(".json")):
+        logger.debug("Send Message command ignored, invalid embeds JSON provided")
+        logger.trace(f"{embeds=}")
+
+        await ctx.respond(
+            flags=MessageFlag.EPHEMERAL,
+            embed=Response(
+                color=Colors.DiscordRed.value,
+                description="Provided embeds file is not valid JSON. Use the [Embed Builder](https://glitchii.github.io/embedbuilder/).",
             ),
         )
 
@@ -133,13 +275,14 @@ async def CommandEdit(
 
     if content:
         after = content
-    elif file:
-        after = (await file.read()).decode("UTF-8")
+    elif markdown:
+        # Provided markdown file overrides provided content
+        after = (await markdown.read()).decode("UTF-8")
 
     if msg.content:
         before = msg.content
 
-    await msg.edit(after)
+    await msg.edit(after, attachment=file, embeds=await EmbedsFromJSON(embeds))
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,

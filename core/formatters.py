@@ -1,7 +1,9 @@
+import json
 import random
 import string
 from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from arc import (
     GatewayClient,
@@ -11,6 +13,7 @@ from arc import (
     SlashSubGroup,
 )
 from hikari import (
+    Attachment,
     CommandInteractionOption,
     Embed,
     GatewayGuild,
@@ -508,6 +511,7 @@ def FormatOptions(options: list[CommandInteractionOption]) -> str:
 
     return result.rstrip()
 
+
 def Trim(
     input: str | None,
     length: int,
@@ -545,3 +549,88 @@ def Trim(
         result += suffix
 
     return result
+
+
+async def EmbedsFromJSON(data: str | dict[str, Any] | Attachment | None) -> list[Embed]:
+    """
+    Serialize the provided JSON string, dict, or Attachment object to a list
+    of Discord Embed objects.
+    """
+
+    entries: list[dict[str, Any]] = []
+    results: list[Embed] = []
+
+    if isinstance(data, Attachment):
+        data = (await data.read()).decode("UTF-8")
+
+        logger.trace(f"{data=}")
+
+    if isinstance(data, str):
+        data = json.loads(data)
+
+        logger.trace(f"{data=}")
+
+    if isinstance(data, dict):
+        if value := data.get("embeds"):
+            entries = value
+        else:
+            entries = [data]
+
+    logger.trace(f"{entries=}")
+
+    for entry in entries:
+        logger.trace(f"{entry=}")
+
+        embed: Embed = Embed(
+            title=entry.get("title"),
+            description=entry.get("description"),
+            url=entry.get("url"),
+            color=entry.get("color"),
+            timestamp=None
+            if not (ts := entry.get("timestamp"))
+            else datetime.fromisoformat(ts),
+        )
+
+        if author := entry.get("author"):
+            logger.trace(f"{author=}")
+
+            embed.set_author(
+                name=author.get("name"),
+                url=author.get("url"),
+                icon=author.get("icon_url"),
+            )
+
+        if thumb := entry.get("thumbnail"):
+            logger.trace(f"{thumb=}")
+
+            embed.set_thumbnail(thumb.get("url"))
+
+        if image := entry.get("image"):
+            logger.trace(f"{image=}")
+
+            embed.set_image(image.get("url"))
+
+        if footer := entry.get("footer"):
+            logger.trace(f"{footer=}")
+
+            embed.set_footer(footer.get("text"), icon=footer.get("icon_url"))
+
+        if fields := entry.get("fields", []):
+            logger.trace(f"{fields=}")
+
+            for field in fields:
+                logger.trace(f"{field=}")
+
+                embed.add_field(
+                    field.get("name"),
+                    field.get("value"),
+                    inline=field.get("inline"),
+                )
+
+        logger.trace(f"{embed=}")
+
+        results.append(embed)
+
+    logger.debug(f"Formed {len(results):,} embed objects from the provided JSON data")
+
+    return results
