@@ -26,7 +26,7 @@ def ExtensionLoader(client: GatewayClient) -> None:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
 
 
-@arc.utils.interval_loop(seconds=300)
+@arc.utils.interval_loop(seconds=600)
 async def TaskArchiveThreads(client: GatewayClient) -> None:
     """Automatically archive threads in the configured channels."""
 
