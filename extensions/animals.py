@@ -25,28 +25,22 @@ from core.animals import (
     TheDogAPI,
 )
 from core.hooks import HookError, HookLog
-from core.reddit import GetRandomImage
 
 plugin: GatewayPlugin = GatewayPlugin("animals")
 animalTypes: list[str] = [
-    "Axolotl",
-    "Bingus",
     "Bird",
     "Bunny",
     "Cat",
-    "Capybara",
     "Dog",
     "Duck",
     "Fox",
     "Kangaroo",
     "Koala",
     "Lizard",
-    "Otter",
     "Panda",
     "Raccoon",
     "Rat",
     "Red Panda",
-    "Shiba",
 ]
 
 
@@ -83,111 +77,51 @@ async def CommandAnimal(
 
     while not result:
         match type:
-            case "Axolotl":
-                match source:
-                    case 1:
-                        result = await GetRandomImage("axolotls")
-                    case _:
-                        logger.warning(
-                            f"Recieved unknown source {source} for animal type {type}"
-                        )
-            case "Bingus":
-                match source:
-                    case 1:
-                        result = await GetRandomImage("sphynx")
-                    case _:
-                        logger.warning(
-                            f"Recieved unknown source {source} for animal type {type}"
-                        )
             case "Bird":
-                source = random.randint(1, 3)
+                source = random.randint(1, 2)
 
                 match source:
                     case 1:
-                        result = await GetRandomImage("Birbs")
-                    case 2:
                         result = await SomeRandomAPI("bird")
-                    case 3:
+                    case 2:
                         result = await RandomDuk()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
                         )
             case "Bunny":
-                source = random.randint(1, 3)
-
                 match source:
                     case 1:
-                        result = await GetRandomImage("Bunnies")
-                    case 2:
-                        result = await GetRandomImage("Rabbits")
-                    case 3:
                         result = await BunniesIO()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
                         )
             case "Cat":
-                source = random.randint(1, 10)
+                source = random.randint(1, 3)
 
                 match source:
                     case 1:
-                        result = await GetRandomImage("blurrypicturesofcats")
-                    case 2:
-                        result = await GetRandomImage("catpics")
-                    case 3:
-                        result = await GetRandomImage("catpictures")
-                    case 4:
-                        result = await GetRandomImage("cats")
-                    case 5:
-                        result = await GetRandomImage("CatsStandingUp")
-                    case 6:
-                        result = await GetRandomImage("cursedcats")
-                    case 7:
-                        result = await GetRandomImage("sphynx")
-                    case 8:
                         result = await SomeRandomAPI("cat")
-                    case 9:
+                    case 2:
                         result = await TheCatAPI()
-                    case 10:
+                    case 3:
                         result = await CATAAS()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
                         )
-            case "Capybara":
-                source = random.randint(1, 2)
-
-                match source:
-                    case 1:
-                        result = await GetRandomImage("capybara")
-                    case 2:
-                        result = await GetRandomImage("Crittersoncapybaras")
-                    case _:
-                        logger.warning(
-                            f"Recieved unknown source {source} for animal type {type}"
-                        )
             case "Dog":
-                source = random.randint(1, 9)
+                source = random.randint(1, 4)
 
                 match source:
                     case 1:
-                        result = await GetRandomImage("blurrypicturesofdogs")
-                    case 2:
-                        result = await GetRandomImage("dogpictures")
-                    case 3:
-                        result = await GetRandomImage("lookatmydog")
-                    case 4:
-                        result = await GetRandomImage("puppies")
-                    case 5:
-                        result = await GetRandomImage("shiba")
-                    case 6:
                         result = await SomeRandomAPI("dog")
-                    case 7:
+                    case 2:
                         result = await TheDogAPI()
-                    case 8:
+                    case 3:
                         result = await DogCEO()
-                    case 9:
+                    case 4:
                         result = await RandomDog()
                     case _:
                         logger.warning(
@@ -202,14 +136,12 @@ async def CommandAnimal(
                             f"Recieved unknown source {source} for animal type {type}"
                         )
             case "Fox":
-                source = random.randint(1, 3)
+                source = random.randint(1, 2)
 
                 match source:
                     case 1:
-                        result = await GetRandomImage("foxes")
-                    case 2:
                         result = await SomeRandomAPI("fox")
-                    case 3:
+                    case 2:
                         result = await RandomFox()
                     case _:
                         logger.warning(
@@ -224,33 +156,17 @@ async def CommandAnimal(
                             f"Recieved unknown source {source} for animal type {type}"
                         )
             case "Koala":
-                source = random.randint(1, 2)
-
                 match source:
                     case 1:
-                        result = await GetRandomImage("koalas")
-                    case 2:
                         result = await SomeRandomAPI("koala")
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
                         )
             case "Lizard":
-                source = random.randint(1, 2)
-
                 match source:
                     case 1:
-                        result = await GetRandomImage("Lizards")
-                    case 2:
                         result = await NekosLife()
-                    case _:
-                        logger.warning(
-                            f"Recieved unknown source {source} for animal type {type}"
-                        )
-            case "Otter":
-                match source:
-                    case 1:
-                        result = await GetRandomImage("Otterable")
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -264,43 +180,17 @@ async def CommandAnimal(
                             f"Recieved unknown source {source} for animal type {type}"
                         )
             case "Raccoon":
-                source = random.randint(1, 3)
-
                 match source:
                     case 1:
-                        result = await GetRandomImage("Raccoons")
-                    case 2:
-                        result = await GetRandomImage("trashpandas")
-                    case 3:
                         result = await SomeRandomAPI("raccoon")
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
                         )
-            case "Rat":
-                match source:
-                    case 1:
-                        result = await GetRandomImage("RATS")
-                    case _:
-                        logger.warning(
-                            f"Recieved unknown source {source} for animal type {type}"
-                        )
             case "Red Panda":
-                source = random.randint(1, 2)
-
                 match source:
                     case 1:
-                        result = await GetRandomImage("redpandas")
-                    case 2:
                         result = await SomeRandomAPI("red_panda")
-                    case _:
-                        logger.warning(
-                            f"Recieved unknown source {source} for animal type {type}"
-                        )
-            case "Shiba":
-                match source:
-                    case 1:
-                        result = await GetRandomImage("shiba")
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
