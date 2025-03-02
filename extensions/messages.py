@@ -263,6 +263,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
         return
 
     fields: list[dict[str, str | bool]] = [
+        {"name": "Channel", "value": (await msg.fetch_channel()).mention},
         {"name": "Sent", "value": TimeRelative(msg.created_at)},
         {"name": "Reported", "value": TimeRelative(ctx.interaction.created_at)},
     ]
@@ -295,7 +296,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             title="Reported Message",
             url=msg.make_link(msg.guild_id),
             color=Colors.DiscordYellow.value,
-            description=None if not (content := msg.content) else f">>> {content}",
+            description="[Empty]" if not (content := msg.content) else f">>> {content}",
             fields=fields,
             author=await ExpandUser(msg.author, format=False),
             authorIcon=GetUserAvatar(msg.author),
