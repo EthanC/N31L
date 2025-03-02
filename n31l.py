@@ -1,10 +1,9 @@
 import logging
 import os
-from os import environ
 from sys import exit, stdout
 
-import dotenv
 from arc import GatewayClient
+from environs import env
 from hikari import Activity, ActivityType, GatewayBot, Intents, Permissions, Status
 from loguru import logger
 from loguru_discord import DiscordSink
@@ -16,10 +15,10 @@ from core.intercept import Intercept
 logger.info("N31L")
 logger.info("https://github.com/EthanC/N31L")
 
-if dotenv.load_dotenv():
+if env.read_env(recurse=False):
     logger.success("Loaded environment variables")
 
-if level := environ.get("LOG_LEVEL"):
+if level := env.str("LOG_LEVEL"):
     logger.remove()
     logger.add(stdout, level=level)
 
@@ -28,12 +27,12 @@ if level := environ.get("LOG_LEVEL"):
 # Reroute standard logging to Loguru
 logging.basicConfig(handlers=[Intercept()], level=0, force=True)
 
-logger.add("error.log", level="ERROR", rotation=environ.get("LOG_FILE_SIZE", "100 MB"))
+logger.add("error.log", level="ERROR", rotation=env.str("LOG_FILE_SIZE", "100 MB"))
 
-if url := environ.get("LOG_DISCORD_WEBHOOK_URL"):
+if url := env.url("LOG_DISCORD_WEBHOOK_URL"):
     logger.add(
-        DiscordSink(url),
-        level=environ["LOG_DISCORD_WEBHOOK_LEVEL"],
+        DiscordSink(url.geturl()),
+        level=env.str("LOG_DISCORD_WEBHOOK_LEVEL"),
         backtrace=False,
     )
 
@@ -51,7 +50,7 @@ if os.name != "nt":
     except Exception as e:
         logger.opt(exception=e).debug("Defaulted to asyncio event loop")
 
-if not environ.get("DISCORD_TOKEN"):
+if not (token := env.str("DISCORD_TOKEN")):
     logger.critical("Failed to initialize bot, DISCORD_TOKEN is not set")
 
     exit(1)
@@ -64,7 +63,7 @@ if not (cfg := Config()):
 isDebug: bool = True if (level and level == "DEBUG" or "TRACE") else False
 
 bot: GatewayBot = GatewayBot(
-    environ["DISCORD_TOKEN"],
+    token,
     allow_color=False,
     banner=None,
     suppress_optimization_warning=isDebug,

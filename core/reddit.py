@@ -1,26 +1,25 @@
-from os import environ
-
 import asyncpraw
 from asyncpraw.reddit import Reddit
+from environs import env
 from loguru import logger
 
 
 async def CreateClient() -> Reddit | None:
     """Create an authenticated Reddit client using the configured credentials."""
 
-    if not (username := environ.get("REDDIT_USERNAME")):
+    if not (username := env.str("REDDIT_USERNAME")):
         logger.error("Failed to authenticate with Reddit, username is null")
 
         return
-    elif not (password := environ.get("REDDIT_PASSWORD")):
+    elif not (password := env.str("REDDIT_PASSWORD")):
         logger.error("Failed to authenticate with Reddit, password is null")
 
         return
-    elif not (clientId := environ.get("REDDIT_CLIENT_ID")):
+    elif not (clientId := env.str("REDDIT_CLIENT_ID")):
         logger.error("Failed to authenticate with Reddit, clientId is null")
 
         return
-    elif not (clientSecret := environ.get("REDDIT_CLIENT_SECRET")):
+    elif not (clientSecret := env.str("REDDIT_CLIENT_SECRET")):
         logger.error("Failed to authenticate with Reddit, clientSecret is null")
 
         return

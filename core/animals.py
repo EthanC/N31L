@@ -1,6 +1,6 @@
-from os import environ
 from typing import Any
 
+from environs import env
 from hikari import Embed
 from loguru import logger
 
@@ -192,7 +192,7 @@ async def TheCatAPI() -> Embed | None:
 
     data: dict[str, Any] | list[Any] | str | None = await GET(
         "https://api.thecatapi.com/v1/images/search",
-        headers={"x-api-key": environ["CAT_API_KEY"]},
+        headers={"x-api-key": env.str("CAT_API_KEY")},
     )
 
     if not data:
@@ -260,7 +260,7 @@ async def TheDogAPI() -> Embed | None:
 
     data: dict[str, Any] | list[Any] | str | None = await GET(
         "https://api.thedogapi.com/v1/images/search",
-        {"x-api-key": environ["DOG_API_KEY"]},
+        {"x-api-key": env.str("DOG_API_KEY")},
     )
 
     if not data:
