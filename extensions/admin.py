@@ -270,6 +270,8 @@ async def CommandEdit(
 
         return
 
+    await msg.edit(msg.content, attachment=file, embeds=await EmbedsFromJSON(embeds))
+
     before: str = "[Empty]"
     after: str = "[Empty]"
 
@@ -281,8 +283,6 @@ async def CommandEdit(
 
     if msg.content:
         before = msg.content
-
-    await msg.edit(after, attachment=file, embeds=await EmbedsFromJSON(embeds))
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
