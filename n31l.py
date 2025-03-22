@@ -4,7 +4,15 @@ from sys import exit, stdout
 
 from arc import GatewayClient
 from environs import env
-from hikari import Activity, ActivityType, GatewayBot, Intents, Permissions, Status
+from hikari import (
+    Activity,
+    ActivityType,
+    ApplicationContextType,
+    GatewayBot,
+    Intents,
+    Permissions,
+    Status,
+)
 from loguru import logger
 from loguru_discord import DiscordSink
 
@@ -80,7 +88,7 @@ client: GatewayClient = GatewayClient(
     default_permissions=(
         Permissions.SEND_MESSAGES | Permissions.USE_APPLICATION_COMMANDS
     ),
-    is_dm_enabled=False,
+    invocation_contexts=[ApplicationContextType.GUILD],
 )
 
 client.set_type_dependency(GatewayClient, client)

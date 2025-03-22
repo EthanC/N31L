@@ -7,7 +7,13 @@ from arc import (
     Option,
     StrParams,
 )
-from hikari import Message, MessageFlag, MessageType, Permissions
+from hikari import (
+    ApplicationContextType,
+    Message,
+    MessageFlag,
+    MessageType,
+    Permissions,
+)
 from loguru import logger
 
 from core.config import Config
@@ -45,8 +51,8 @@ def ExtensionLoader(client: GatewayClient) -> None:
 @arc.slash_command(
     "raw",
     "Return the raw markdown content of a provided message.",
-    is_dm_enabled=True,
     autodefer=AutodeferMode.EPHEMERAL,
+    invocation_contexts=[ApplicationContextType.GUILD, ApplicationContextType.BOT_DM],
 )
 async def CommandRawSlash(
     ctx: GatewayContext,

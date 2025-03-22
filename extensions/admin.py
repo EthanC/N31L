@@ -12,6 +12,7 @@ from arc import (
 )
 from hikari import (
     UNDEFINED,
+    ApplicationContextType,
     Attachment,
     Bytes,
     GatewayBot,
@@ -297,7 +298,9 @@ async def CommandEdit(
 @arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
 @arc.with_hook(HookLog)
 @arc.message_command(
-    "Delete Message", is_dm_enabled=True, autodefer=AutodeferMode.EPHEMERAL
+    "Delete Message",
+    autodefer=AutodeferMode.EPHEMERAL,
+    invocation_contexts=[ApplicationContextType.GUILD, ApplicationContextType.BOT_DM],
 )
 async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
     """Handler for the Delete Message context menu command."""

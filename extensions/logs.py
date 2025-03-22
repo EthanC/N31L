@@ -394,7 +394,7 @@ async def EventContext(event: InteractionCreateEvent) -> None:
     await interaction.edit_initial_response(embeds=results)
 
     logger.success(
-        f"Fetched context requested by {await ExpandUser(interaction.user, format=False)} in {await ExpandServer(interaction.get_guild(), format=False)} {await ExpandChannel(interaction.get_channel(), format=False)}"
+        f"Fetched context requested by {await ExpandUser(interaction.user, format=False)} in {await ExpandServer(interaction.get_guild(), format=False)} {await ExpandChannel(interaction.channel, format=False)}"
     )
 
 

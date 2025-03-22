@@ -40,12 +40,12 @@ async def HookLog(ctx: GatewayContext) -> None:
     command: str = ExpandCommand(ctx, format=False)
     user: str = await ExpandUser(ctx.user, format=False)
     server: str = await ExpandServer(ctx.get_guild(), format=False)
-    channel: str = await ExpandChannel(ctx.get_channel(), format=False)
+    channel: str = await ExpandChannel(ctx.channel, format=False)
 
     logger.info(f"Command {command} used by {user} in {server} {channel}")
 
     user = await ExpandUser(ctx.user)
-    channel = await ExpandChannel(ctx.get_channel())
+    channel = await ExpandChannel(ctx.channel)
 
     await ctx.client.rest.create_message(
         cfg.channels["user"],
