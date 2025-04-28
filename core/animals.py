@@ -48,7 +48,7 @@ async def CATAAS() -> Embed | None:
 
     try:
         return Response(
-            image="https://cataas.com/cat/" + data["_id"],
+            image=data["url"],
             footer=None if not (tags := data.get("tags")) else ", ".join(tags),
         )
     except Exception as e:
@@ -182,7 +182,11 @@ async def SomeRandomAPI(animal: str) -> Embed | None:
         return
 
     try:
-        return Response(image=data["image"])
+        image_url: str = data["image"]
+
+        # April 27th, 2025: SomeRandomAPI CDN has been broken for weeks
+        if "cdn.some-random-api.com" not in image_url:
+            return Response(image=image_url)
     except Exception as e:
         logger.opt(exception=e).error(f"Failed to fetch {animal} from SomeRandomAPI")
 
