@@ -35,8 +35,6 @@ if level := env.str("LOG_LEVEL"):
 # Reroute standard logging to Loguru
 logging.basicConfig(handlers=[Intercept()], level=0, force=True)
 
-logger.add("error.log", level="ERROR", rotation=env.str("LOG_FILE_SIZE", "100 MB"))
-
 if url := env.url("LOG_DISCORD_WEBHOOK_URL"):
     logger.add(
         DiscordSink(url.geturl()),
