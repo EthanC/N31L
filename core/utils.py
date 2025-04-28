@@ -8,10 +8,10 @@ from hikari import Guild, Member, NotFoundError
 from httpx import Response
 from loguru import logger
 
-from core.formatters import ExpandServer, ExpandUser
+from core.formatters import expand_server, expand_user
 
 
-def Elapsed(a: datetime | int | float, b: datetime | int | float) -> int:
+def elapsed(a: datetime | int | float, b: datetime | int | float) -> int:
     """Determine the elapsed seconds between the provided timestamps."""
 
     if isinstance(a, datetime):
@@ -23,7 +23,7 @@ def Elapsed(a: datetime | int | float, b: datetime | int | float) -> int:
     return int(a - b)
 
 
-def FindNumbers(
+def find_numbers(
     input: str, minLen: int | None = None, maxLen: int | None = None
 ) -> list[int]:
     """Return all number sequences found in the given string."""
@@ -50,7 +50,7 @@ def FindNumbers(
     return results
 
 
-async def IsValidUser(userId: int, client: GatewayClient) -> bool:
+async def is_valid_user(userId: int, client: GatewayClient) -> bool:
     """
     Determine if the provided integer is a valid
     Discord user ID.
@@ -68,7 +68,7 @@ async def IsValidUser(userId: int, client: GatewayClient) -> bool:
     return True
 
 
-async def UserHasRole(
+async def user_has_role(
     userId: int,
     roleIds: int | list[int],
     serverId: int,
@@ -104,19 +104,19 @@ async def UserHasRole(
         for role in user.role_ids:
             if (current := int(role)) in roleIds:
                 logger.debug(
-                    f"{await ExpandUser(user.user, format=False)} has role {current} in server {await ExpandServer(server, format=False)}"
+                    f"{await expand_user(user.user, format=False)} has role {current} in server {await expand_server(server, format=False)}"
                 )
 
                 return True
 
         logger.debug(
-            f"{await ExpandUser(user.user, format=False)} does not have role(s) {roleIds} in server {await ExpandServer(server, format=False)}"
+            f"{await expand_user(user.user, format=False)} does not have role(s) {roleIds} in server {await expand_server(server, format=False)}"
         )
 
     return False
 
 
-async def GET(
+async def get(
     url: str, headers: dict[str, str] | None = None
 ) -> dict[str, Any] | list[Any] | str | None:
     """Perform an HTTP GET request and return its response."""

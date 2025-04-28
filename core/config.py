@@ -25,15 +25,15 @@ class Config:
 
         self.channels: dict[str, int] = self.values["channels"]
 
-        self.logsKeywords: list[str] = self.values["logs"]["keywords"]
-        self.logsIgnoreChannels: list[int] = self.values["logs"]["ignoreChannels"]
-        self.logsMentions: list[int] = self.values["logs"]["mentions"]
+        self.logs_keywords: list[str] = self.values["logs"]["keywords"]
+        self.logs_ignore_channels: list[int] = self.values["logs"]["ignoreChannels"]
+        self.logs_mentions: list[int] = self.values["logs"]["mentions"]
 
-        self.rolesRequire: list[int] = self.values["roles"]["require"]
-        self.rolesAllow: list[int] = self.values["roles"]["allow"]
-        self.rolesVIP: int = self.values["roles"]["vip"]
+        self.roles_require: list[int] = self.values["roles"]["require"]
+        self.roles_allow: list[int] = self.values["roles"]["allow"]
+        self.roles_vip: int = self.values["roles"]["vip"]
 
-        self.forumsServer: int = self.values["forums"]["server"]
-        self.forumsLifetime: int = self.values["forums"]["lifetime"]
-        self.forumsImmune: list[int] = self.values["forums"]["immune"]
-        self.forumsChannels: list[int] = self.values["forums"]["channels"]
+        self.forums_server: int = self.values["forums"]["server"]
+        self.forums_lifetime: int = self.values["forums"]["lifetime"]
+        self.forums_immune: list[int] = self.values["forums"]["immune"]
+        self.forums_channels: list[int] = self.values["forums"]["channels"]

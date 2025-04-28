@@ -17,7 +17,7 @@ from loguru import logger
 from loguru_discord import DiscordSink
 
 from core.config import Config
-from core.hooks import HookStart, HookStop
+from core.hooks import hook_start, hook_stop
 from core.intercept import Intercept
 
 logger.info("N31L")
@@ -68,13 +68,13 @@ if not (cfg := Config()):
 
     exit(1)
 
-isDebug: bool = True if (level and level == "DEBUG" or "TRACE") else False
+is_debug: bool = True if (level and level == "DEBUG" or "TRACE") else False
 
 bot: GatewayBot = GatewayBot(
     token,
     allow_color=False,
     banner=None,
-    suppress_optimization_warning=isDebug,
+    suppress_optimization_warning=is_debug,
     intents=(
         Intents.GUILDS
         | Intents.GUILD_MESSAGES
@@ -97,8 +97,8 @@ client.set_type_dependency(Config, cfg)
 
 client.load_extensions_from("extensions")
 
-client.add_startup_hook(HookStart)
-client.add_shutdown_hook(HookStop)
+client.add_startup_hook(hook_start)
+client.add_shutdown_hook(hook_stop)
 
 try:
     bot.run(

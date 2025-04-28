@@ -7,14 +7,14 @@ from hikari import GuildThreadChannel
 from loguru import logger
 
 from core.config import Config
-from core.formatters import ExpandServer, ExpandThread, Log
-from core.utils import Elapsed, UserHasRole
+from core.formatters import expand_server, expand_thread, expand_user, log
+from core.utils import elapsed, user_has_role
 
 plugin: GatewayPlugin = GatewayPlugin("threads")
 
 
 @arc.loader
-def ExtensionLoader(client: GatewayClient) -> None:
+def extension_loader(client: GatewayClient) -> None:
     """Required. Called upon loading the extension."""
 
     logger.debug(f"Attempting to load {plugin.name} extension...")
@@ -27,37 +27,39 @@ def ExtensionLoader(client: GatewayClient) -> None:
 
 
 @arc.utils.interval_loop(seconds=600)
-async def TaskArchiveThreads(client: GatewayClient) -> None:
+async def task_archive_threads(client: GatewayClient) -> None:
     """Automatically archive threads in the configured channels."""
 
     logger.info("Beginning recurring task to archive threads...")
 
     cfg: Config = client.get_type_dependency(Config)
 
-    lifetime: int = cfg.forumsLifetime
+    lifetime: int = cfg.forums_lifetime
     threads: list[GuildThreadChannel] = list(
-        await client.rest.fetch_active_threads(cfg.forumsServer)
+        await client.rest.fetch_active_threads(cfg.forums_server)
     )
 
     for thread in threads:
-        title: str = ExpandThread(thread, format=False)
+        title: str = expand_thread(thread, format=False)
 
         if thread.is_archived:
             logger.debug(f"Skipped thread {title}, already archived")
 
             continue
-        elif thread.parent_id not in cfg.forumsChannels:
+        elif thread.parent_id not in cfg.forums_channels:
             logger.debug(f"Skipped thread {title}, not in a configured forum channel")
 
             continue
-        elif Elapsed(datetime.now(), thread.created_at) < lifetime:
+        elif elapsed(datetime.now(), thread.created_at) < lifetime:
             logger.debug(f"Skipped thread {title}, maximum lifetime not exceeded")
 
             continue
-        elif await UserHasRole(
-            thread.owner_id, cfg.forumsImmune, thread.guild_id, client
+        elif await user_has_role(
+            thread.owner_id, cfg.forums_immune, thread.guild_id, client
         ):
-            logger.debug(f"Skipped thread {title}, author is immune")
+            logger.debug(
+                f"Skipped thread {title}, author {await expand_user(thread.owner_id, format=False, client=client)} is immune"
+            )
 
             continue
 
@@ -69,16 +71,16 @@ async def TaskArchiveThreads(client: GatewayClient) -> None:
             )
         except Exception as e:
             logger.opt(exception=e).error(
-                f"Failed to archive thread {title} in {await ExpandServer(thread.get_guild(), format=False)}"
+                f"Failed to archive thread {title} in {await expand_server(thread.get_guild(), format=False)}"
             )
 
             continue
 
         await client.rest.create_message(
             cfg.channels["threads"],
-            Log(
+            log(
                 "thread",
-                f"Archived thread {ExpandThread(thread)} with reason: *Maximum lifetime of {lifetime:,}s exceeded.*",
+                f"Archived thread {expand_thread(thread)} with reason: *Maximum lifetime of {lifetime:,}s exceeded.*",
             ),
         )
 

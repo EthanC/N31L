@@ -2,7 +2,7 @@ import json
 import random
 import string
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from arc import (
@@ -31,21 +31,21 @@ from hikari import (
 from loguru import logger
 
 
-class Colors(Enum):
+class Colors(StrEnum):
     """
     Reusable palette of Discord and Call of Duty brand colors.
 
     https://discord.com/branding
     """
 
-    DiscordRed = "#ED4245"
-    DiscordGreen = "#57F287"
-    DiscordBlurple = "#5865F2"
-    DiscordYellow = "#FEE75C"
-    N31LGreen = "#00FF00"
+    DISCORD_RED = "#ED4245"
+    DISCORD_GREEN = "#57F287"
+    DISCORD_BLURPLE = "#5865F2"
+    DISCORD_YELLOW = "#FEE75C"
+    N31L_GREEN = "#00FF00"
 
 
-def ExpandCommand(
+def expand_command(
     ctx: GatewayContext,
     *,
     mention: bool = False,
@@ -90,12 +90,12 @@ def ExpandCommand(
     return result
 
 
-async def ExpandUser(
+async def expand_user(
     user: User | Snowflake | None,
     *,
     mention: bool = False,
     format: bool = True,
-    showId: bool = True,
+    show_id: bool = True,
     client: GatewayClient | None = None,
 ) -> str:
     """Build a modular string for the provided user."""
@@ -121,7 +121,7 @@ async def ExpandUser(
     else:
         result += user.username
 
-    if showId:
+    if show_id:
         if format:
             result += f" (`{user.id}`)"
         else:
@@ -132,11 +132,11 @@ async def ExpandUser(
     return result
 
 
-async def ExpandServer(
+async def expand_server(
     server: Guild | PartialGuild | Snowflake | None,
     *,
     format: bool = True,
-    showId: bool = True,
+    show_id: bool = True,
     client: GatewayClient | None = None,
 ) -> str:
     """Build a modular string for the provided server."""
@@ -159,7 +159,7 @@ async def ExpandServer(
     else:
         result += server.name
 
-    if showId:
+    if show_id:
         if format:
             result += f" (`{server.id}`)"
         else:
@@ -170,7 +170,7 @@ async def ExpandServer(
     return result
 
 
-async def ExpandChannel(
+async def expand_channel(
     channel: GuildChannel
     | PartialChannel
     | TextableGuildChannel
@@ -180,7 +180,7 @@ async def ExpandChannel(
     *,
     mention: bool = False,
     format: bool = True,
-    showId: bool = True,
+    show_id: bool = True,
     client: GatewayClient | None = None,
 ) -> str:
     """Build a modular string for the provided channel."""
@@ -197,7 +197,7 @@ async def ExpandChannel(
         return "Unknown Channel"
 
     if isinstance(channel, GuildThreadChannel):
-        return ExpandThread(channel, mention=mention, format=format, showId=showId)
+        return expand_thread(channel, mention=mention, format=format, show_id=show_id)
 
     if mention:
         return channel.mention
@@ -210,7 +210,7 @@ async def ExpandChannel(
         else:
             result += f"\\#{channel.name}"
 
-    if showId:
+    if show_id:
         if format:
             result += f" (`{channel.id}`)"
         else:
@@ -221,12 +221,12 @@ async def ExpandChannel(
     return result
 
 
-def ExpandThread(
+def expand_thread(
     thread: GuildThreadChannel | None,
     *,
     mention: bool = False,
     format: bool = True,
-    showId: bool = True,
+    show_id: bool = True,
 ) -> str:
     """Build a modular string for the provided thread."""
 
@@ -246,7 +246,7 @@ def ExpandThread(
         else:
             result += thread.name
 
-    if showId:
+    if show_id:
         if format:
             result += f" (`{thread.id}`)"
         else:
@@ -257,12 +257,12 @@ def ExpandThread(
     return result
 
 
-def ExpandRole(
+def expand_role(
     role: Role | None,
     *,
     mention: bool = False,
     format: bool = True,
-    showId: bool = True,
+    show_id: bool = True,
 ) -> str:
     """Build a modular string for the provided role."""
 
@@ -281,7 +281,7 @@ def ExpandRole(
     else:
         result += role.name
 
-    if showId:
+    if show_id:
         if format:
             result += f" (`{role.id}`)"
         else:
@@ -292,8 +292,8 @@ def ExpandRole(
     return result
 
 
-def ExpandInteraction(
-    interaction: PartialInteraction | None, *, format: bool = True, showId: bool = True
+def expand_interaction(
+    interaction: PartialInteraction | None, *, format: bool = True, show_id: bool = True
 ) -> str:
     """Build a modular string for the provided interaction."""
 
@@ -304,7 +304,7 @@ def ExpandInteraction(
 
     result: str = ""
 
-    if showId:
+    if show_id:
         if format:
             result += f"`{interaction.id}`"
         else:
@@ -317,11 +317,11 @@ def ExpandInteraction(
 
     logger.debug(f"Expanded interaction {interaction} to {result}")
 
-    # lstrip() to remove leading whitespace if showId is False
+    # lstrip() to remove leading whitespace if show_id is False
     return result.lstrip()
 
 
-def GetUserAvatar(user: User) -> str | None:
+def get_user_avatar(user: User) -> str | None:
     """Return a URL for the provided Discord user's avatar."""
 
     if user.avatar_url:
@@ -330,7 +330,7 @@ def GetUserAvatar(user: User) -> str | None:
         return str(user.default_avatar_url)
 
 
-async def GetServerIcon(
+async def get_server_icon(
     server: PartialGuild
     | Guild
     | GatewayGuild
@@ -365,7 +365,7 @@ async def GetServerIcon(
         return str(url)
 
 
-def RandomString(length: int) -> str:
+def random_string(length: int) -> str:
     """
     Generate a random string consisting of letters and numbers at the
     specified length.
@@ -374,7 +374,7 @@ def RandomString(length: int) -> str:
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
-def Response(
+def response(
     title: str | None = None,
     url: str | None = None,
     color: str | None = None,
@@ -398,15 +398,15 @@ def Response(
     """
 
     result: Embed = Embed(
-        title=Trim(title, 256),
-        description=Trim(description, 4096),
+        title=trim(title, 256),
+        description=trim(description, 4096),
         url=url,
         color=color,
         timestamp=timestamp,
     )
 
     if author:
-        result.set_author(name=Trim(author, 256), url=authorUrl, icon=authorIcon)
+        result.set_author(name=trim(author, 256), url=authorUrl, icon=authorIcon)
 
     if thumbnail:
         result.set_thumbnail(thumbnail)
@@ -415,7 +415,7 @@ def Response(
         result.set_image(image)
 
     if footer:
-        result.set_footer(Trim(footer, 2048), icon=footerIcon)
+        result.set_footer(trim(footer, 2048), icon=footerIcon)
 
     for field in fields:
         name: str | bool | None = field["name"]
@@ -433,13 +433,13 @@ def Response(
             )
 
             continue
-        if not (name := Trim(name, 256)):
+        if not (name := trim(name, 256)):
             logger.warning(
                 f"Invalid value provided for field name: {name} ({type(name)})"
             )
 
             continue
-        elif not (value := Trim(value, 1024)):
+        elif not (value := trim(value, 1024)):
             logger.warning(
                 f"Invalid value provided for field value: {value} ({type(value)})"
             )
@@ -451,16 +451,16 @@ def Response(
     return result
 
 
-def Log(emoji: str, message: str, timestamp: datetime | None = None) -> str:
+def log(emoji: str, message: str, timestamp: datetime | None = None) -> str:
     """Build a reusable log message."""
 
     if not timestamp:
         timestamp = datetime.now()
 
-    return f"[{LongTime(timestamp)}] :{emoji}: {message}"
+    return f"[{time_long(timestamp)}] :{emoji}: {message}"
 
 
-def TimeRelative(timestamp: int | float | datetime) -> str:
+def time_relative(timestamp: int | float | datetime) -> str:
     """
     Create a relative timestamp using markdown formatting.
 
@@ -475,7 +475,7 @@ def TimeRelative(timestamp: int | float | datetime) -> str:
     return f"<t:{timestamp}:R>"
 
 
-def LongTime(timestamp: int | float | datetime) -> str:
+def time_long(timestamp: int | float | datetime) -> str:
     """
     Create a long time timestamp using markdown formatting.
 
@@ -490,7 +490,7 @@ def LongTime(timestamp: int | float | datetime) -> str:
     return f"<t:{timestamp}:T>"
 
 
-def FormatOptions(options: list[CommandInteractionOption]) -> str:
+def format_options(options: list[CommandInteractionOption]) -> str:
     """Return name:value sequence for list of command options."""
 
     result: str = ""
@@ -512,7 +512,7 @@ def FormatOptions(options: list[CommandInteractionOption]) -> str:
     return result.rstrip()
 
 
-def Trim(
+def trim(
     input: str | None,
     length: int,
     *,
@@ -551,7 +551,7 @@ def Trim(
     return result
 
 
-async def EmbedsFromJSON(data: str | dict[str, Any] | Attachment | None) -> list[Embed]:
+async def json_to_embed(data: str | dict[str, Any] | Attachment | None) -> list[Embed]:
     """
     Serialize the provided JSON string, dict, or Attachment object to a list
     of Discord Embed objects.

@@ -19,22 +19,22 @@ from loguru import logger
 from core.config import Config
 from core.formatters import (
     Colors,
-    ExpandChannel,
-    ExpandCommand,
-    ExpandServer,
-    ExpandUser,
-    GetUserAvatar,
-    Response,
-    TimeRelative,
+    expand_channel,
+    expand_command,
+    expand_server,
+    expand_user,
+    get_user_avatar,
+    response,
+    time_relative,
 )
-from core.hooks import HookError, HookLog
-from core.utils import FindNumbers, IsValidUser
+from core.hooks import hook_error, hook_log
+from core.utils import find_numbers, is_valid_user
 
 plugin: GatewayPlugin = GatewayPlugin("messages")
 
 
 @arc.loader
-def ExtensionLoader(client: GatewayClient) -> None:
+def extension_loader(client: GatewayClient) -> None:
     """Required. Called upon loading the extension."""
 
     logger.debug(f"Attempting to load {plugin.name} extension...")
@@ -47,35 +47,31 @@ def ExtensionLoader(client: GatewayClient) -> None:
 
 
 @plugin.include
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_command(
     "raw",
     "Return the raw markdown content of a provided message.",
     autodefer=AutodeferMode.EPHEMERAL,
     invocation_contexts=[ApplicationContextType.GUILD, ApplicationContextType.BOT_DM],
 )
-async def CommandRawSlash(
+async def command_raw_slash(
     ctx: GatewayContext,
-    channelId: Option[
-        str, StrParams("Enter the ID of the channel.", name="channel_id")
-    ],
-    messageId: Option[
-        str, StrParams("Enter the ID of the message.", name="message_id")
-    ],
+    channel_id: Option[str, StrParams("Enter the ID of the channel.")],
+    message_id: Option[str, StrParams("Enter the ID of the message.")],
 ) -> None:
     """Handler for the /raw slash command."""
 
-    msg: Message = await ctx.client.rest.fetch_message(int(channelId), int(messageId))
+    msg: Message = await ctx.client.rest.fetch_message(int(channel_id), int(message_id))
 
     if not msg:
         logger.debug(
-            f"Failed to fetch message {messageId} in channel {await ExpandChannel(channelId, format=False)}"
+            f"Failed to fetch message {message_id} in channel {await expand_channel(channel_id, format=False)}"
         )
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value, description="Failed to fetch message."
+            embed=response(
+                color=Colors.DISCORD_RED, description="Failed to fetch message."
             ),
         )
 
@@ -83,13 +79,13 @@ async def CommandRawSlash(
 
     if not msg.content:
         logger.debug(
-            f"Command {ExpandCommand(ctx, format=False)} ignored, message content is null"
+            f"Command {expand_command(ctx, format=False)} ignored, message content is null"
         )
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description=f"{msg.author.mention}'s message {msg.make_link(msg.guild_id)} has no content.",
             ),
         )
@@ -98,10 +94,10 @@ async def CommandRawSlash(
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            author=await ExpandUser(msg.author, format=False),
-            authorIcon=GetUserAvatar(msg.author),
-            color=Colors.DiscordGreen.value,
+        embed=response(
+            author=await expand_user(msg.author, format=False),
+            authorIcon=get_user_avatar(msg.author),
+            color=Colors.DISCORD_GREEN,
             description=f"{msg.make_link(msg.guild_id)}\n```md\n{msg.content}\n```",
             timestamp=msg.timestamp,
         ),
@@ -110,9 +106,9 @@ async def CommandRawSlash(
 
 @plugin.include
 @arc.with_hook(arc.has_permissions(Permissions.MANAGE_MESSAGES))
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.message_command("Parse Message", autodefer=AutodeferMode.EPHEMERAL)
-async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
+async def command_parse(ctx: GatewayContext, msg: Message) -> None:
     """Handler for the Parse Message context menu command."""
 
     results: list[int] = []
@@ -126,48 +122,48 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
         results.append(msg.author.id)
 
     if content := msg.content:
-        for find in FindNumbers(content, sMin, sMax):
+        for find in find_numbers(content, sMin, sMax):
             results.append(find)
 
     for embed in msg.embeds:
         if embed.author:
             if name := embed.author.name:
-                for find in FindNumbers(name, sMin, sMax):
+                for find in find_numbers(name, sMin, sMax):
                     results.append(find)
 
         if title := embed.title:
-            for find in FindNumbers(title, sMin, sMax):
+            for find in find_numbers(title, sMin, sMax):
                 results.append(find)
 
         if desc := embed.description:
-            for find in FindNumbers(desc, sMin, sMax):
+            for find in find_numbers(desc, sMin, sMax):
                 results.append(find)
 
         if fields := embed.fields:
             for field in fields:
-                for find in FindNumbers(field.name, sMin, sMax):
+                for find in find_numbers(field.name, sMin, sMax):
                     results.append(find)
 
-                for find in FindNumbers(field.value, sMin, sMax):
+                for find in find_numbers(field.value, sMin, sMax):
                     results.append(find)
 
         if embed.footer:
             if footer := embed.footer.text:
-                for find in FindNumbers(footer, sMin, sMax):
+                for find in find_numbers(footer, sMin, sMax):
                     results.append(find)
 
     # Remove duplicates from results
     results = list(set(results))
 
     for result in results:
-        if not await IsValidUser(result, ctx.client):
+        if not await is_valid_user(result, ctx.client):
             results.remove(result)
 
     if len(results) == 0:
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordYellow.value,
+            embed=response(
+                color=Colors.DISCORD_YELLOW,
                 description=f"No User IDs found in the parsed message {msg.make_link(msg.guild_id)}.",
             ),
         )
@@ -178,8 +174,8 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            color=Colors.DiscordGreen.value,
+        embed=response(
+            color=Colors.DISCORD_GREEN,
             description=f"Found {len(results):,} {descriptor} in the parsed message {msg.make_link(msg.guild_id)}...",
         ),
     )
@@ -188,14 +184,14 @@ async def CommandParse(ctx: GatewayContext, msg: Message) -> None:
         await ctx.respond(str(result), flags=MessageFlag.EPHEMERAL)
 
     logger.success(
-        f"Parsed {len(results):,} {descriptor} ({results}) from message {msg.id} in {await ExpandServer(ctx.get_guild(), format=False)} {await ExpandChannel(await msg.fetch_channel(), format=False)}"
+        f"Parsed {len(results):,} {descriptor} ({results}) from message {msg.id} in {await expand_server(ctx.get_guild(), format=False)} {await expand_channel(await msg.fetch_channel(), format=False)}"
     )
 
 
 @plugin.include
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.message_command("Raw Message", autodefer=AutodeferMode.EPHEMERAL)
-async def CommandRaw(ctx: GatewayContext, msg: Message) -> None:
+async def command_raw(ctx: GatewayContext, msg: Message) -> None:
     """Handler for the Raw Message context menu command."""
 
     if not msg.content:
@@ -203,8 +199,8 @@ async def CommandRaw(ctx: GatewayContext, msg: Message) -> None:
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description=f"{msg.author.mention}'s message {msg.make_link(msg.guild_id)} has no content.",
             ),
         )
@@ -213,10 +209,10 @@ async def CommandRaw(ctx: GatewayContext, msg: Message) -> None:
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            author=await ExpandUser(msg.author, format=False),
-            authorIcon=GetUserAvatar(msg.author),
-            color=Colors.DiscordGreen.value,
+        embed=response(
+            author=await expand_user(msg.author, format=False),
+            authorIcon=get_user_avatar(msg.author),
+            color=Colors.DISCORD_GREEN,
             description=f"{msg.make_link(msg.guild_id)}\n```md\n{msg.content}\n```",
             timestamp=msg.timestamp,
         ),
@@ -224,9 +220,9 @@ async def CommandRaw(ctx: GatewayContext, msg: Message) -> None:
 
 
 @plugin.include
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.message_command("Report Message", autodefer=AutodeferMode.EPHEMERAL)
-async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
+async def command_report(ctx: GatewayContext, msg: Message) -> None:
     """Handler for the Report Message context menu command."""
 
     cfg: Config = ctx.client.get_type_dependency(Config)
@@ -236,8 +232,8 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description=f"You cannot report a system message {msg.make_link(msg.guild_id)}.",
             ),
         )
@@ -248,8 +244,8 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description=f"You cannot report a welcome message {msg.make_link(msg.guild_id)}.",
             ),
         )
@@ -260,8 +256,8 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description=f"You cannot report your own message {msg.make_link(msg.guild_id)}.",
             ),
         )
@@ -270,8 +266,8 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
 
     fields: list[dict[str, str | bool]] = [
         {"name": "Channel", "value": (await msg.fetch_channel()).mention},
-        {"name": "Sent", "value": TimeRelative(msg.created_at)},
-        {"name": "Reported", "value": TimeRelative(ctx.interaction.created_at)},
+        {"name": "Sent", "value": time_relative(msg.created_at)},
+        {"name": "Reported", "value": time_relative(ctx.interaction.created_at)},
     ]
 
     for attachment in msg.attachments:
@@ -282,7 +278,17 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
             }
         )
 
+    # Empty string for easy appends, will be made None later if still empty
+    embed_content: str | None = ""
+
     for embed in msg.embeds:
+        if embed.description:
+            embed_content += f"{embed.description}\n\n"
+
+        if embed_content:
+            # Remove trailing newlines
+            embed_content = embed_content.strip()
+
         if embed.image:
             fields.append({"name": "Embed", "value": f"[Image]({embed.image.url})"})
 
@@ -291,6 +297,9 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
                 {"name": "Embed", "value": f"[Thumbnail]({embed.thumbnail.url})"}
             )
 
+    if embed_content == "":
+        embed_content = None
+
     for sticker in msg.stickers:
         fields.append(
             {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
@@ -298,23 +307,25 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
 
     await ctx.client.rest.create_message(
         cfg.channels["moderators"],
-        embed=Response(
+        embed=response(
             title="Reported Message",
             url=msg.make_link(msg.guild_id),
-            color=Colors.DiscordYellow.value,
-            description="[Empty]" if not (content := msg.content) else f">>> {content}",
+            color=Colors.DISCORD_YELLOW,
+            description="[Empty]"
+            if not (content := msg.content or embed_content)
+            else f">>> {content}",
             fields=fields,
-            author=await ExpandUser(msg.author, format=False),
-            authorIcon=GetUserAvatar(msg.author),
-            footer=f"Reported by {await ExpandUser(ctx.author, format=False)}",
-            footerIcon=GetUserAvatar(ctx.author),
+            author=await expand_user(msg.author, format=False),
+            authorIcon=get_user_avatar(msg.author),
+            footer=f"Reported by {await expand_user(ctx.author, format=False)}",
+            footerIcon=get_user_avatar(ctx.author),
         ),
     )
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            color=Colors.DiscordGreen.value,
+        embed=response(
+            color=Colors.DISCORD_GREEN,
             description=f"Reported message {msg.make_link(msg.guild_id)} to the Moderators.",
             footer="Abuse of this feature will result in your removal from the server.",
         ),
@@ -322,7 +333,7 @@ async def CommandReport(ctx: GatewayContext, msg: Message) -> None:
 
 
 @plugin.set_error_handler
-async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
+async def error_handler(ctx: GatewayContext, error: Exception) -> None:
     """Handler for errors originating from the messages plugin."""
 
-    await HookError(ctx, error)
+    await hook_error(ctx, error)

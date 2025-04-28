@@ -11,9 +11,9 @@ from asyncpraw.reddit import Reddit
 from loguru import logger
 
 from core.config import Config
-from core.formatters import Response
-from core.hooks import HookError, HookLog
-from core.reddit import CountModqueue, CountUnmoderated, CreateClient, DestroyClient
+from core.formatters import response
+from core.hooks import hook_error, hook_log
+from core.reddit import client_create, client_destroy, count_modqueue, count_unmoderated
 
 plugin: GatewayPlugin = GatewayPlugin("reddit")
 group: SlashGroup[GatewayClient] = plugin.include_slash_group(
@@ -36,7 +36,7 @@ communities: dict[str, str] = {
 
 
 @arc.loader
-def ExtensionLoader(client: GatewayClient) -> None:
+def extension_loader(client: GatewayClient) -> None:
     """Required. Called upon loading the extension."""
 
     logger.debug(f"Attempting to load {plugin.name} extension...")
@@ -49,12 +49,12 @@ def ExtensionLoader(client: GatewayClient) -> None:
 
 
 @group.include
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_subcommand(
     "queue",
     "Fetch the moderation and unmoderated queue counts for the specified Reddit community.",
 )
-async def CommandRedditQueue(
+async def command_reddit_queue(
     ctx: GatewayContext,
     community: Option[
         str | None,
@@ -71,7 +71,7 @@ async def CommandRedditQueue(
     if ctx.channel_id != cfg.channels["reddit"]:
         raise RuntimeError("Disallowed outside of designated Reddit channel")
 
-    client: Reddit | None = await CreateClient()
+    client: Reddit | None = await client_create()
 
     if not client:
         raise RuntimeError("Reddit client is null")
@@ -86,8 +86,8 @@ async def CommandRedditQueue(
         requested = [community]
 
     for request in requested:
-        mod: int = await CountModqueue(client, request)
-        unmod: int = await CountUnmoderated(client, request)
+        mod: int = await count_modqueue(client, request)
+        unmod: int = await count_unmoderated(client, request)
 
         results.append(
             {
@@ -96,10 +96,10 @@ async def CommandRedditQueue(
             }
         )
 
-    await DestroyClient(client)
+    await client_destroy(client)
 
     await ctx.respond(
-        embed=Response(
+        embed=response(
             color="FF4500",
             fields=results,
             author="Reddit",
@@ -110,7 +110,7 @@ async def CommandRedditQueue(
 
 
 @plugin.set_error_handler
-async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
+async def error_handler(ctx: GatewayContext, error: Exception) -> None:
     """Handler for errors originating from this plugin."""
 
-    await HookError(ctx, error)
+    await hook_error(ctx, error)

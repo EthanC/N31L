@@ -24,23 +24,23 @@ from urlextract import URLExtract  # type: ignore
 from core.config import Config
 from core.formatters import (
     Colors,
-    ExpandChannel,
-    ExpandInteraction,
-    ExpandServer,
-    ExpandUser,
-    GetServerIcon,
-    GetUserAvatar,
-    Log,
-    Response,
+    expand_channel,
+    expand_interaction,
+    expand_server,
+    expand_user,
+    get_server_icon,
+    get_user_avatar,
+    log,
+    response,
 )
-from core.hooks import HookError
-from core.utils import GET, FindNumbers, IsValidUser
+from core.hooks import hook_error
+from core.utils import find_numbers, get, is_valid_user
 
 plugin: GatewayPlugin = GatewayPlugin("logs")
 
 
 @arc.loader
-def ExtensionLoader(client: GatewayClient) -> None:
+def extension_loader(client: GatewayClient) -> None:
     """Required. Called upon loading the extension."""
 
     logger.debug(f"Attempting to load {plugin.name} extension...")
@@ -53,7 +53,7 @@ def ExtensionLoader(client: GatewayClient) -> None:
 
 
 @plugin.listen()
-async def EventDirectMessage(event: DMMessageCreateEvent) -> None:
+async def event_direct_message(event: DMMessageCreateEvent) -> None:
     """Handler for notifying of direct messages."""
 
     bot: GatewayBot = plugin.client.get_type_dependency(GatewayBot)
@@ -89,25 +89,25 @@ async def EventDirectMessage(event: DMMessageCreateEvent) -> None:
 
     await plugin.client.rest.create_message(
         cfg.channels["production"],
-        embed=Response(
+        embed=response(
             title="Direct Message",
-            color=Colors.N31LGreen.value,
+            color=Colors.N31L_GREEN,
             description=f">>> {event.content}" if event.content else None,
             fields=fields,
-            author=await ExpandUser(event.author, format=False, showId=False),
-            authorIcon=GetUserAvatar(event.author),
+            author=await expand_user(event.author, format=False, show_id=False),
+            authorIcon=get_user_avatar(event.author),
             footer=str(event.author_id),
             timestamp=event.message.timestamp,
         ),
     )
 
     logger.success(
-        f"Notified of direct message from {await ExpandUser(event.author, format=False)}"
+        f"Notified of direct message from {await expand_user(event.author, format=False)}"
     )
 
 
 @plugin.listen()
-async def EventKeyword(event: GuildMessageCreateEvent) -> None:
+async def event_keyword(event: GuildMessageCreateEvent) -> None:
     """Handler for notifying of keyword mentions."""
 
     cfg: Config = plugin.client.get_type_dependency(Config)
@@ -124,7 +124,7 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
         logger.trace("Ignored message creation event, content is null")
 
         return
-    elif event.channel_id in cfg.logsIgnoreChannels:
+    elif event.channel_id in cfg.logs_ignore_channels:
         logger.trace("Ignored message creation event, channel is ignored")
 
         return
@@ -132,7 +132,7 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
     words: list[str] = [word.lower() for word in event.content.split()]
     found: list[str] = []
 
-    for keyword in cfg.logsKeywords:
+    for keyword in cfg.logs_keywords:
         if keyword in words:
             found.append(keyword)
 
@@ -151,7 +151,7 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
     fields: list[dict[str, str | bool]] = [
         {
             "name": "Channel",
-            "value": await ExpandChannel(event.get_channel(), showId=False),
+            "value": await expand_channel(event.get_channel(), show_id=False),
         }
     ]
 
@@ -180,28 +180,28 @@ async def EventKeyword(event: GuildMessageCreateEvent) -> None:
 
     await plugin.client.rest.create_message(
         cfg.channels["production"],
-        embed=Response(
+        embed=response(
             title=("Keyword" if len(found) == 1 else "Keywords") + " Mention",
             url=event.message.make_link(event.guild_id),
-            color=Colors.N31LGreen.value,
+            color=Colors.N31L_GREEN,
             description=f">>> {content}",
             fields=fields,
-            author=await ExpandUser(event.author, format=False, showId=False),
-            authorIcon=GetUserAvatar(event.author),
+            author=await expand_user(event.author, format=False, show_id=False),
+            authorIcon=get_user_avatar(event.author),
             footer=str(event.author_id),
-            footerIcon=await GetServerIcon(event.get_guild()),
+            footerIcon=await get_server_icon(event.get_guild()),
             timestamp=event.message.timestamp,
         ),
         component=actions,
     )
 
     logger.success(
-        f"Notified of keyword(s) ({", ".join(found)}) mention by {await ExpandUser(event.author, format=False)} in {await ExpandServer(event.get_guild(), format=False)} {await ExpandChannel(event.get_channel(), format=False)}"
+        f"Notified of keyword(s) ({', '.join(found)}) mention by {await expand_user(event.author, format=False)} in {await expand_server(event.get_guild(), format=False)} {await expand_channel(event.get_channel(), format=False)}"
     )
 
 
 @plugin.listen()
-async def EventMention(event: GuildMessageCreateEvent) -> None:
+async def event_mention(event: GuildMessageCreateEvent) -> None:
     """Handler for notifying of user mentions."""
 
     if not event.is_human:
@@ -220,7 +220,7 @@ async def EventMention(event: GuildMessageCreateEvent) -> None:
     cfg: Config = plugin.client.get_type_dependency(Config)
     found: list[int] = []
 
-    for userId in cfg.logsMentions:
+    for userId in cfg.logs_mentions:
         if userId in event.message.user_mentions_ids:
             found.append(userId)
 
@@ -232,7 +232,7 @@ async def EventMention(event: GuildMessageCreateEvent) -> None:
     fields: list[dict[str, str | bool]] = [
         {
             "name": "Channel",
-            "value": await ExpandChannel(event.get_channel(), showId=False),
+            "value": await expand_channel(event.get_channel(), show_id=False),
         }
     ]
 
@@ -261,50 +261,50 @@ async def EventMention(event: GuildMessageCreateEvent) -> None:
 
     await plugin.client.rest.create_message(
         cfg.channels["production"],
-        embed=Response(
+        embed=response(
             title=("User" if len(found) == 1 else "Users") + " Mentioned",
             url=event.message.make_link(event.guild_id),
-            color=Colors.N31LGreen.value,
+            color=Colors.N31L_GREEN,
             description=f">>> {event.content}",
-            author=await ExpandUser(event.author, format=False, showId=False),
-            authorIcon=GetUserAvatar(event.author),
+            author=await expand_user(event.author, format=False, show_id=False),
+            authorIcon=get_user_avatar(event.author),
             footer=str(event.author_id),
-            footerIcon=await GetServerIcon(event.get_guild()),
+            footerIcon=await get_server_icon(event.get_guild()),
             timestamp=event.message.timestamp,
         ),
         component=actions,
     )
 
     logger.success(
-        f"Notified of mention(s) ({found}) by {await ExpandUser(event.author, format=False)} in {await ExpandServer(event.get_guild(), format=False)} {await ExpandChannel(event.get_channel(), format=False)}"
+        f"Notified of mention(s) ({found}) by {await expand_user(event.author, format=False)} in {await expand_server(event.get_guild(), format=False)} {await expand_channel(event.get_channel(), format=False)}"
     )
 
 
 @plugin.listen()
-async def EventContext(event: InteractionCreateEvent) -> None:
+async def event_context(event: InteractionCreateEvent) -> None:
     """Handler for the Context and Aftermath button commands."""
 
     interaction: PartialInteraction = event.interaction
-    displayName: str = ExpandInteraction(interaction, format=False)
+    display_name: str = expand_interaction(interaction, format=False)
 
     if not interaction.type == InteractionType.MESSAGE_COMPONENT:
-        logger.trace(f"Ignored {displayName}, expected MESSAGE_COMPONENT")
+        logger.trace(f"Ignored {display_name}, expected MESSAGE_COMPONENT")
 
         return
     elif not isinstance(interaction, ComponentInteraction):
-        logger.trace(f"Ignored {displayName}, expected ComponentInteraction")
+        logger.trace(f"Ignored {display_name}, expected ComponentInteraction")
 
         return
     elif not hasattr(interaction, "custom_id"):
-        logger.trace(f"Ignored {displayName}, expected custom_id")
+        logger.trace(f"Ignored {display_name}, expected custom_id")
 
         return
     elif not (btnId := interaction.custom_id):
-        logger.trace(f"Ignored {displayName}, custom_id is null")
+        logger.trace(f"Ignored {display_name}, custom_id is null")
 
         return
     elif (btnId != "before") and (btnId != "after"):
-        logger.trace(f"Ignored {displayName}, expected custom_id before or after")
+        logger.trace(f"Ignored {display_name}, expected custom_id before or after")
 
         return
 
@@ -313,15 +313,15 @@ async def EventContext(event: InteractionCreateEvent) -> None:
     )
 
     target: str = str(interaction.message.embeds[0].url)
-    targetId: int = int(target.split("/")[-1])
-    targetChnl: int = int(target.split("/")[-2])
+    target_id: int = int(target.split("/")[-1])
+    target_channel: int = int(target.split("/")[-2])
 
     context: LazyIterator[Message] | None = None
 
     if btnId == "before":
-        context = event.app.rest.fetch_messages(targetChnl, before=targetId)
+        context = event.app.rest.fetch_messages(target_channel, before=target_id)
     elif btnId == "after":
-        context = event.app.rest.fetch_messages(targetChnl, after=targetId)
+        context = event.app.rest.fetch_messages(target_channel, after=target_id)
 
     if not context:
         raise RuntimeError("context is null")
@@ -363,14 +363,14 @@ async def EventContext(event: InteractionCreateEvent) -> None:
                     )
 
             results.append(
-                Response(
-                    color=Colors.DiscordBlurple.value,
+                response(
+                    color=Colors.DISCORD_BLURPLE,
                     description=f">>> {message.content}" if message.content else None,
                     fields=fields,
-                    author=await ExpandUser(message.author, format=False),
-                    authorIcon=GetUserAvatar(message.author),
+                    author=await expand_user(message.author, format=False),
+                    authorIcon=get_user_avatar(message.author),
                     footer=str(message.id),
-                    footerIcon=await GetServerIcon(
+                    footerIcon=await get_server_icon(
                         message.guild_id, client=plugin.client
                     ),
                     timestamp=message.created_at
@@ -383,9 +383,9 @@ async def EventContext(event: InteractionCreateEvent) -> None:
 
     if len(results) < 1:
         results.append(
-            Response(
+            response(
                 description=f"No context found {btnId} message.",
-                color=Colors.DiscordYellow.value,
+                color=Colors.DISCORD_YELLOW,
             )
         )
 
@@ -394,35 +394,35 @@ async def EventContext(event: InteractionCreateEvent) -> None:
     await interaction.edit_initial_response(embeds=results)
 
     logger.success(
-        f"Fetched context requested by {await ExpandUser(interaction.user, format=False)} in {await ExpandServer(interaction.get_guild(), format=False)} {await ExpandChannel(interaction.channel, format=False)}"
+        f"Fetched context requested by {await expand_user(interaction.user, format=False)} in {await expand_server(interaction.get_guild(), format=False)} {await expand_channel(interaction.channel, format=False)}"
     )
 
 
 @plugin.listen()
-async def EventDump(event: InteractionCreateEvent) -> None:
+async def event_dump(event: InteractionCreateEvent) -> None:
     """Handler for the Dump button command."""
 
     interaction: PartialInteraction = event.interaction
-    displayName: str = ExpandInteraction(interaction, format=False)
+    display_name: str = expand_interaction(interaction, format=False)
 
     if not interaction.type == InteractionType.MESSAGE_COMPONENT:
-        logger.trace(f"Ignored {displayName}, expected MESSAGE_COMPONENT")
+        logger.trace(f"Ignored {display_name}, expected MESSAGE_COMPONENT")
 
         return
     elif not isinstance(interaction, ComponentInteraction):
-        logger.trace(f"Ignored {displayName}, expected ComponentInteraction")
+        logger.trace(f"Ignored {display_name}, expected ComponentInteraction")
 
         return
     elif not hasattr(interaction, "custom_id"):
-        logger.trace(f"Ignored {displayName}, expected custom_id")
+        logger.trace(f"Ignored {display_name}, expected custom_id")
 
         return
     elif not (btnId := interaction.custom_id):
-        logger.trace(f"Ignored {displayName}, custom_id is null")
+        logger.trace(f"Ignored {display_name}, custom_id is null")
 
         return
     elif btnId != "dump":
-        logger.trace(f"Ignored {displayName}, expected custom_id dump")
+        logger.trace(f"Ignored {display_name}, expected custom_id dump")
 
         return
 
@@ -431,15 +431,15 @@ async def EventDump(event: InteractionCreateEvent) -> None:
     )
 
     target: str = str(interaction.message.embeds[0].url)
-    targetId: int = int(target.split("/")[-1])
-    targetChnl: int = int(target.split("/")[-2])
+    target_id: int = int(target.split("/")[-1])
+    target_channel: int = int(target.split("/")[-2])
 
     context: list[Message] = []
     before: LazyIterator[Message] = event.app.rest.fetch_messages(
-        targetChnl, before=targetId
+        target_channel, before=target_id
     ).limit(100)
     after: LazyIterator[Message] = event.app.rest.fetch_messages(
-        targetChnl, after=targetId
+        target_channel, after=target_id
     ).limit(100)
 
     try:
@@ -462,7 +462,7 @@ async def EventDump(event: InteractionCreateEvent) -> None:
     for message in context:
         logger.trace(message)
 
-        result += f"{await ExpandUser(message.author, format=False)}"
+        result += f"{await expand_user(message.author, format=False)}"
         result += f" at {message.timestamp}"
 
         if content := message.content:
@@ -486,21 +486,21 @@ async def EventDump(event: InteractionCreateEvent) -> None:
 
     if result == "":
         await interaction.edit_initial_response(
-            embed=Response(
+            embed=response(
                 description="No context found for message.",
-                color=Colors.DiscordYellow.value,
+                color=Colors.DISCORD_YELLOW,
             )
         )
 
         return
 
     await interaction.edit_initial_response(
-        attachment=Bytes(result, f"dump_{targetId}.txt")
+        attachment=Bytes(result, f"dump_{target_id}.txt")
     )
 
 
 @plugin.listen()
-async def EventMirror(event: GuildMessageCreateEvent) -> None:
+async def event_mirror(event: GuildMessageCreateEvent) -> None:
     """Handler for automatically mirroring Zeppelin log archives."""
 
     if event.is_human:
@@ -536,7 +536,7 @@ async def EventMirror(event: GuildMessageCreateEvent) -> None:
         if not url.startswith("https://api.zeppelin.gg/archives/"):
             continue
 
-        data: dict[str, Any] | list[Any] | str | None = await GET(url)
+        data: dict[str, Any] | list[Any] | str | None = await get(url)
 
         if not data:
             logger.debug(f"Skipping URL {url}, data is null")
@@ -550,8 +550,8 @@ async def EventMirror(event: GuildMessageCreateEvent) -> None:
         found: list[str] = []
 
         for line in data.splitlines():
-            for find in FindNumbers(line, 17, 19):
-                if await IsValidUser(find, plugin.client):
+            for find in find_numbers(line, 17, 19):
+                if await is_valid_user(find, plugin.client):
                     found.append(f"`{find}`")
 
         # Ensure there are no duplicate users
@@ -560,9 +560,9 @@ async def EventMirror(event: GuildMessageCreateEvent) -> None:
         result: str = f"Mirror of Zeppelin log archive <{url}>"
 
         if len(found) > 0:
-            result += f" ({", ".join(found)})"
+            result += f" ({', '.join(found)})"
 
-        result = Log("mirror", result)
+        result = log("mirror", result)
         filename: str = "archive"
 
         try:
@@ -583,7 +583,7 @@ async def EventMirror(event: GuildMessageCreateEvent) -> None:
 
 
 @plugin.set_error_handler
-async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
+async def error_handler(ctx: GatewayContext, error: Exception) -> None:
     """Handler for errors originating from this plugin."""
 
-    await HookError(ctx, error)
+    await hook_error(ctx, error)

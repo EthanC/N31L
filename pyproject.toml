@@ -1,6 +1,6 @@
 [project]
 name = "n31l"
-version = "2.2.0"
+version = "2.3.0"
 description = "N31L is a utilitarian bot for the Call of Duty server."
 readme = "README.md"
 requires-python = ">=3.13"

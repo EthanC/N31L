@@ -13,18 +13,18 @@ from hikari import Embed
 from loguru import logger
 
 from core.animals import (
-    CATAAS,
-    BunniesIO,
-    DogCEO,
-    NekosLife,
-    RandomDog,
-    RandomDuk,
-    RandomFox,
-    SomeRandomAPI,
-    TheCatAPI,
-    TheDogAPI,
+    bunnies_io,
+    cataas,
+    dog_ceo,
+    nekos_life,
+    random_dog,
+    random_duk,
+    random_fox,
+    some_random_api,
+    the_cat_api,
+    the_dog_api,
 )
-from core.hooks import HookError, HookLog
+from core.hooks import hook_error, hook_log
 
 plugin: GatewayPlugin = GatewayPlugin("animals")
 animalTypes: list[str] = [
@@ -34,12 +34,8 @@ animalTypes: list[str] = [
     "Dog",
     "Duck",
     "Fox",
-    "Kangaroo",
-    "Koala",
     "Lizard",
     "Panda",
-    "Raccoon",
-    "Rat",
     "Red Panda",
 ]
 
@@ -58,9 +54,9 @@ def ExtensionLoader(client: GatewayClient) -> None:
 
 
 @plugin.include
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_command("animal", "Fetch a random picture of an animal.")
-async def CommandAnimal(
+async def command_animal(
     ctx: GatewayContext,
     type: Option[
         str | None,
@@ -82,9 +78,9 @@ async def CommandAnimal(
 
                 match source:
                     case 1:
-                        result = await SomeRandomAPI("bird")
+                        result = await some_random_api("bird")
                     case 2:
-                        result = await RandomDuk()
+                        result = await random_duk()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -92,7 +88,7 @@ async def CommandAnimal(
             case "Bunny":
                 match source:
                     case 1:
-                        result = await BunniesIO()
+                        result = await bunnies_io()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -102,11 +98,11 @@ async def CommandAnimal(
 
                 match source:
                     case 1:
-                        result = await SomeRandomAPI("cat")
+                        result = await some_random_api("cat")
                     case 2:
-                        result = await TheCatAPI()
+                        result = await the_cat_api()
                     case 3:
-                        result = await CATAAS()
+                        result = await cataas()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -116,13 +112,13 @@ async def CommandAnimal(
 
                 match source:
                     case 1:
-                        result = await SomeRandomAPI("dog")
+                        result = await some_random_api("dog")
                     case 2:
-                        result = await TheDogAPI()
+                        result = await the_dog_api()
                     case 3:
-                        result = await DogCEO()
+                        result = await dog_ceo()
                     case 4:
-                        result = await RandomDog()
+                        result = await random_dog()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -130,7 +126,7 @@ async def CommandAnimal(
             case "Duck":
                 match source:
                     case 1:
-                        result = await RandomDuk()
+                        result = await random_duk()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -140,25 +136,9 @@ async def CommandAnimal(
 
                 match source:
                     case 1:
-                        result = await SomeRandomAPI("fox")
+                        result = await some_random_api("fox")
                     case 2:
-                        result = await RandomFox()
-                    case _:
-                        logger.warning(
-                            f"Recieved unknown source {source} for animal type {type}"
-                        )
-            case "Kangaroo":
-                match source:
-                    case 1:
-                        result = await SomeRandomAPI("kangaroo")
-                    case _:
-                        logger.warning(
-                            f"Recieved unknown source {source} for animal type {type}"
-                        )
-            case "Koala":
-                match source:
-                    case 1:
-                        result = await SomeRandomAPI("koala")
+                        result = await random_fox()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -166,7 +146,7 @@ async def CommandAnimal(
             case "Lizard":
                 match source:
                     case 1:
-                        result = await NekosLife()
+                        result = await nekos_life()
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -174,15 +154,7 @@ async def CommandAnimal(
             case "Panda":
                 match source:
                     case 1:
-                        result = await SomeRandomAPI("panda")
-                    case _:
-                        logger.warning(
-                            f"Recieved unknown source {source} for animal type {type}"
-                        )
-            case "Raccoon":
-                match source:
-                    case 1:
-                        result = await SomeRandomAPI("raccoon")
+                        result = await some_random_api("panda")
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -190,7 +162,7 @@ async def CommandAnimal(
             case "Red Panda":
                 match source:
                     case 1:
-                        result = await SomeRandomAPI("red_panda")
+                        result = await some_random_api("red_panda")
                     case _:
                         logger.warning(
                             f"Recieved unknown source {source} for animal type {type}"
@@ -217,7 +189,7 @@ async def CommandAnimal(
 
 
 @plugin.set_error_handler
-async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
+async def error_handler(ctx: GatewayContext, error: Exception) -> None:
     """Handler for errors originating from this plugin."""
 
-    await HookError(ctx, error)
+    await hook_error(ctx, error)

@@ -1,7 +1,7 @@
 import base64
 
 
-def T6FBIKick() -> bytes:
+def t6_fbi_kick() -> bytes:
     """
     Return a bytes representation of the vox_fbi_player_kicked_00.SN65.pc.snd
     sound asset from Call of Duty: Black Ops II (2012) that features the
@@ -13,7 +13,7 @@ def T6FBIKick() -> bytes:
     return base64.b64decode(encoded)
 
 
-def IW7N31LDeath() -> bytes:
+def iw7_n31l_death() -> bytes:
     """
     Return a bytes representation of the final_n31l_evil_activate_trap_01
     sound asset from Call of Duty: Infinite Warfare (2016) that features

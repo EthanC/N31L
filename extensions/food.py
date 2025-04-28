@@ -12,8 +12,8 @@ from arc import (
 from hikari import Embed
 from loguru import logger
 
-from core.food import Foodish
-from core.hooks import HookError, HookLog
+from core.food import foodish
+from core.hooks import hook_error, hook_log
 
 plugin: GatewayPlugin = GatewayPlugin("food")
 foodTypes: list[str] = [
@@ -27,7 +27,7 @@ foodTypes: list[str] = [
 
 
 @arc.loader
-def ExtensionLoader(client: GatewayClient) -> None:
+def extension_loader(client: GatewayClient) -> None:
     """Required. Called upon loading the extension."""
 
     logger.debug(f"Attempting to load {plugin.name} extension...")
@@ -40,9 +40,9 @@ def ExtensionLoader(client: GatewayClient) -> None:
 
 
 @plugin.include
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_command("food", "Fetch a random picture of food.")
-async def CommandFood(
+async def command_food(
     ctx: GatewayContext,
     type: Option[
         str | None,
@@ -57,17 +57,17 @@ async def CommandFood(
     while not result:
         match type:
             case "Burger":
-                result = await Foodish("burger")
+                result = await foodish("burger")
             case "Chicken":
-                result = await Foodish("butter-chicken")
+                result = await foodish("butter-chicken")
             case "Dessert":
-                result = await Foodish("dessert")
+                result = await foodish("dessert")
             case "Pasta":
-                result = await Foodish("pasta")
+                result = await foodish("pasta")
             case "Pizza":
-                result = await Foodish("pizza")
+                result = await foodish("pizza")
             case "Rice":
-                result = await Foodish("rice")
+                result = await foodish("rice")
             case _:
                 # type is expected to be null if not provided
                 if type:
@@ -90,7 +90,7 @@ async def CommandFood(
 
 
 @plugin.set_error_handler
-async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
+async def error_handler(ctx: GatewayContext, error: Exception) -> None:
     """Handler for errors originating from this plugin."""
 
-    await HookError(ctx, error)
+    await hook_error(ctx, error)

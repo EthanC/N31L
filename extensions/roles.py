@@ -6,14 +6,14 @@ from hikari import GuildMessageCreateEvent, Snowflake
 from loguru import logger
 
 from core.config import Config
-from core.formatters import ExpandServer, ExpandUser, Log
-from core.hooks import HookError
+from core.formatters import expand_server, expand_user, log
+from core.hooks import hook_error
 
 plugin: GatewayPlugin = GatewayPlugin("roles")
 
 
 @arc.loader
-def ExtensionLoader(client: GatewayClient) -> None:
+def extension_loader(client: GatewayClient) -> None:
     """Required. Called upon loading the extension."""
 
     logger.debug(f"Attempting to load {plugin.name} extension...")
@@ -26,7 +26,7 @@ def ExtensionLoader(client: GatewayClient) -> None:
 
 
 @plugin.listen()
-async def EventValidateRoles(event: GuildMessageCreateEvent) -> None:
+async def event_validate_roles(event: GuildMessageCreateEvent) -> None:
     """Handler for validating role requirements are met for members."""
 
     if not event.is_human:
@@ -46,7 +46,7 @@ async def EventValidateRoles(event: GuildMessageCreateEvent) -> None:
     logger.trace(equipped)
 
     for role in equipped:
-        if role in cfg.rolesAllow:
+        if role in cfg.roles_allow:
             matches.append(role)
 
     logger.trace(matches)
@@ -61,14 +61,14 @@ async def EventValidateRoles(event: GuildMessageCreateEvent) -> None:
 
             await plugin.client.rest.create_message(
                 cfg.channels["user"],
-                Log(
+                log(
                     "shirt",
-                    f"Removed role (`{match}`) from {await ExpandUser(event.author)} with reason: *Member exceeds limit (1) of allowed roles.*",
+                    f"Removed role (`{match}`) from {await expand_user(event.author)} with reason: *Member exceeds limit (1) of allowed roles.*",
                 ),
             )
 
             logger.success(
-                f"Invalidated role {match} for {await ExpandUser(event.author, format=False)} in {await ExpandServer(event.get_guild(), format=False)}"
+                f"Invalidated role {match} for {await expand_user(event.author, format=False)} in {await expand_server(event.get_guild(), format=False)}"
             )
 
     # Refetch equipped roles before continuing validation
@@ -80,7 +80,7 @@ async def EventValidateRoles(event: GuildMessageCreateEvent) -> None:
     for role in equipped:
         logger.trace(role)
 
-        if role in cfg.rolesRequire:
+        if role in cfg.roles_require:
             logger.trace("Exiting role validation, user has a required role")
 
             return
@@ -88,7 +88,7 @@ async def EventValidateRoles(event: GuildMessageCreateEvent) -> None:
     for role in equipped:
         logger.trace(role)
 
-        if role in cfg.rolesAllow:
+        if role in cfg.roles_allow:
             invalidated.append(role)
 
     logger.trace(invalidated)
@@ -102,19 +102,19 @@ async def EventValidateRoles(event: GuildMessageCreateEvent) -> None:
 
         await plugin.client.rest.create_message(
             cfg.channels["user"],
-            Log(
+            log(
                 "shirt",
-                f"Removed role (`{role}`) from {await ExpandUser(event.author)} with reason: *Requirements not met.*",
+                f"Removed role (`{role}`) from {await expand_user(event.author)} with reason: *Requirements not met.*",
             ),
         )
 
         logger.success(
-            f"Invalidated role ({role}) for {await ExpandUser(event.author, format=False)} in {await ExpandServer(event.get_guild(), format=False)}"
+            f"Invalidated role ({role}) for {await expand_user(event.author, format=False)} in {await expand_server(event.get_guild(), format=False)}"
         )
 
 
 @plugin.set_error_handler
-async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
+async def error_handler(ctx: GatewayContext, error: Exception) -> None:
     """Handler for errors originating from this plugin."""
 
-    await HookError(ctx, error)
+    await hook_error(ctx, error)

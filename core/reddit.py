@@ -4,7 +4,7 @@ from environs import env
 from loguru import logger
 
 
-async def CreateClient() -> Reddit | None:
+async def client_create() -> Reddit | None:
     """Create an authenticated Reddit client using the configured credentials."""
 
     if not (username := env.str("REDDIT_USERNAME")):
@@ -15,20 +15,20 @@ async def CreateClient() -> Reddit | None:
         logger.error("Failed to authenticate with Reddit, password is null")
 
         return
-    elif not (clientId := env.str("REDDIT_CLIENT_ID")):
-        logger.error("Failed to authenticate with Reddit, clientId is null")
+    elif not (client_id := env.str("REDDIT_CLIENT_ID")):
+        logger.error("Failed to authenticate with Reddit, client_id is null")
 
         return
-    elif not (clientSecret := env.str("REDDIT_CLIENT_SECRET")):
-        logger.error("Failed to authenticate with Reddit, clientSecret is null")
+    elif not (client_secret := env.str("REDDIT_CLIENT_SECRET")):
+        logger.error("Failed to authenticate with Reddit, client_secret is null")
 
         return
 
     client: Reddit = asyncpraw.Reddit(
         username=username,
         password=password,
-        client_id=clientId,
-        client_secret=clientSecret,
+        client_id=client_id,
+        client_secret=client_secret,
         user_agent="https://github.com/EthanC/N31L",
     )
 
@@ -40,7 +40,7 @@ async def CreateClient() -> Reddit | None:
     return client
 
 
-async def DestroyClient(client: Reddit) -> None:
+async def client_destroy(client: Reddit) -> None:
     """Close the provided Reddit requestor."""
 
     try:
@@ -49,7 +49,7 @@ async def DestroyClient(client: Reddit) -> None:
         logger.opt(exception=e).warning("Failed to close Reddit session")
 
 
-async def CountModqueue(client: Reddit, community: str) -> int:
+async def count_modqueue(client: Reddit, community: str) -> int:
     """
     Return the number of items in the moderation queue for the
     specified Reddit community.
@@ -83,7 +83,7 @@ async def CountModqueue(client: Reddit, community: str) -> int:
     return total
 
 
-async def CountUnmoderated(client: Reddit, community: str) -> int:
+async def count_unmoderated(client: Reddit, community: str) -> int:
     """
     Return the number of items in the unmoderated queue for the
     specified Reddit community.

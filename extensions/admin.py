@@ -29,14 +29,14 @@ from loguru import logger
 from core.config import Config
 from core.formatters import (
     Colors,
-    EmbedsFromJSON,
-    ExpandChannel,
-    ExpandServer,
-    ExpandUser,
-    Response,
+    expand_channel,
+    expand_server,
+    expand_user,
+    json_to_embed,
+    response,
 )
-from core.hooks import HookError, HookLog
-from core.sounds import IW7N31LDeath, T6FBIKick
+from core.hooks import hook_error, hook_log
+from core.sounds import iw7_n31l_death, t6_fbi_kick
 
 plugin: GatewayPlugin = GatewayPlugin("admin")
 emoji: SlashGroup[GatewayClient] = plugin.include_slash_group(
@@ -51,7 +51,7 @@ vip: SlashGroup[GatewayClient] = plugin.include_slash_group(
 
 
 @arc.loader
-def ExtensionLoader(client: GatewayClient) -> None:
+def extension_loader(client: GatewayClient) -> None:
     """Required. Called upon loading the extension."""
 
     logger.debug(f"Attempting to load {plugin.name} extension...")
@@ -65,17 +65,15 @@ def ExtensionLoader(client: GatewayClient) -> None:
 
 @plugin.include
 @arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_command(
     "send",
     "Send a message from N31L.",
     autodefer=AutodeferMode.EPHEMERAL,
 )
-async def CommandSend(
+async def command_send(
     ctx: GatewayContext,
-    channelId: Option[
-        str, StrParams("Enter the ID of the channel.", name="channel_id")
-    ],
+    channel_id: Option[str, StrParams("Enter the ID of the channel.")],
     content: Option[str | None, StrParams("Enter the message content.")] = None,
     markdown: Option[
         Attachment | None,
@@ -93,33 +91,21 @@ async def CommandSend(
         Attachment | None,
         AttachmentParams("Choose a file to attach.", name="attachment"),
     ] = None,
-    reply: Option[
+    reply_message_id: Option[
         str | None,
-        StrParams("Enter the Message ID to reply to.", name="reply_message_id"),
+        StrParams("Enter the Message ID to reply to."),
     ] = None,
 ) -> None:
     """Handler for the /send command."""
 
-    if (not content) and (not markdown) and (not embeds) and (not file):
-        logger.debug("Send Message command ignored, no message provided")
-
-        await ctx.respond(
-            flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
-                description="No message provided.",
-            ),
-        )
-
-        return
-    elif (markdown) and (not markdown.filename.endswith(".md")):
+    if (markdown) and (not markdown.filename.endswith(".md")):
         logger.debug("Send Message command ignored, invalid markdown provided")
         logger.trace(f"{markdown=}")
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description="Provided markdown file is not valid.",
             ),
         )
@@ -131,8 +117,8 @@ async def CommandSend(
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description="Provided embeds file is not valid JSON. Use the [Embed Builder](https://glitchii.github.io/embedbuilder/).",
             ),
         )
@@ -144,17 +130,17 @@ async def CommandSend(
         content = (await markdown.read()).decode("UTF-8")
 
     result: Message = await ctx.client.rest.create_message(
-        int(channelId),
+        int(channel_id),
         content,
         attachment=file if file else UNDEFINED,
-        embeds=await EmbedsFromJSON(embeds) if embeds else UNDEFINED,
-        reply=int(reply) if reply else UNDEFINED,
+        embeds=await json_to_embed(embeds) if embeds else UNDEFINED,
+        reply=int(reply_message_id) if reply_message_id else UNDEFINED,
     )
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            color=Colors.DiscordGreen.value,
+        embed=response(
+            color=Colors.DISCORD_GREEN,
             description=f"Sent message {result.make_link(result.guild_id)}.",
         ),
     )
@@ -162,20 +148,16 @@ async def CommandSend(
 
 @plugin.include
 @arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_command(
     "edit",
     "Edit a message sent by N31L.",
     autodefer=AutodeferMode.EPHEMERAL,
 )
-async def CommandEdit(
+async def command_edit(
     ctx: GatewayContext,
-    channelId: Option[
-        str, StrParams("Enter the ID of the channel.", name="channel_id")
-    ],
-    messageId: Option[
-        str, StrParams("Enter the ID of the message.", name="message_id")
-    ],
+    channel_id: Option[str, StrParams("Enter the ID of the channel.")],
+    message_id: Option[str, StrParams("Enter the ID of the message.")],
     content: Option[
         str | None, StrParams("Enter text to replace the message content with.")
     ] = None,
@@ -203,8 +185,8 @@ async def CommandEdit(
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description="No message provided.",
             ),
         )
@@ -216,8 +198,8 @@ async def CommandEdit(
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description="Provided markdown file is not valid.",
             ),
         )
@@ -229,8 +211,8 @@ async def CommandEdit(
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description="Provided embeds file is not valid JSON. Use the [Embed Builder](https://glitchii.github.io/embedbuilder/).",
             ),
         )
@@ -242,17 +224,17 @@ async def CommandEdit(
     if not (n31l := bot.get_me()):
         raise RuntimeError("Bot user is null")
 
-    msg: Message = await ctx.client.rest.fetch_message(int(channelId), int(messageId))
+    msg: Message = await ctx.client.rest.fetch_message(int(channel_id), int(message_id))
 
     if not msg:
         logger.debug(
-            f"Failed to fetch message {messageId} in channel {await ExpandChannel(channelId, format=False)}"
+            f"Failed to fetch message {message_id} in channel {await expand_channel(channel_id, format=False)}"
         )
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value, description="Failed to fetch message."
+            embed=response(
+                color=Colors.DISCORD_RED, description="Failed to fetch message."
             ),
         )
 
@@ -263,15 +245,19 @@ async def CommandEdit(
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description=f"Message author is not {n31l.mention}.",
             ),
         )
 
         return
 
-    await msg.edit(msg.content, attachment=file, embeds=await EmbedsFromJSON(embeds))
+    await msg.edit(
+        content if content else markdown if markdown else UNDEFINED,
+        attachment=file if file else UNDEFINED,
+        embeds=await json_to_embed(embeds) if embeds else UNDEFINED,
+    )
 
     before: str = "[Empty]"
     after: str = "[Empty]"
@@ -287,8 +273,8 @@ async def CommandEdit(
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            color=Colors.DiscordGreen.value,
+        embed=response(
+            color=Colors.DISCORD_GREEN,
             description=f"Edited {msg.author.mention}'s message {msg.make_link(msg.guild_id)}.\n\n**Before:**\n```md\n{before}\n```\n**After:**\n```md\n{after}\n```",
         ),
     )
@@ -296,13 +282,13 @@ async def CommandEdit(
 
 @plugin.include
 @arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.message_command(
     "Delete Message",
     autodefer=AutodeferMode.EPHEMERAL,
     invocation_contexts=[ApplicationContextType.GUILD, ApplicationContextType.BOT_DM],
 )
-async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
+async def command_delete(ctx: GatewayContext, msg: Message) -> None:
     """Handler for the Delete Message context menu command."""
 
     bot: GatewayBot = ctx.client.get_type_dependency(GatewayBot)
@@ -315,8 +301,8 @@ async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
 
         await ctx.respond(
             flags=MessageFlag.EPHEMERAL,
-            embed=Response(
-                color=Colors.DiscordRed.value,
+            embed=response(
+                color=Colors.DISCORD_RED,
                 description=f"Message {msg.make_link(msg.guild_id)} author is not {n31l.mention}.",
             ),
         )
@@ -327,8 +313,8 @@ async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            color=Colors.DiscordGreen.value,
+        embed=response(
+            color=Colors.DISCORD_GREEN,
             description=f"Deleted message from {msg.author.mention}.",
         ),
     )
@@ -336,11 +322,11 @@ async def CommandDelete(ctx: GatewayContext, msg: Message) -> None:
 
 @emoji.include
 @arc.with_hook(arc.owner_only)
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_subcommand(
     "upload", "Upload an emoji to this server.", autodefer=AutodeferMode.EPHEMERAL
 )
-async def CommandEmojiUpload(
+async def command_emoji_upload(
     ctx: GatewayContext,
     image: Option[Attachment, AttachmentParams("Choose an image for the emoji.")],
     name: Option[
@@ -362,13 +348,13 @@ async def CommandEmojiUpload(
         ctx.guild_id,
         name,
         image.url,
-        reason=f"Emoji uploaded by {await ExpandUser(ctx.author, format=False)}.",
+        reason=f"Emoji uploaded by {await expand_user(ctx.author, format=False)}.",
     )
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            color=Colors.DiscordGreen.value,
+        embed=response(
+            color=Colors.DISCORD_GREEN,
             description=f"Uploaded emoji `:{name}:`.",
         ),
     )
@@ -376,13 +362,13 @@ async def CommandEmojiUpload(
 
 @emoji.include
 @arc.with_hook(arc.owner_only)
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_subcommand(
     "delete", "Delete an emoji on this server.", autodefer=AutodeferMode.EPHEMERAL
 )
-async def CommandEmojiDelete(
+async def command_emoji_delete(
     ctx: GatewayContext,
-    emojiId: Option[str, StrParams("Enter the ID of the emoji.", name="id")],
+    emoji_id: Option[str, StrParams("Enter the ID of the emoji.")],
 ) -> None:
     """Handler for the /emoji delete command."""
 
@@ -391,26 +377,26 @@ async def CommandEmojiDelete(
 
     await ctx.client.rest.delete_emoji(
         ctx.guild_id,
-        int(emojiId),
-        reason=f"Emoji deleted by {await ExpandUser(ctx.author, format=False)}.",
+        int(emoji_id),
+        reason=f"Emoji deleted by {await expand_user(ctx.author, format=False)}.",
     )
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            color=Colors.DiscordGreen.value,
-            description=f"Deleted emoji `:{emojiId}:`.",
+        embed=response(
+            color=Colors.DISCORD_GREEN,
+            description=f"Deleted emoji `:{emoji_id}:`.",
         ),
     )
 
 
 @sticker.include
 @arc.with_hook(arc.owner_only)
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_subcommand(
     "upload", "Upload a sticker to this server.", autodefer=AutodeferMode.EPHEMERAL
 )
-async def CommandStickerUpload(
+async def command_sticker_upload(
     ctx: GatewayContext,
     image: Option[Attachment, AttachmentParams("Choose an image for the sticker.")],
     related: Option[str, StrParams("Enter a related emoji for the sticker.")],
@@ -434,13 +420,13 @@ async def CommandStickerUpload(
         name,
         related,
         image.url,
-        reason=f"Sticker uploaded by {await ExpandUser(ctx.author, format=False)}.",
+        reason=f"Sticker uploaded by {await expand_user(ctx.author, format=False)}.",
     )
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            color=Colors.DiscordGreen.value,
+        embed=response(
+            color=Colors.DISCORD_GREEN,
             description=f"Uploaded sticker `{name}`.",
         ),
     )
@@ -448,13 +434,13 @@ async def CommandStickerUpload(
 
 @sticker.include
 @arc.with_hook(arc.owner_only)
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_subcommand(
     "delete", "Delete a sticker on this server.", autodefer=AutodeferMode.EPHEMERAL
 )
-async def CommandStickerDelete(
+async def command_sticker_delete(
     ctx: GatewayContext,
-    stickerId: Option[str, StrParams("Enter the ID of the sticker.", name="id")],
+    sticker_id: Option[str, StrParams("Enter the ID of the sticker.")],
 ) -> None:
     """Handler for the /emoji delete command."""
 
@@ -463,15 +449,15 @@ async def CommandStickerDelete(
 
     await ctx.client.rest.delete_sticker(
         ctx.guild_id,
-        int(stickerId),
-        reason=f"Sticker deleted by {await ExpandUser(ctx.author, format=False)}.",
+        int(sticker_id),
+        reason=f"Sticker deleted by {await expand_user(ctx.author, format=False)}.",
     )
 
     await ctx.respond(
         flags=MessageFlag.EPHEMERAL,
-        embed=Response(
-            color=Colors.DiscordGreen.value,
-            description=f"Deleted sticker `{stickerId}`.",
+        embed=response(
+            color=Colors.DISCORD_GREEN,
+            description=f"Deleted sticker `{sticker_id}`.",
         ),
     )
 
@@ -480,14 +466,14 @@ async def CommandStickerDelete(
 async def ErrorHandler(ctx: GatewayContext, error: Exception) -> None:
     """Handler for errors originating from this plugin."""
 
-    await HookError(ctx, error)
+    await hook_error(ctx, error)
 
 
 @vip.include
 @arc.with_hook(arc.owner_only)
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_subcommand("add", "Add a user to the server VIP list.")
-async def CommandVIPAdd(
+async def command_vip_add(
     ctx: GatewayContext,
     user: Option[User, UserParams("Choose a user to add to the server VIP list.")],
 ) -> None:
@@ -497,31 +483,31 @@ async def CommandVIPAdd(
 
     if not server:
         raise RuntimeError(
-            f"guild {await ExpandServer(ctx.guild_id, format=False)} is null"
+            f"guild {await expand_server(ctx.guild_id, format=False)} is null"
         )
 
     member: Member | None = server.get_member(user.id)
 
     if not member:
         raise RuntimeError(
-            f"member {await ExpandUser(user, format=False)} in guild {await ExpandServer(ctx.guild_id, format=False)} is null"
+            f"member {await expand_user(user, format=False)} in guild {await expand_server(ctx.guild_id, format=False)} is null"
         )
 
     cfg: Config = plugin.client.get_type_dependency(Config)
 
     await member.add_role(
-        cfg.rolesVIP,
-        reason=f"Requested by {await ExpandUser(ctx.author, format=False)}",
+        cfg.roles_vip,
+        reason=f"Requested by {await expand_user(ctx.author, format=False)}",
     )
 
-    await ctx.respond(attachment=Bytes(IW7N31LDeath(), "add.mp3"))
+    await ctx.respond(attachment=Bytes(iw7_n31l_death(), "add.mp3"))
 
 
 @vip.include
 @arc.with_hook(arc.owner_only)
-@arc.with_hook(HookLog)
+@arc.with_hook(hook_log)
 @arc.slash_subcommand("remove", "Remove a user from the server VIP list.")
-async def CommandVIPRemove(
+async def command_vip_remove(
     ctx: GatewayContext,
     user: Option[User, UserParams("Choose a user to remove from the server VIP list.")],
 ) -> None:
@@ -531,21 +517,21 @@ async def CommandVIPRemove(
 
     if not server:
         raise RuntimeError(
-            f"guild {await ExpandServer(ctx.guild_id, format=False)} is null"
+            f"guild {await expand_server(ctx.guild_id, format=False)} is null"
         )
 
     member: Member | None = server.get_member(user.id)
 
     if not member:
         raise RuntimeError(
-            f"member {await ExpandUser(user, format=False)} in guild {await ExpandServer(ctx.guild_id, format=False)} is null"
+            f"member {await expand_user(user, format=False)} in guild {await expand_server(ctx.guild_id, format=False)} is null"
         )
 
     cfg: Config = plugin.client.get_type_dependency(Config)
 
     await member.remove_role(
-        cfg.rolesVIP,
-        reason=f"Requested by {await ExpandUser(ctx.author, format=False)}",
+        cfg.roles_vip,
+        reason=f"Requested by {await expand_user(ctx.author, format=False)}",
     )
 
-    await ctx.respond(attachment=Bytes(T6FBIKick(), "kick.mp3"))
+    await ctx.respond(attachment=Bytes(t6_fbi_kick(), "kick.mp3"))

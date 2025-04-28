@@ -4,207 +4,207 @@ from environs import env
 from hikari import Embed
 from loguru import logger
 
-from core.formatters import Response
-from core.utils import GET
+from core.formatters import response
+from core.utils import get
 
 
-async def BunniesIO() -> Embed | None:
-    """Fetch a random bunny image from BunniesIO."""
+async def bunnies_io() -> Embed | None:
+    """Fetch a random bunny image from bunnies_io."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         "https://api.bunnies.io/v2/loop/random/?media=gif"
     )
 
     if not data:
-        logger.debug(f"Failed to fetch bunny from BunniesIO, data is null")
+        logger.debug(f"Failed to fetch bunny from bunnies_io, data is null")
 
         return
     elif not isinstance(data, dict):
-        logger.debug(f"Failed to fetch bunny from BunniesIO, invalid response")
+        logger.debug(f"Failed to fetch bunny from bunnies_io, invalid response")
 
         return
 
     try:
-        return Response(image=data["media"]["gif"])
+        return response(image=data["media"]["gif"])
     except Exception as e:
-        logger.opt(exception=e).error("Failed to fetch from BunniesIO")
+        logger.opt(exception=e).error("Failed to fetch from bunnies_io")
 
 
-async def CATAAS() -> Embed | None:
-    """Fetch a random cat image from CATAAS."""
+async def cataas() -> Embed | None:
+    """Fetch a random cat image from cataas."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         "https://cataas.com/cat?json=true"
     )
 
     if not data:
-        logger.debug(f"Failed to fetch cat from CATAAS, data is null")
+        logger.debug(f"Failed to fetch cat from cataas, data is null")
 
         return
     elif not isinstance(data, dict):
-        logger.debug(f"Failed to fetch cat from CATAAS, invalid response")
+        logger.debug(f"Failed to fetch cat from cataas, invalid response")
 
         return
 
     try:
-        return Response(
+        return response(
             image=data["url"],
             footer=None if not (tags := data.get("tags")) else ", ".join(tags),
         )
     except Exception as e:
-        logger.opt(exception=e).error("Failed to fetch from CATAAS")
+        logger.opt(exception=e).error("Failed to fetch from cataas")
 
 
-async def DogCEO() -> Embed | None:
-    """Fetch a random dog image from DogCEO."""
+async def dog_ceo() -> Embed | None:
+    """Fetch a random dog image from dog_ceo."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         "https://dog.ceo/api/breeds/image/random"
     )
 
     if not data:
-        logger.debug(f"Failed to fetch dog from DogCEO, data is null")
+        logger.debug(f"Failed to fetch dog from dog_ceo, data is null")
 
         return
     elif not isinstance(data, dict):
-        logger.debug(f"Failed to fetch dog from DogCEO, invalid response")
+        logger.debug(f"Failed to fetch dog from dog_ceo, invalid response")
 
         return
 
     try:
-        return Response(image=data["message"])
+        return response(image=data["message"])
     except Exception as e:
-        logger.opt(exception=e).error("Failed to fetch from DogCEO")
+        logger.opt(exception=e).error("Failed to fetch from dog_ceo")
 
 
-async def NekosLife() -> Embed | None:
-    """Fetch a random lizard image from NekosLife."""
+async def nekos_life() -> Embed | None:
+    """Fetch a random lizard image from nekos_life."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         "https://nekos.life/api/v2/img/lizard"
     )
 
     if not data:
-        logger.debug(f"Failed to fetch lizard from NekosLife, data is null")
+        logger.debug(f"Failed to fetch lizard from nekos_life, data is null")
 
         return
     elif not isinstance(data, dict):
-        logger.debug(f"Failed to fetch lizard from NekosLife, invalid response")
+        logger.debug(f"Failed to fetch lizard from nekos_life, invalid response")
 
         return
 
     try:
-        return Response(image=data["url"])
+        return response(image=data["url"])
     except Exception as e:
-        logger.opt(exception=e).error("Failed to fetch from NekosLife")
+        logger.opt(exception=e).error("Failed to fetch from nekos_life")
 
 
-async def RandomDog() -> Embed | None:
-    """Fetch a random dog image from RandomDog."""
+async def random_dog() -> Embed | None:
+    """Fetch a random dog image from random_dog."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         "https://random.dog/woof.json"
     )
 
     if not data:
-        logger.debug(f"Failed to fetch dog from RandomDog, data is null")
+        logger.debug(f"Failed to fetch dog from random_dog, data is null")
 
         return
     elif not isinstance(data, dict):
-        logger.debug(f"Failed to fetch dog from RandomDog, invalid response")
+        logger.debug(f"Failed to fetch dog from random_dog, invalid response")
 
         return
 
     try:
-        return Response(image=data["url"])
+        return response(image=data["url"])
     except Exception as e:
-        logger.opt(exception=e).error("Failed to fetch from RandomDog")
+        logger.opt(exception=e).error("Failed to fetch from random_dog")
 
 
-async def RandomDuk() -> Embed | None:
-    """Fetch a random bird image from RandomDuk."""
+async def random_duk() -> Embed | None:
+    """Fetch a random bird image from random_duk."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         "https://random-d.uk/api/v2/random"
     )
 
     if not data:
-        logger.debug(f"Failed to fetch duck from RandomDuk, data is null")
+        logger.debug(f"Failed to fetch duck from random_duk, data is null")
 
         return
     elif not isinstance(data, dict):
-        logger.debug(f"Failed to fetch duck from RandomDuk, invalid response")
+        logger.debug(f"Failed to fetch duck from random_duk, invalid response")
 
         return
 
     try:
-        return Response(image=data["url"])
+        return response(image=data["url"])
     except Exception as e:
-        logger.opt(exception=e).error("Failed to fetch from RandomDuk")
+        logger.opt(exception=e).error("Failed to fetch from random_duk")
 
 
-async def RandomFox() -> Embed | None:
-    """Fetch a random fox image from RandomFox."""
+async def random_fox() -> Embed | None:
+    """Fetch a random fox image from random_fox."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         "https://randomfox.ca/floof/"
     )
 
     if not data:
-        logger.debug(f"Failed to fetch fox from RandomFox, data is null")
+        logger.debug(f"Failed to fetch fox from random_fox, data is null")
 
         return
     elif not isinstance(data, dict):
-        logger.debug(f"Failed to fetch fox from RandomFox, invalid response")
+        logger.debug(f"Failed to fetch fox from random_fox, invalid response")
 
         return
 
     try:
-        return Response(image=data["image"])
+        return response(image=data["image"])
     except Exception as e:
-        logger.opt(exception=e).error("Failed to fetch from RandomFox")
+        logger.opt(exception=e).error("Failed to fetch from random_fox")
 
 
-async def SomeRandomAPI(animal: str) -> Embed | None:
-    """Fetch a random animal image from SomeRandomAPI."""
+async def some_random_api(animal: str) -> Embed | None:
+    """Fetch a random animal image from some_random_api."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         f"https://some-random-api.com/animal/{animal}"
     )
 
     if not data:
-        logger.debug(f"Failed to fetch {animal} from SomeRandomAPI, data is null")
+        logger.debug(f"Failed to fetch {animal} from some_random_api, data is null")
 
         return
     elif not isinstance(data, dict):
-        logger.debug(f"Failed to fetch {animal} from SomeRandomAPI, invalid response")
+        logger.debug(f"Failed to fetch {animal} from some_random_api, invalid response")
 
         return
 
     try:
         image_url: str = data["image"]
 
-        # April 27th, 2025: SomeRandomAPI CDN has been broken for weeks
+        # April 27th, 2025: some_random_api CDN has been broken for weeks
         if "cdn.some-random-api.com" not in image_url:
-            return Response(image=image_url)
+            return response(image=image_url)
     except Exception as e:
-        logger.opt(exception=e).error(f"Failed to fetch {animal} from SomeRandomAPI")
+        logger.opt(exception=e).error(f"Failed to fetch {animal} from some_random_api")
 
 
-async def TheCatAPI() -> Embed | None:
-    """Fetch a random cat image from TheCatAPI."""
+async def the_cat_api() -> Embed | None:
+    """Fetch a random cat image from the_cat_api."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         "https://api.thecatapi.com/v1/images/search",
         headers={"x-api-key": env.str("CAT_API_KEY")},
     )
 
     if not data:
-        logger.debug(f"Failed to fetch cat from TheCatAPI, data is null")
+        logger.debug(f"Failed to fetch cat from the_cat_api, data is null")
 
         return
     elif not isinstance(data, list):
-        logger.debug(f"Failed to fetch cat from TheCatAPI, invalid response")
+        logger.debug(f"Failed to fetch cat from the_cat_api, invalid response")
 
         return
 
@@ -247,7 +247,7 @@ async def TheCatAPI() -> Embed | None:
             for category in categories:
                 tags.append(category["name"])
 
-        return Response(
+        return response(
             title=name,
             url=wiki,
             description=info,
@@ -256,23 +256,23 @@ async def TheCatAPI() -> Embed | None:
             footer=None if not tags else ", ".join(tags),
         )
     except Exception as e:
-        logger.opt(exception=e).error("Failed to fetch from TheCatAPI")
+        logger.opt(exception=e).error("Failed to fetch from the_cat_api")
 
 
-async def TheDogAPI() -> Embed | None:
-    """Fetch a random dog image from TheDogAPI."""
+async def the_dog_api() -> Embed | None:
+    """Fetch a random dog image from the_dog_api."""
 
-    data: dict[str, Any] | list[Any] | str | None = await GET(
+    data: dict[str, Any] | list[Any] | str | None = await get(
         "https://api.thedogapi.com/v1/images/search",
         {"x-api-key": env.str("DOG_API_KEY")},
     )
 
     if not data:
-        logger.debug(f"Failed to fetch dog from TheDogAPI, data is null")
+        logger.debug(f"Failed to fetch dog from the_dog_api, data is null")
 
         return
     elif not isinstance(data, list):
-        logger.debug(f"Failed to fetch dog from TheDogAPI, invalid response")
+        logger.debug(f"Failed to fetch dog from the_dog_api, invalid response")
 
         return
 
@@ -290,6 +290,6 @@ async def TheDogAPI() -> Embed | None:
             if temperament := breed["temperament"]:
                 facts.append({"name": "Temperaments", "value": temperament})
 
-        return Response(title=name, fields=facts, image=dog["url"])
+        return response(title=name, fields=facts, image=dog["url"])
     except Exception as e:
-        logger.opt(exception=e).error("Failed to fetch from TheDogAPI")
+        logger.opt(exception=e).error("Failed to fetch from the_dog_api")
