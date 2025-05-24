@@ -324,7 +324,7 @@ async def command_delete(ctx: GatewayContext, msg: Message) -> None:
 @arc.with_hook(arc.owner_only)
 @arc.with_hook(hook_log)
 @arc.slash_subcommand(
-    "upload", "Upload an emoji to this server.", autodefer=AutodeferMode.EPHEMERAL
+    "upload", "Upload an emoji in a server.", autodefer=AutodeferMode.EPHEMERAL
 )
 async def command_emoji_upload(
     ctx: GatewayContext,
@@ -334,6 +334,9 @@ async def command_emoji_upload(
         StrParams(
             "Enter a name for the emoji (image filename is default).", min_length=2
         ),
+    ] = None,
+    server_id: Option[
+        str | None, StrParams("Enter a server ID (current server is default).")
     ] = None,
 ) -> None:
     """Handler for the /emoji upload command."""
@@ -345,7 +348,7 @@ async def command_emoji_upload(
         raise RuntimeError("guild_id is null")
 
     await ctx.client.rest.create_emoji(
-        ctx.guild_id,
+        int(server_id) if server_id else ctx.guild_id,
         name,
         image.url,
         reason=f"Emoji uploaded by {await expand_user(ctx.author, format=False)}.",
@@ -364,11 +367,14 @@ async def command_emoji_upload(
 @arc.with_hook(arc.owner_only)
 @arc.with_hook(hook_log)
 @arc.slash_subcommand(
-    "delete", "Delete an emoji on this server.", autodefer=AutodeferMode.EPHEMERAL
+    "delete", "Delete an emoji in a server.", autodefer=AutodeferMode.EPHEMERAL
 )
 async def command_emoji_delete(
     ctx: GatewayContext,
     emoji_id: Option[str, StrParams("Enter the ID of the emoji.")],
+    server_id: Option[
+        str | None, StrParams("Enter a server ID (current server is default).")
+    ] = None,
 ) -> None:
     """Handler for the /emoji delete command."""
 
@@ -376,7 +382,7 @@ async def command_emoji_delete(
         raise RuntimeError("guild_id is null")
 
     await ctx.client.rest.delete_emoji(
-        ctx.guild_id,
+        int(server_id) if server_id else ctx.guild_id,
         int(emoji_id),
         reason=f"Emoji deleted by {await expand_user(ctx.author, format=False)}.",
     )
@@ -390,11 +396,46 @@ async def command_emoji_delete(
     )
 
 
+@emoji.include
+@arc.with_hook(arc.owner_only)
+@arc.with_hook(hook_log)
+@arc.slash_subcommand(
+    "rename", "Rename an emoji in a server.", autodefer=AutodeferMode.EPHEMERAL
+)
+async def command_emoji_rename(
+    ctx: GatewayContext,
+    emoji_id: Option[str, StrParams("Enter the ID of the emoji.")],
+    emoji_name: Option[str, StrParams("Enter a new name for the emoji.")],
+    server_id: Option[
+        str | None, StrParams("Enter a server ID (current server is default).")
+    ] = None,
+) -> None:
+    """Handler for the /emoji rename command."""
+
+    if not ctx.guild_id:
+            raise RuntimeError("guild_id is null")
+
+    await ctx.client.rest.edit_emoji(
+        int(server_id) if server_id else ctx.guild_id,
+        int(emoji_id),
+        name=emoji_name,
+        reason=f"Emoji renamed by {await expand_user(ctx.author, format=False)}.",
+    )
+
+    await ctx.respond(
+        flags=MessageFlag.EPHEMERAL,
+        embed=response(
+            color=Colors.DISCORD_GREEN,
+            description=f"Renamed emoji to `:{emoji_name}:`.",
+        ),
+    )
+
+
 @sticker.include
 @arc.with_hook(arc.owner_only)
 @arc.with_hook(hook_log)
 @arc.slash_subcommand(
-    "upload", "Upload a sticker to this server.", autodefer=AutodeferMode.EPHEMERAL
+    "upload", "Upload a sticker in a server.", autodefer=AutodeferMode.EPHEMERAL
 )
 async def command_sticker_upload(
     ctx: GatewayContext,
@@ -406,6 +447,9 @@ async def command_sticker_upload(
             "Enter a name for the sticker (image filename is default).", min_length=2
         ),
     ] = None,
+    server_id: Option[
+        str | None, StrParams("Enter a server ID (current server is default).")
+    ] = None,
 ) -> None:
     """Handler for the /sticker upload command."""
 
@@ -416,7 +460,7 @@ async def command_sticker_upload(
         raise RuntimeError("guild_id is null")
 
     await ctx.client.rest.create_sticker(
-        ctx.guild_id,
+        int(server_id) if server_id else ctx.guild_id,
         name,
         related,
         image.url,
@@ -436,11 +480,14 @@ async def command_sticker_upload(
 @arc.with_hook(arc.owner_only)
 @arc.with_hook(hook_log)
 @arc.slash_subcommand(
-    "delete", "Delete a sticker on this server.", autodefer=AutodeferMode.EPHEMERAL
+    "delete", "Delete a sticker in a server.", autodefer=AutodeferMode.EPHEMERAL
 )
 async def command_sticker_delete(
     ctx: GatewayContext,
     sticker_id: Option[str, StrParams("Enter the ID of the sticker.")],
+    server_id: Option[
+        str | None, StrParams("Enter a server ID (current server is default).")
+    ] = None,
 ) -> None:
     """Handler for the /emoji delete command."""
 
@@ -448,7 +495,7 @@ async def command_sticker_delete(
         raise RuntimeError("guild_id is null")
 
     await ctx.client.rest.delete_sticker(
-        ctx.guild_id,
+        int(server_id) if server_id else ctx.guild_id,
         int(sticker_id),
         reason=f"Sticker deleted by {await expand_user(ctx.author, format=False)}.",
     )
