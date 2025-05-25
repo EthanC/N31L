@@ -324,10 +324,8 @@ def expand_interaction(
 def get_user_avatar(user: User) -> str | None:
     """Return a URL for the provided Discord user's avatar."""
 
-    if user.avatar_url:
-        return str(user.avatar_url)
-    elif user.default_avatar_url:
-        return str(user.default_avatar_url)
+    if avatar_url := user.make_avatar_url():
+        return str(avatar_url)
 
 
 async def get_server_icon(
