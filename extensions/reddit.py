@@ -20,6 +20,7 @@ group: SlashGroup[GatewayClient] = plugin.include_slash_group(
     "reddit", "Commands to manage Reddit communities."
 )
 communities: dict[str, str] = {
+    "r/CODBlackOps7": "CODBlackOps7",
     "r/BlackOps6": "BlackOps6",
     "r/ModernWarfareIII": "ModernWarfareIII",
     "r/ModernWarfareII": "ModernWarfareII",
