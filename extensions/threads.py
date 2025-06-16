@@ -3,7 +3,7 @@ from datetime import datetime
 
 import arc
 from arc import GatewayClient, GatewayPlugin
-from hikari import GuildThreadChannel
+from hikari import GuildThreadChannel, GuildThreadCreateEvent
 from loguru import logger
 
 from core.config import Config
@@ -24,6 +24,24 @@ def extension_loader(client: GatewayClient) -> None:
         client.add_plugin(plugin)
     except Exception as e:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
+
+
+@plugin.listen()
+async def event_thread_create(event: GuildThreadCreateEvent) -> None:
+    """Handler for greeting messages upon thread creation."""
+
+    cfg: Config = plugin.client.get_type_dependency(Config)
+
+    if not event.guild_id == cfg.forums_server:
+        logger.debug("Ignored thread creation event, not in the configured server")
+
+        return
+    elif not event.thread.parent_id not in cfg.forums_channels:
+        logger.debug("Ignored thread creation event, not in a configured forum channel")
+
+        return
+
+    await event.thread.send(cfg.forums_greeting)
 
 
 @arc.utils.interval_loop(seconds=600)

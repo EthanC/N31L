@@ -21,6 +21,7 @@
         "server": 1234567890,
         "lifetime": 86400,
         "immune": [1234567890, 9876543210],
-        "channels": [1234567890, 9876543210]
+        "channels": [1234567890, 9876543210],
+        "greeting": "Lorem ipsum dolor."
     }
 }

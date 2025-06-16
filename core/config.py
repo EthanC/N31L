@@ -37,3 +37,4 @@ class Config:
         self.forums_lifetime: int = self.values["forums"]["lifetime"]
         self.forums_immune: list[int] = self.values["forums"]["immune"]
         self.forums_channels: list[int] = self.values["forums"]["channels"]
+        self.forums_greeting: str = self.values["forums"]["greeting"]
