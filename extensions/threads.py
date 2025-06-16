@@ -36,8 +36,10 @@ async def event_thread_create(event: GuildThreadCreateEvent) -> None:
         logger.debug("Ignored thread creation event, not in the configured server")
 
         return
-    elif not event.thread.parent_id not in cfg.forums_channels:
-        logger.debug("Ignored thread creation event, not in a configured forum channel")
+    elif event.thread.parent_id not in cfg.forums_channels:
+        logger.debug(
+            f"Ignored thread creation event, not in a configured forum channel"
+        )
 
         return
 
