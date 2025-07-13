@@ -302,7 +302,7 @@ async def command_report(ctx: GatewayContext, msg: Message) -> None:
 
     for sticker in msg.stickers:
         fields.append(
-            {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+            {"name": "Sticker", "value": f"[{sticker.name}]({sticker.make_url()})"}
         )
 
     await ctx.client.rest.create_message(

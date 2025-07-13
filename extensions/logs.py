@@ -82,7 +82,7 @@ async def event_direct_message(event: DMMessageCreateEvent) -> None:
     if stickers := event.message.stickers:
         for sticker in stickers:
             fields.append(
-                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.make_url()})"}
             )
 
     logger.trace(fields)
@@ -167,7 +167,7 @@ async def event_keyword(event: GuildMessageCreateEvent) -> None:
     if stickers := event.message.stickers:
         for sticker in stickers:
             fields.append(
-                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.make_url()})"}
             )
 
     logger.trace(fields)
@@ -216,6 +216,13 @@ async def event_mention(event: GuildMessageCreateEvent) -> None:
         logger.trace("Ignored message creation event, no user mentions")
 
         return
+    elif reply_to := event.message.referenced_message:
+        cfg: Config = plugin.client.get_type_dependency(Config)
+
+        if reply_to.content and reply_to.content == cfg.forums_greeting:
+            logger.trace("Ignored message creation event, reply to forum greeting")
+
+            return
 
     cfg: Config = plugin.client.get_type_dependency(Config)
     found: list[int] = []
@@ -248,7 +255,7 @@ async def event_mention(event: GuildMessageCreateEvent) -> None:
     if stickers := event.message.stickers:
         for sticker in stickers:
             fields.append(
-                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.image_url})"}
+                {"name": "Sticker", "value": f"[{sticker.name}]({sticker.make_url()})"}
             )
 
     logger.trace(fields)
@@ -358,7 +365,7 @@ async def event_context(event: InteractionCreateEvent) -> None:
                     fields.append(
                         {
                             "name": "Sticker",
-                            "value": f"[{sticker.name}]({sticker.image_url})",
+                            "value": f"[{sticker.name}]({sticker.make_url()})",
                         }
                     )
 
@@ -474,7 +481,7 @@ async def event_dump(event: InteractionCreateEvent) -> None:
 
         if stickers := message.stickers:
             for sticker in stickers:
-                result += f"\n{sticker.image_url}"
+                result += f"\n{sticker.make_url()}"
 
         if embeds := message.embeds:
             for embed in embeds:
