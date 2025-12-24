@@ -1,14 +1,10 @@
+"""Module containing the food command handler."""
+
 import random
 from asyncio import sleep
 
 import arc
-from arc import (
-    GatewayClient,
-    GatewayContext,
-    GatewayPlugin,
-    Option,
-    StrParams,
-)
+from arc import GatewayClient, GatewayContext, GatewayPlugin, Option, StrParams
 from hikari import Embed
 from loguru import logger
 
@@ -16,20 +12,12 @@ from core.food import foodish
 from core.hooks import hook_error, hook_log
 
 plugin: GatewayPlugin = GatewayPlugin("food")
-foodTypes: list[str] = [
-    "Burger",
-    "Chicken",
-    "Dessert",
-    "Pasta",
-    "Pizza",
-    "Rice",
-]
+foodTypes: list[str] = ["Burger", "Chicken", "Dessert", "Pasta", "Pizza", "Rice"]
 
 
 @arc.loader
 def extension_loader(client: GatewayClient) -> None:
-    """Required. Called upon loading the extension."""
-
+    """Load this extension."""
     logger.debug(f"Attempting to load {plugin.name} extension...")
     logger.trace(plugin)
 
@@ -49,8 +37,7 @@ async def command_food(
         StrParams("Choose a food type or leave empty for random.", choices=foodTypes),
     ] = None,
 ) -> None:
-    """Handler for the /food command."""
-
+    """Handle the /food command."""
     result: Embed | None = None
     retries: int = 0
 
@@ -91,6 +78,5 @@ async def command_food(
 
 @plugin.set_error_handler
 async def error_handler(ctx: GatewayContext, error: Exception) -> None:
-    """Handler for errors originating from this plugin."""
-
+    """Handle errors originating from this plugin."""
     await hook_error(ctx, error)

@@ -1,3 +1,5 @@
+"""Module containing the message command handler."""
+
 import arc
 from arc import (
     AutodeferMode,
@@ -35,8 +37,7 @@ plugin: GatewayPlugin = GatewayPlugin("messages")
 
 @arc.loader
 def extension_loader(client: GatewayClient) -> None:
-    """Required. Called upon loading the extension."""
-
+    """Load this extension."""
     logger.debug(f"Attempting to load {plugin.name} extension...")
     logger.trace(plugin)
 
@@ -59,8 +60,7 @@ async def command_raw_slash(
     channel_id: Option[str, StrParams("Enter the ID of the channel.")],
     message_id: Option[str, StrParams("Enter the ID of the message.")],
 ) -> None:
-    """Handler for the /raw slash command."""
-
+    """Handle the /raw slash command."""
     msg: Message = await ctx.client.rest.fetch_message(int(channel_id), int(message_id))
 
     if not msg:
@@ -109,8 +109,7 @@ async def command_raw_slash(
 @arc.with_hook(hook_log)
 @arc.message_command("Parse Message", autodefer=AutodeferMode.EPHEMERAL)
 async def command_parse(ctx: GatewayContext, msg: Message) -> None:
-    """Handler for the Parse Message context menu command."""
-
+    """Handle the Parse Message context menu command."""
     results: list[int] = []
 
     # Minimum and maximum length of Discord snowflakes
@@ -192,8 +191,7 @@ async def command_parse(ctx: GatewayContext, msg: Message) -> None:
 @arc.with_hook(hook_log)
 @arc.message_command("Raw Message", autodefer=AutodeferMode.EPHEMERAL)
 async def command_raw(ctx: GatewayContext, msg: Message) -> None:
-    """Handler for the Raw Message context menu command."""
-
+    """Handle the Raw Message context menu command."""
     if not msg.content:
         logger.debug("Raw Message command ignored, message content is null")
 
@@ -223,8 +221,7 @@ async def command_raw(ctx: GatewayContext, msg: Message) -> None:
 @arc.with_hook(hook_log)
 @arc.message_command("Report Message", autodefer=AutodeferMode.EPHEMERAL)
 async def command_report(ctx: GatewayContext, msg: Message) -> None:
-    """Handler for the Report Message context menu command."""
-
+    """Handle the Report Message context menu command."""
     cfg: Config = ctx.client.get_type_dependency(Config)
 
     if msg.author.is_system:
@@ -334,6 +331,5 @@ async def command_report(ctx: GatewayContext, msg: Message) -> None:
 
 @plugin.set_error_handler
 async def error_handler(ctx: GatewayContext, error: Exception) -> None:
-    """Handler for errors originating from the messages plugin."""
-
+    """Handle errors originating from the messages plugin."""
     await hook_error(ctx, error)

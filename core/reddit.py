@@ -1,3 +1,5 @@
+"""Module containing logic for the Reddit API."""
+
 import asyncpraw
 from asyncpraw.reddit import Reddit
 from environs import env
@@ -6,7 +8,6 @@ from loguru import logger
 
 async def client_create() -> Reddit | None:
     """Create an authenticated Reddit client using the configured credentials."""
-
     if not (username := env.str("REDDIT_USERNAME")):
         logger.error("Failed to authenticate with Reddit, username is null")
 
@@ -42,7 +43,6 @@ async def client_create() -> Reddit | None:
 
 async def client_destroy(client: Reddit) -> None:
     """Close the provided Reddit requestor."""
-
     try:
         await client.close()
     except Exception as e:
@@ -50,11 +50,7 @@ async def client_destroy(client: Reddit) -> None:
 
 
 async def count_modqueue(client: Reddit, community: str) -> int:
-    """
-    Return the number of items in the moderation queue for the
-    specified Reddit community.
-    """
-
+    """Return the number of items in the moderation queue."""
     total: int = 0
 
     subreddit = await client.subreddit(community, fetch=True)  # type: ignore
@@ -84,11 +80,7 @@ async def count_modqueue(client: Reddit, community: str) -> int:
 
 
 async def count_unmoderated(client: Reddit, community: str) -> int:
-    """
-    Return the number of items in the unmoderated queue for the
-    specified Reddit community.
-    """
-
+    """Return the number of items in the unmoderated queue."""
     total: int = 0
 
     subreddit = await client.subreddit(community, fetch=True)  # type: ignore

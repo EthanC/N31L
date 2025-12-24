@@ -1,3 +1,5 @@
+"""Module containing reusable utility functions."""
+
 import re
 from datetime import datetime
 from typing import Any
@@ -13,7 +15,6 @@ from core.formatters import expand_server, expand_user
 
 def elapsed(a: datetime | int | float, b: datetime | int | float) -> int:
     """Determine the elapsed seconds between the provided timestamps."""
-
     if isinstance(a, datetime):
         a = a.timestamp()
 
@@ -27,7 +28,6 @@ def find_numbers(
     input: str, minLen: int | None = None, maxLen: int | None = None
 ) -> list[int]:
     """Return all number sequences found in the given string."""
-
     results: list[int] = []
 
     try:
@@ -51,11 +51,7 @@ def find_numbers(
 
 
 async def is_valid_user(userId: int, client: GatewayClient) -> bool:
-    """
-    Determine if the provided integer is a valid
-    Discord user ID.
-    """
-
+    """Determine if the provided integer is a valid user."""
     try:
         logger.debug(
             f"Validated {userId} as user {(await client.rest.fetch_user(userId)).username}"
@@ -69,19 +65,14 @@ async def is_valid_user(userId: int, client: GatewayClient) -> bool:
 
 
 async def user_has_role(
-    userId: int,
-    roleIds: int | list[int],
-    serverId: int,
-    client: GatewayClient,
+    userId: int, roleIds: int | list[int], serverId: int, client: GatewayClient
 ) -> bool:
     """
-    Return a boolean value indicating whether or not a server
-    member has a specified role.
+    Determine whether or not a server member has a specified role.
 
     If an array of role IDs is provided, return True upon first
     successful match.
     """
-
     user: Member | None = None
     server: Guild = await client.rest.fetch_guild(serverId)
 
@@ -120,7 +111,6 @@ async def get(
     url: str, headers: dict[str, str] | None = None
 ) -> dict[str, Any] | list[Any] | str | None:
     """Perform an HTTP GET request and return its response."""
-
     logger.debug(f"GET {url}")
 
     try:

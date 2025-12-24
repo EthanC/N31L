@@ -1,3 +1,5 @@
+"""Module containing the thread command handler."""
+
 import asyncio
 from datetime import datetime
 
@@ -15,8 +17,7 @@ plugin: GatewayPlugin = GatewayPlugin("threads")
 
 @arc.loader
 def extension_loader(client: GatewayClient) -> None:
-    """Required. Called upon loading the extension."""
-
+    """Load this extension."""
     logger.debug(f"Attempting to load {plugin.name} extension...")
     logger.trace(plugin)
 
@@ -28,8 +29,7 @@ def extension_loader(client: GatewayClient) -> None:
 
 @plugin.listen()
 async def event_thread_create(event: GuildThreadCreateEvent) -> None:
-    """Handler for greeting messages upon thread creation."""
-
+    """Handle greeting messages upon thread creation."""
     cfg: Config = plugin.client.get_type_dependency(Config)
 
     if not event.guild_id == cfg.forums_server:
@@ -49,7 +49,6 @@ async def event_thread_create(event: GuildThreadCreateEvent) -> None:
 @arc.utils.interval_loop(seconds=600)
 async def task_archive_threads(client: GatewayClient) -> None:
     """Automatically archive threads in the configured channels."""
-
     logger.info("Beginning recurring task to archive threads...")
 
     cfg: Config = client.get_type_dependency(Config)

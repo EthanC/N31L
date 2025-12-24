@@ -1,3 +1,5 @@
+"""Module containing logic for animal commands."""
+
 from typing import Any
 
 from environs import env
@@ -10,7 +12,6 @@ from core.utils import get
 
 async def bunnies_io() -> Embed | None:
     """Fetch a random bunny image from bunnies_io."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         "https://api.bunnies.io/v2/loop/random/?media=gif"
     )
@@ -32,7 +33,6 @@ async def bunnies_io() -> Embed | None:
 
 async def cataas() -> Embed | None:
     """Fetch a random cat image from cataas."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         "https://cataas.com/cat?json=true"
     )
@@ -57,7 +57,6 @@ async def cataas() -> Embed | None:
 
 async def dog_ceo() -> Embed | None:
     """Fetch a random dog image from dog_ceo."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         "https://dog.ceo/api/breeds/image/random"
     )
@@ -79,7 +78,6 @@ async def dog_ceo() -> Embed | None:
 
 async def nekos_life() -> Embed | None:
     """Fetch a random lizard image from nekos_life."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         "https://nekos.life/api/v2/img/lizard"
     )
@@ -101,7 +99,6 @@ async def nekos_life() -> Embed | None:
 
 async def random_dog() -> Embed | None:
     """Fetch a random dog image from random_dog."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         "https://random.dog/woof.json"
     )
@@ -123,7 +120,6 @@ async def random_dog() -> Embed | None:
 
 async def random_duk() -> Embed | None:
     """Fetch a random bird image from random_duk."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         "https://random-d.uk/api/v2/random"
     )
@@ -145,7 +141,6 @@ async def random_duk() -> Embed | None:
 
 async def random_fox() -> Embed | None:
     """Fetch a random fox image from random_fox."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         "https://randomfox.ca/floof/"
     )
@@ -167,7 +162,6 @@ async def random_fox() -> Embed | None:
 
 async def some_random_api(animal: str) -> Embed | None:
     """Fetch a random animal image from some_random_api."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         f"https://some-random-api.com/animal/{animal}"
     )
@@ -193,7 +187,6 @@ async def some_random_api(animal: str) -> Embed | None:
 
 async def the_cat_api() -> Embed | None:
     """Fetch a random cat image from the_cat_api."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         "https://api.thecatapi.com/v1/images/search",
         headers={"x-api-key": env.str("CAT_API_KEY")},
@@ -261,7 +254,6 @@ async def the_cat_api() -> Embed | None:
 
 async def the_dog_api() -> Embed | None:
     """Fetch a random dog image from the_dog_api."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         "https://api.thedogapi.com/v1/images/search",
         {"x-api-key": env.str("DOG_API_KEY")},

@@ -1,3 +1,5 @@
+"""Module containing lifecycle and command hooks."""
+
 from arc import (
     GatewayClient,
     GatewayContext,
@@ -22,19 +24,16 @@ from extensions.threads import task_archive_threads
 
 async def hook_start(client: GatewayClient) -> None:
     """Handle client startup."""
-
     task_archive_threads.start(client)
 
 
 async def hook_stop(client: GatewayClient) -> None:
     """Handle client shutdown."""
-
     task_archive_threads.cancel()
 
 
 async def hook_log(ctx: GatewayContext) -> None:
     """Handle command pre-execution."""
-
     cfg: Config = ctx.client.get_type_dependency(Config)
 
     command: str = expand_command(ctx, format=False)
@@ -55,7 +54,6 @@ async def hook_log(ctx: GatewayContext) -> None:
 
 async def hook_error(ctx: GatewayContext, error: Exception) -> None:
     """Handle uncaught command exceptions."""
-
     command: str = expand_command(ctx, mention=True)
 
     if isinstance(error, (NotOwnerError, InvokerMissingPermissionsError)):
@@ -63,7 +61,7 @@ async def hook_error(ctx: GatewayContext, error: Exception) -> None:
             embed=response(
                 color=Colors.DISCORD_RED,
                 description=f"You don't have permission to use the {command} command.",
-            ),
+            )
         )
 
         return
@@ -81,5 +79,5 @@ async def hook_error(ctx: GatewayContext, error: Exception) -> None:
             author="Error",
             authorIcon="https://i.imgur.com/IwCRM6v.png",
             footer=code,
-        ),
+        )
     )

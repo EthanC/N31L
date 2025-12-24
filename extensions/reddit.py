@@ -1,3 +1,5 @@
+"""Module containing the Reddit command handler."""
+
 import arc
 from arc import (
     GatewayClient,
@@ -38,8 +40,7 @@ communities: dict[str, str] = {
 
 @arc.loader
 def extension_loader(client: GatewayClient) -> None:
-    """Required. Called upon loading the extension."""
-
+    """Load this extension."""
     logger.debug(f"Attempting to load {plugin.name} extension...")
     logger.trace(plugin)
 
@@ -65,8 +66,7 @@ async def command_reddit_queue(
         ),
     ] = None,
 ) -> None:
-    """Handler for the /reddit queue command."""
-
+    """Handle the /reddit queue command."""
     cfg: Config = ctx.client.get_type_dependency(Config)
 
     if ctx.channel_id != cfg.channels["reddit"]:
@@ -112,6 +112,5 @@ async def command_reddit_queue(
 
 @plugin.set_error_handler
 async def error_handler(ctx: GatewayContext, error: Exception) -> None:
-    """Handler for errors originating from this plugin."""
-
+    """Handle errors originating from this plugin."""
     await hook_error(ctx, error)

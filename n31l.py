@@ -1,5 +1,8 @@
+"""Primary entry point for the N31L Discord bot."""
+
 import logging
 import os
+from os import environ
 from sys import exit, stdout
 
 from arc import GatewayClient
@@ -15,10 +18,10 @@ from hikari import (
 )
 from loguru import logger
 from loguru_discord import DiscordSink
+from loguru_discord.intercept import Intercept
 
 from core.config import Config
 from core.hooks import hook_start, hook_stop
-from core.intercept import Intercept
 
 logger.info("N31L")
 logger.info("https://github.com/EthanC/N31L")
@@ -26,18 +29,19 @@ logger.info("https://github.com/EthanC/N31L")
 if env.read_env(recurse=False):
     logger.success("Loaded environment variables")
 
-if level := env.str("LOG_LEVEL"):
+if environ.get("LOG_LEVEL"):
+    level: str = env.str("LOG_LEVEL")
+
     logger.remove()
     logger.add(stdout, level=level)
 
     logger.success(f"Set console logging level to {level}")
 
-# Reroute standard logging to Loguru
-logging.basicConfig(handlers=[Intercept()], level=0, force=True)
+Intercept.setup()
 
-if url := env.url("LOG_DISCORD_WEBHOOK_URL"):
+if environ.get("LOG_DISCORD_WEBHOOK_URL"):
     logger.add(
-        DiscordSink(url.geturl()),
+        DiscordSink(env.url("LOG_DISCORD_WEBHOOK_URL").geturl()),
         level=env.str("LOG_DISCORD_WEBHOOK_LEVEL"),
         backtrace=False,
     )
@@ -56,7 +60,7 @@ if os.name != "nt":
     except Exception as e:
         logger.opt(exception=e).debug("Defaulted to asyncio event loop")
 
-if not (token := env.str("DISCORD_TOKEN")):
+if not environ.get("DISCORD_TOKEN"):
     logger.critical("Failed to initialize bot, DISCORD_TOKEN is not set")
 
     exit(1)
@@ -66,10 +70,18 @@ if not (cfg := Config()):
 
     exit(1)
 
-is_debug: bool = True if (level and level == "DEBUG" or "TRACE") else False
+is_debug: bool = (
+    True
+    if (
+        environ.get("LOG_DISCORD_WEBHOOK_LEVEL")
+        and env.str("LOG_DISCORD_WEBHOOK_LEVEL") == "DEBUG"
+        or "TRACE"
+    )
+    else False
+)
 
 bot: GatewayBot = GatewayBot(
-    token,
+    env.str("DISCORD_TOKEN"),
     allow_color=False,
     banner=None,
     suppress_optimization_warning=is_debug,

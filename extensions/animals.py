@@ -1,14 +1,10 @@
+"""Module containing the animals command handler."""
+
 import random
 from asyncio import sleep
 
 import arc
-from arc import (
-    GatewayClient,
-    GatewayContext,
-    GatewayPlugin,
-    Option,
-    StrParams,
-)
+from arc import GatewayClient, GatewayContext, GatewayPlugin, Option, StrParams
 from hikari import Embed
 from loguru import logger
 
@@ -42,8 +38,7 @@ animalTypes: list[str] = [
 
 @arc.loader
 def ExtensionLoader(client: GatewayClient) -> None:
-    """Required. Called upon loading the extension."""
-
+    """Load this extension."""
     logger.debug(f"Attempting to load {plugin.name} extension...")
     logger.trace(plugin)
 
@@ -65,8 +60,7 @@ async def command_animal(
         ),
     ] = None,
 ) -> None:
-    """Handler for the /animal command."""
-
+    """Handle the /animal command."""
     result: Embed | None = None
     source: int = 1
     retries: int = 0
@@ -190,6 +184,5 @@ async def command_animal(
 
 @plugin.set_error_handler
 async def error_handler(ctx: GatewayContext, error: Exception) -> None:
-    """Handler for errors originating from this plugin."""
-
+    """Handle errors originating from this plugin."""
     await hook_error(ctx, error)

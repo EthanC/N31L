@@ -1,9 +1,4 @@
 {
-    "logs": {
-        "keywords": ["notify", "for", "these", "words"],
-        "ignoreChannels": [1234567890, 9876543210],
-        "mentions": [1234567890, 98766543210]
-    },
     "channels": {
         "reddit": 1234567890,
         "moderators": 1234567890,
@@ -14,8 +9,7 @@
     },
     "roles": {
         "require": [1234567890, 9876543210],
-        "allow": [1324657980, 2315648970],
-        "vip": 1234567890
+        "allow": [1324657980, 2315648970]
     },
     "forums": {
         "server": 1234567890,

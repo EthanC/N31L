@@ -7,5 +7,5 @@ ENV/
 env.bak/
 venv.bak/
 
-# Credentials
+# Configuration
 config.json

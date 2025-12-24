@@ -1,3 +1,5 @@
+"""Module containing logic for food commands."""
+
 from typing import Any
 
 from hikari import Embed
@@ -9,7 +11,6 @@ from core.utils import get
 
 async def foodish(food: str) -> Embed | None:
     """Fetch a random food image from foodish."""
-
     data: dict[str, Any] | list[Any] | str | None = await get(
         f"https://foodish-api.com/api/images/{food}"
     )

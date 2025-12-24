@@ -1,3 +1,5 @@
+"""Module containing the role commmand handler."""
+
 from typing import Sequence
 
 import arc
@@ -14,8 +16,7 @@ plugin: GatewayPlugin = GatewayPlugin("roles")
 
 @arc.loader
 def extension_loader(client: GatewayClient) -> None:
-    """Required. Called upon loading the extension."""
-
+    """Load this extension."""
     logger.debug(f"Attempting to load {plugin.name} extension...")
     logger.trace(plugin)
 
@@ -27,8 +28,7 @@ def extension_loader(client: GatewayClient) -> None:
 
 @plugin.listen()
 async def event_validate_roles(event: GuildMessageCreateEvent) -> None:
-    """Handler for validating role requirements are met for members."""
-
+    """Handle validating role requirements are met for members."""
     if not event.is_human:
         logger.trace("Ignoring message creation event, author is not human")
 
@@ -115,6 +115,5 @@ async def event_validate_roles(event: GuildMessageCreateEvent) -> None:
 
 @plugin.set_error_handler
 async def error_handler(ctx: GatewayContext, error: Exception) -> None:
-    """Handler for errors originating from this plugin."""
-
+    """Handle errors originating from this plugin."""
     await hook_error(ctx, error)

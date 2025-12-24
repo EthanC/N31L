@@ -1,3 +1,5 @@
+"""Module containing reusable data formatters."""
+
 import json
 import random
 import string
@@ -53,7 +55,6 @@ def expand_command(
     format: bool = True,
 ) -> str:
     """Build a modular command string for the provided context."""
-
     if (not hasattr(ctx, "command")) or (not ctx.command):
         logger.debug("Command is null")
 
@@ -99,7 +100,6 @@ async def expand_user(
     client: GatewayClient | None = None,
 ) -> str:
     """Build a modular string for the provided user."""
-
     if isinstance(user, Snowflake):
         if client:
             user = await client.rest.fetch_user(user)
@@ -140,7 +140,6 @@ async def expand_server(
     client: GatewayClient | None = None,
 ) -> str:
     """Build a modular string for the provided server."""
-
     if isinstance(server, Snowflake):
         if client:
             server = await client.rest.fetch_guild(server)
@@ -176,6 +175,8 @@ async def expand_channel(
     | TextableGuildChannel
     | GuildThreadChannel
     | Snowflake
+    | str
+    | int
     | None,
     *,
     mention: bool = False,
@@ -184,8 +185,17 @@ async def expand_channel(
     client: GatewayClient | None = None,
 ) -> str:
     """Build a modular string for the provided channel."""
-
     if isinstance(channel, Snowflake):
+        if client:
+            channel = await client.rest.fetch_channel(channel)
+        else:
+            channel = None
+    elif isinstance(channel, str):
+        if client:
+            channel = await client.rest.fetch_channel(int(channel))
+        else:
+            channel = None
+    elif isinstance(channel, int):
         if client:
             channel = await client.rest.fetch_channel(channel)
         else:
@@ -229,7 +239,6 @@ def expand_thread(
     show_id: bool = True,
 ) -> str:
     """Build a modular string for the provided thread."""
-
     if not thread:
         logger.debug("Thread is null")
 
@@ -265,7 +274,6 @@ def expand_role(
     show_id: bool = True,
 ) -> str:
     """Build a modular string for the provided role."""
-
     if not role:
         logger.debug("Role is null")
 
@@ -296,7 +304,6 @@ def expand_interaction(
     interaction: PartialInteraction | None, *, format: bool = True, show_id: bool = True
 ) -> str:
     """Build a modular string for the provided interaction."""
-
     if not interaction:
         logger.debug("Interaction is null")
 
@@ -323,7 +330,6 @@ def expand_interaction(
 
 def get_user_avatar(user: User) -> str | None:
     """Return a URL for the provided Discord user's avatar."""
-
     if avatar_url := user.make_avatar_url():
         return str(avatar_url)
 
@@ -341,7 +347,6 @@ async def get_server_icon(
     client: GatewayClient | None = None,
 ) -> str | None:
     """Return a URL for the provided Discord server's icon."""
-
     if isinstance(server, GuildChannel):
         server = server.get_guild()
     elif isinstance(server, TextableGuildChannel):
@@ -364,11 +369,7 @@ async def get_server_icon(
 
 
 def random_string(length: int) -> str:
-    """
-    Generate a random string consisting of letters and numbers at the
-    specified length.
-    """
-
+    """Generate a random string of the specified length."""
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
@@ -394,7 +395,6 @@ def response(
     limits defined in the Discord API documentation.
     https://discord.com/developers/docs/resources/message#embed-object-embed-limits
     """
-
     result: Embed = Embed(
         title=trim(title, 256),
         description=trim(description, 4096),
@@ -451,7 +451,6 @@ def response(
 
 def log(emoji: str, message: str, timestamp: datetime | None = None) -> str:
     """Build a reusable log message."""
-
     if not timestamp:
         timestamp = datetime.now()
 
@@ -464,7 +463,6 @@ def time_relative(timestamp: int | float | datetime) -> str:
 
     Example: "in 2 minutes" or "6 minutes ago"
     """
-
     if isinstance(timestamp, float):
         timestamp = int(timestamp)
     elif isinstance(timestamp, datetime):
@@ -479,7 +477,6 @@ def time_long(timestamp: int | float | datetime) -> str:
 
     Example: "4:20:00 PM"
     """
-
     if isinstance(timestamp, float):
         timestamp = int(timestamp)
     elif isinstance(timestamp, datetime):
@@ -490,7 +487,6 @@ def time_long(timestamp: int | float | datetime) -> str:
 
 def format_options(options: list[CommandInteractionOption]) -> str:
     """Return name:value sequence for list of command options."""
-
     result: str = ""
 
     logger.trace(options)
@@ -518,7 +514,6 @@ def trim(
     suffix: str | None = "...",
 ) -> str | None:
     """Trim a string using the provided parameters."""
-
     if not input:
         return
 
@@ -550,11 +545,7 @@ def trim(
 
 
 async def json_to_embed(data: str | dict[str, Any] | Attachment | None) -> list[Embed]:
-    """
-    Serialize the provided JSON string, dict, or Attachment object to a list
-    of Discord Embed objects.
-    """
-
+    """Serialize the provided object to a list of Discord Embed objects."""
     entries: list[dict[str, Any]] = []
     results: list[Embed] = []
 
@@ -620,9 +611,7 @@ async def json_to_embed(data: str | dict[str, Any] | Attachment | None) -> list[
                 logger.trace(f"{field=}")
 
                 embed.add_field(
-                    field.get("name"),
-                    field.get("value"),
-                    inline=field.get("inline"),
+                    field.get("name"), field.get("value"), inline=field.get("inline")
                 )
 
         logger.trace(f"{embed=}")
