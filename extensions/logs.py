@@ -21,7 +21,7 @@ from hikari import (
 )
 from hikari.files import Bytes
 from loguru import logger
-from urlextract import URLExtract  # type: ignore
+from urlextract import URLExtract
 
 from core.config import Config
 from core.formatters import (

@@ -27,7 +27,7 @@ def extension_loader(client: GatewayClient) -> None:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
 
 
-@plugin.include
+@plugin.include  # ty:ignore[invalid-argument-type]
 @arc.with_hook(hook_log)
 @arc.slash_command("food", "Fetch a random picture of food.")
 async def command_food(

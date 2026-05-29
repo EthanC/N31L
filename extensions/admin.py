@@ -54,7 +54,7 @@ def extension_loader(client: GatewayClient) -> None:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
 
 
-@plugin.include
+@plugin.include  # ty:ignore[invalid-argument-type]
 @arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
 @arc.with_hook(hook_log)
 @arc.slash_command(
@@ -133,7 +133,7 @@ async def command_send(
     )
 
 
-@plugin.include
+@plugin.include  # ty:ignore[invalid-argument-type]
 @arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
 @arc.with_hook(hook_log)
 @arc.slash_command(
@@ -263,7 +263,7 @@ async def command_edit(
     )
 
 
-@plugin.include
+@plugin.include  # ty:ignore[invalid-argument-type]
 @arc.with_hook(arc.has_permissions(Permissions.MANAGE_GUILD))
 @arc.with_hook(hook_log)
 @arc.message_command(

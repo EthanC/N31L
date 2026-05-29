@@ -4,11 +4,11 @@ import re
 from datetime import datetime
 from typing import Any
 
-import httpx
+import niquests
 from arc import GatewayClient
 from hikari import Guild, Member, NotFoundError
-from httpx import Response
 from loguru import logger
+from niquests import Response
 
 from core.formatters import expand_server, expand_user
 
@@ -114,12 +114,11 @@ async def get(
     logger.debug(f"GET {url}")
 
     try:
-        async with httpx.AsyncClient() as http:
-            res: Response = await http.get(url, headers=headers, follow_redirects=True)
+        res: Response = (
+            await niquests.aget(url, headers=headers, allow_redirects=True)
+        ).raise_for_status()
 
-        res.raise_for_status()
-
-        logger.trace(res.text)
+        logger.trace(f"{res.text=}")
     except Exception as e:
         logger.opt(exception=e).error(f"Failed to GET {url}")
 

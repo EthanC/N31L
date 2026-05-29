@@ -53,7 +53,7 @@ async def count_modqueue(client: Reddit, community: str) -> int:
     """Return the number of items in the moderation queue."""
     total: int = 0
 
-    subreddit = await client.subreddit(community, fetch=True)  # type: ignore
+    subreddit = await client.subreddit(community, fetch=True)  # ty:ignore[unresolved-attribute]
 
     if not subreddit:
         logger.error(
@@ -63,7 +63,7 @@ async def count_modqueue(client: Reddit, community: str) -> int:
         return total
 
     try:
-        async for _ in subreddit.mod.modqueue(limit=None):  # type: ignore
+        async for _ in subreddit.mod.modqueue(limit=None):
             total += 1
     except Exception as e:
         logger.opt(exception=e).error(
@@ -93,7 +93,7 @@ async def count_unmoderated(client: Reddit, community: str) -> int:
         return total
 
     try:
-        async for _ in subreddit.mod.unmoderated(limit=None):  # type: ignore
+        async for _ in subreddit.mod.unmoderated(limit=None):
             total += 1
     except Exception as e:
         logger.opt(exception=e).error(

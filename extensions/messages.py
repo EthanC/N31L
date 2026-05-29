@@ -47,7 +47,7 @@ def extension_loader(client: GatewayClient) -> None:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
 
 
-@plugin.include
+@plugin.include  # ty:ignore[invalid-argument-type]
 @arc.with_hook(hook_log)
 @arc.slash_command(
     "raw",
@@ -104,7 +104,7 @@ async def command_raw_slash(
     )
 
 
-@plugin.include
+@plugin.include  # ty:ignore[invalid-argument-type]
 @arc.with_hook(arc.has_permissions(Permissions.MANAGE_MESSAGES))
 @arc.with_hook(hook_log)
 @arc.message_command("Parse Message", autodefer=AutodeferMode.EPHEMERAL)
@@ -187,7 +187,7 @@ async def command_parse(ctx: GatewayContext, msg: Message) -> None:
     )
 
 
-@plugin.include
+@plugin.include  # ty:ignore[invalid-argument-type]
 @arc.with_hook(hook_log)
 @arc.message_command("Raw Message", autodefer=AutodeferMode.EPHEMERAL)
 async def command_raw(ctx: GatewayContext, msg: Message) -> None:
@@ -217,7 +217,7 @@ async def command_raw(ctx: GatewayContext, msg: Message) -> None:
     )
 
 
-@plugin.include
+@plugin.include  # ty:ignore[invalid-argument-type]
 @arc.with_hook(hook_log)
 @arc.message_command("Report Message", autodefer=AutodeferMode.EPHEMERAL)
 async def command_report(ctx: GatewayContext, msg: Message) -> None:

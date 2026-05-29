@@ -50,7 +50,7 @@ def extension_loader(client: GatewayClient) -> None:
         logger.opt(exception=e).error(f"Failed to load {plugin.name} extension")
 
 
-@group.include
+@group.include  # ty:ignore[invalid-argument-type]
 @arc.with_hook(hook_log)
 @arc.slash_subcommand(
     "queue",

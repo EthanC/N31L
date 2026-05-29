@@ -79,8 +79,8 @@ def expand_command(
         result = f"/{ctx.command.name}"
 
     if options:
-        if (hasattr(ctx, "_options")) and (ctx._options):  # type: ignore
-            for option in ctx._options:  # type: ignore
+        if (hasattr(ctx, "_options")) and (ctx._options):
+            for option in ctx._options:
                 result += f" {option.name}:{option.value}"
 
     if format:
