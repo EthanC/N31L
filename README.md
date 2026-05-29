@@ -1,6 +1,6 @@
 # N31L
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EthanC/N31L/ci.yaml?branch=main) ![Docker Pulls](https://img.shields.io/docker/pulls/ethanchrisp/n31l?label=Docker%20Pulls) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/ethanchrisp/n31l/latest?label=Docker%20Image%20Size)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EthanC/N31L/workflow.yaml?branch=main)
 
 N31L is a utilitarian Discord bot for the [Call of Duty server](https://discord.gg/CallofDuty).
 
@@ -31,7 +31,7 @@ Modify the following `compose.yaml` example file, then run `docker compose up`.
 services:
   n31l:
     container_name: n31l
-    image: ethanchrisp/n31l:latest
+    image: ghcr.io/ethanc/n31l:latest
     environment:
       LOG_LEVEL: INFO
       LOG_DISCORD_WEBHOOK_URL: https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX
@@ -51,7 +51,7 @@ services:
 
 ### Standalone
 
-N31L is built for [Python 3.13](https://www.python.org/) or greater.
+N31L is built for [Python 3.14](https://www.python.org/) or greater.
 
 1. Install required dependencies using [uv](https://github.com/astral-sh/uv): `uv sync`
 2. Rename `.env.example` to `.env`, then provide the environment variables.
