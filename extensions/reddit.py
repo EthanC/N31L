@@ -94,7 +94,7 @@ async def command_reddit_queue(
         results.append(
             {
                 "name": f"r/{request}",
-                "value": f"Moderation: [{mod:,}](https://reddit.com/{request}/about/modqueue)\nUnmoderated: [{unmod:,}](https://reddit.com/{request}/about/unmoderated)",
+                "value": f"Moderation: [{mod:,}](https://reddit.com/r/{request}/about/modqueue)\nUnmoderated: [{unmod:,}](https://reddit.com/r/{request}/about/unmoderated)",
             }
         )
 
