@@ -5,14 +5,14 @@ description = "N31L is a utilitarian bot for the Call of Duty server."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "environs>=15.1.0",
+    "environs>=15.2.0",
     "loguru>=0.7.3",
     "loguru-discord>=2.1.0",
     "hikari-arc>=2.3.2",
     "asyncpraw>=7.8.1",
     "urlextract>=1.9.0",
     "uvloop>=0.22.1; sys_platform != 'win32'",
-    "niquests>=3.21.0",
+    "niquests>=3.21.1",
 ]
 
 [build-system]
@@ -21,9 +21,9 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.16.4",
+    "ruff>=0.16.6",
     "asyncpraw-stubs>=0.0.3",
-    "ty>=0.0.73",
+    "ty>=0.0.78",
 ]
 
 [tool.ruff]
