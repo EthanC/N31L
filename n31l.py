@@ -88,7 +88,6 @@ bot: GatewayBot = GatewayBot(
     intents=(
         Intents.GUILDS
         | Intents.GUILD_MESSAGES
-        | Intents.GUILD_MEMBERS
         | Intents.DM_MESSAGES
         | Intents.MESSAGE_CONTENT
     ),
