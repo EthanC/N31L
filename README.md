@@ -33,6 +33,8 @@ services:
     container_name: n31l
     image: ghcr.io/ethanc/n31l:latest
     environment:
+      PUID: 1000
+      PGID: 1000
       LOG_LEVEL: INFO
       LOG_DISCORD_WEBHOOK_URL: https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX
       LOG_DISCORD_WEBHOOK_LEVEL: WARNING
@@ -48,6 +50,11 @@ services:
       - /path/to/config.json:/n31l/config.json:ro
     restart: unless-stopped
 ```
+
+| Environment variable | Default | Scope | Description |
+| --- | --- | --- | --- |
+| `PUID` | `1000` | Docker container | User ID used to run N31L and own its writable directories. |
+| `PGID` | `1000` | Docker container | Group ID used to run N31L and own its writable directories. |
 
 ### Standalone
 

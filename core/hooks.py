@@ -1,5 +1,9 @@
 """Module containing lifecycle and command hooks."""
 
+from os import environ
+from pathlib import Path
+
+import arc
 from arc import (
     GatewayClient,
     GatewayContext,
@@ -22,13 +26,26 @@ from core.formatters import (
 from extensions.threads import task_archive_threads
 
 
+@arc.utils.interval_loop(seconds=30)
+async def task_healthcheck() -> None:
+    """Record that the bot event loop remains responsive."""
+    Path(environ["N31L_HEALTHCHECK_FILE"]).touch()
+
+
 async def hook_start(client: GatewayClient) -> None:
     """Handle client startup."""
+    if healthcheck_file := environ.get("N31L_HEALTHCHECK_FILE"):
+        Path(healthcheck_file).touch()
+        task_healthcheck.start()
+
     task_archive_threads.start(client)
 
 
 async def hook_stop(client: GatewayClient) -> None:
     """Handle client shutdown."""
+    if environ.get("N31L_HEALTHCHECK_FILE"):
+        task_healthcheck.cancel()
+
     task_archive_threads.cancel()
 
 
