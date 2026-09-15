@@ -1,6 +1,9 @@
 """Module containing logic for the Reddit API."""
 
+from collections.abc import AsyncIterator
+
 import asyncpraw
+from asyncpraw.models import Comment, Submission, Subreddit
 from asyncpraw.reddit import Reddit
 from environs import env
 from loguru import logger
@@ -53,7 +56,7 @@ async def count_modqueue(client: Reddit, community: str) -> int:
     """Return the number of items in the moderation queue."""
     total: int = 0
 
-    subreddit = await client.subreddit(community, fetch=True)  # ty:ignore[unresolved-attribute]
+    subreddit: Subreddit = await client.subreddit(community, fetch=True)
 
     if not subreddit:
         logger.error(
@@ -63,7 +66,9 @@ async def count_modqueue(client: Reddit, community: str) -> int:
         return total
 
     try:
-        async for _ in subreddit.mod.modqueue(limit=None):
+        queue: AsyncIterator[Submission | Comment] = subreddit.mod.modqueue(limit=None)
+
+        async for _ in queue:
             total += 1
     except Exception as e:
         logger.opt(exception=e).error(
@@ -83,7 +88,7 @@ async def count_unmoderated(client: Reddit, community: str) -> int:
     """Return the number of items in the unmoderated queue."""
     total: int = 0
 
-    subreddit = await client.subreddit(community, fetch=True)  # type: ignore
+    subreddit: Subreddit = await client.subreddit(community, fetch=True)
 
     if not subreddit:
         logger.error(
@@ -93,7 +98,9 @@ async def count_unmoderated(client: Reddit, community: str) -> int:
         return total
 
     try:
-        async for _ in subreddit.mod.unmoderated(limit=None):
+        queue: AsyncIterator[Submission] = subreddit.mod.unmoderated(limit=None)
+
+        async for _ in queue:
             total += 1
     except Exception as e:
         logger.opt(exception=e).error(

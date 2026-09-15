@@ -70,15 +70,7 @@ if not (cfg := Config()):
 
     exit(1)
 
-is_debug: bool = (
-    True
-    if (
-        environ.get("LOG_DISCORD_WEBHOOK_LEVEL")
-        and env.str("LOG_DISCORD_WEBHOOK_LEVEL") == "DEBUG"
-        or "TRACE"
-    )
-    else False
-)
+is_debug: bool = env.str("LOG_DISCORD_WEBHOOK_LEVEL", "").upper() in {"DEBUG", "TRACE"}
 
 bot: GatewayBot = GatewayBot(
     env.str("DISCORD_TOKEN"),
