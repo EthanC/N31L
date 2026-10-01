@@ -34,3 +34,6 @@ class Config:
         self.forums_immune: list[int] = self.values["forums"]["immune"]
         self.forums_channels: list[int] = self.values["forums"]["channels"]
         self.forums_greeting: str = self.values["forums"]["greeting"]
+        self.forums_greeting_delay: float = self.values["forums"].get(
+            "greeting_delay", 3
+        )

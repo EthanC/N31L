@@ -16,6 +16,7 @@
         "lifetime": 86400,
         "immune": [1234567890, 9876543210],
         "channels": [1234567890, 9876543210],
-        "greeting": "Lorem ipsum dolor."
+        "greeting": "Lorem ipsum dolor.",
+        "greeting_delay": 3
     }
 }

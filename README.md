@@ -21,6 +21,8 @@ Notice: N31L is purpose-built, this means that its functionality is intended onl
 
 [Discord API](https://discord.com/developers/) credentials are required for functionality, and a [Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) is recommended for notifications.
 
+The optional `forums.greeting_delay` setting in `config.json` controls the initial delay before forum greetings, in seconds. It defaults to `3`; set it to `0` to send immediately.
+
 ### Docker (Recommended)
 
 Rename `config_example.json` to `config.json`, then provide the configurable variables.

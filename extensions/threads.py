@@ -43,6 +43,10 @@ async def event_thread_create(event: GuildThreadCreateEvent) -> None:
 
         return
 
+    if cfg.forums_greeting_delay > 0:
+        # Wait for Discord to finish creating the forum post's starter message.
+        await asyncio.sleep(cfg.forums_greeting_delay)
+
     await event.thread.send(cfg.forums_greeting)
 
 
