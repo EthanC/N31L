@@ -49,11 +49,15 @@ async def event_thread_create(event: GuildThreadCreateEvent) -> None:
 @arc.utils.interval_loop(seconds=600)
 async def task_archive_threads(client: GatewayClient) -> None:
     """Automatically archive threads in the configured channels."""
-    logger.info("Beginning recurring task to archive threads...")
-
     cfg: Config = client.get_type_dependency(Config)
 
-    lifetime: int = cfg.forums_lifetime
+    lifetime: int | None = cfg.forums_lifetime
+
+    if lifetime is None:
+        return
+
+    logger.info("Beginning recurring task to archive threads...")
+
     threads: list[GuildThreadChannel] = list(
         await client.rest.fetch_active_threads(cfg.forums_server)
     )

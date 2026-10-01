@@ -38,7 +38,10 @@ async def hook_start(client: GatewayClient) -> None:
         Path(healthcheck_file).touch()
         task_healthcheck.start()
 
-    task_archive_threads.start(client)
+    cfg: Config = client.get_type_dependency(Config)
+
+    if cfg.forums_lifetime is not None:
+        task_archive_threads.start(client)
 
 
 async def hook_stop(client: GatewayClient) -> None:
