@@ -7,22 +7,22 @@ requires-python = ">=3.14"
 dependencies = [
     "environs>=15.2.0",
     "loguru>=0.7.3",
-    "loguru-discord>=2.1.0",
+    "loguru-discord>=2.2.0",
     "hikari-arc>=2.3.2",
     "asyncpraw>=8.0.3",
     "urlextract>=1.9.0",
     "uvloop>=0.22.1; sys_platform != 'win32'",
-    "niquests>=3.21.1",
+    "niquests>=3.21.2",
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.32.4"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.16.7",
-    "ty>=0.0.81",
+    "ruff>=0.16.9",
+    "ty>=0.0.84",
 ]
 
 [tool.ruff]
