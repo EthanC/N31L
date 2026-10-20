@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:latest AS uv
 
-FROM python:alpine AS builder
+FROM python:3.15-alpine AS builder
 
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy
@@ -11,7 +11,7 @@ COPY --from=uv /uv /usr/local/bin/uv
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
-FROM python:alpine AS runtime
+FROM python:3.15-alpine AS runtime
 
 ENV PATH="/n31l/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
