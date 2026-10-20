@@ -4,6 +4,7 @@ import logging
 import os
 from os import environ
 from sys import exit, stdout
+from typing import TYPE_CHECKING
 
 from arc import GatewayClient
 from environs import env
@@ -16,12 +17,16 @@ from hikari import (
     Permissions,
     Status,
 )
+from hikari.errors import GatewayConnectionError, GatewayServerClosedConnectionError
 from loguru import logger
 from loguru_discord import DiscordSink
 from loguru_discord.intercept import Intercept
 
 from core.config import Config
 from core.hooks import hook_start, hook_stop
+
+if TYPE_CHECKING:
+    from loguru import Record
 
 logger.info("N31L")
 logger.info("https://github.com/EthanC/N31L")
@@ -39,11 +44,28 @@ if environ.get("LOG_LEVEL"):
 
 Intercept.setup()
 
+TRANSIENT_GATEWAY_ERRORS: tuple[type[Exception], ...] = (
+    GatewayConnectionError,
+    GatewayServerClosedConnectionError,
+)
+
+
+def should_forward(record: "Record") -> bool:
+    """Determine whether the provided log record should be sent to Discord."""
+
+    # Transient gateway disconnects are handled by hikari's automatic reconnect
+    if (exc := record["exception"]) and exc.type in TRANSIENT_GATEWAY_ERRORS:
+        return False
+
+    return not any(e.__name__ in record["message"] for e in TRANSIENT_GATEWAY_ERRORS)
+
+
 if environ.get("LOG_DISCORD_WEBHOOK_URL"):
     logger.add(
         DiscordSink(env.url("LOG_DISCORD_WEBHOOK_URL").geturl()),
         level=env.str("LOG_DISCORD_WEBHOOK_LEVEL"),
         backtrace=False,
+        filter=should_forward,
     )
 
     logger.success("Enabled logging to Discord webhook")
